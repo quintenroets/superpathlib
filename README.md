@@ -5,7 +5,7 @@ Extended pathlib with extra functionality
 Use 
 
 ```shell
-from path import Path
+from plib import Path
 ```
 instead of
 
@@ -24,9 +24,9 @@ To gain access to additional functions on path instances such as:
 Or inherit from this class to define your own additional functionality:
 
 ```shell
-import path
+from plib import Path as BasePath
 
-class Path(path.Path):
+class Path(BasePath):
     def count_childer(self):
         return len(list(self.iterdir()))
 ```

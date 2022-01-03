@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 from libs.cli import Cli
 
-NAME = "superpathlib"
+NAME = "plib"
 
 def read(filename):
     try:

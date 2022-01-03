@@ -1,16 +1,70 @@
+import io
 import os
+from typing import Optional
+
 import yaml
-from pathlib import Path, _posix_flavour, _windows_flavour
+from pathlib import Path as BasePath, _posix_flavour, _windows_flavour
 
 yaml_suffix = ".yaml"
 
+def catch_missing(default=None):
+    def wrap_function(func):
+        def wrap_args(*args, **kwargs):
+            try:
+                res = func(*args, **kwargs)
+            except FileNotFoundError:
+                res = default
+            return res
+        return wrap_args
+    return wrap_function
 
 """
 Add extra functionality to pathlib
 """
-class Path(Path):
+class Path(BasePath):
     _flavour = _windows_flavour if os.name == 'nt' else _posix_flavour # needed to enherit from pathlib Path
     trusted = False # property can be set by projects that use trusted config files
+
+    def open(self, **kwargs):
+        try:
+            res = super().open(**kwargs)
+        except FileNotFoundError:
+            mode = kwargs.get('mode', 'r')
+            if 'w' in mode:
+                self.parent.mkdir(parents=True)
+                res = super().open(**kwargs)
+            elif 'b' in mode:
+                res = io.BytesIO(b"")
+            else:
+                res = io.StringIO("")
+            return res
+        return res
+
+    def save(self, content, *names):
+        """
+        Exports content to path in yaml format
+        """
+        self = self.subpath(*names, suffix=yaml_suffix)
+        with self.open("w") as fp:
+            return yaml.dump(content, fp, Dumper=yaml.CDumper) # CDumper much faster
+
+    def load(self, *names):
+        """
+        Load content from path in yaml format
+        """
+        self = self.subpath(*names, suffix=yaml_suffix)
+        with self.open() as fp:
+            loader = yaml.CLoader if Path.trusted else yaml.SafeLoader # unsafe Cloader is much faster
+            content = yaml.load(fp, Loader=loader) or {}
+            return content
+
+    @catch_missing(default=0)
+    def mtime(self):
+        return int(self.stat().st_mtime) # no huge precision needed
+
+    @catch_missing(default=0)
+    def size(self):
+        return self.stat().st_size
 
     def is_root(self):
         while not self.exists():
@@ -34,33 +88,6 @@ class Path(Path):
         if suffix is not None and self.suffix != suffix:
             self = self.with_suffix(suffix)
         return self
-
-    def save(self, content, *names):
-        """
-        Exports content to path in yaml format
-        """
-        self = self.subpath(*names, suffix=yaml_suffix)
-        try:
-            with open(self, "w") as fp:
-                res = yaml.dump(content, fp, Dumper=yaml.CDumper) # CDumper much faster
-        except FileNotFoundError:
-            self.touch()
-            res = self.save(content)
-        return res
-
-    def load(self, *names):
-        """
-        Load content from path in yaml format
-        """
-        self = self.subpath(*names, suffix=yaml_suffix)
-        try:
-            with open(self) as fp:
-                loader = yaml.CLoader if Path.trusted else yaml.SafeLoader # unsafe Cloader is much faster
-                content = yaml.load(fp, Loader=loader)
-        except FileNotFoundError:
-            content = {}
-
-        return content
 
     def find(self, condition=None, exclude=None, recurse_on_match=False, follow_symlinks=True, only_folders=False):
         """
@@ -95,16 +122,6 @@ class Path(Path):
                                         to_traverse.append(child)
                         except PermissionError:
                             pass # skip folders that do not allow listing
-
-    def mtime(self):
-        return int(self.stat().st_mtime) # no huge precision needed
-
-    def size(self):
-        try:
-            size = self.stat().st_size
-        except FileNotFoundError:
-            size = 0
-        return size
 
 
 """

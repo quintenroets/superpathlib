@@ -30,7 +30,8 @@ class Path(BasePath):
             res = super().open(mode, **kwargs)
         except FileNotFoundError:
             if 'w' in mode:
-                self.parent.mkdir(parents=True)
+                # exist_ok=True: catch race conditions when calling multiple times
+                self.parent.mkdir(parents=True, exist_ok=True)
                 res = super().open(mode, **kwargs)
             elif 'b' in mode:
                 res = io.BytesIO(b"")

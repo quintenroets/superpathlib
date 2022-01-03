@@ -1,21 +1,15 @@
 import os
 import yaml
-from pathlib import Path as BasePath, _posix_flavour, _windows_flavour
+from pathlib import Path, _posix_flavour, _windows_flavour
 
 yaml_suffix = ".yaml"
+
 
 """
 Add extra functionality to pathlib
 """
-
-class Path(BasePath):
+class Path(Path):
     _flavour = _windows_flavour if os.name == 'nt' else _posix_flavour # needed to enherit from pathlib Path
-
-    HOME = BasePath.home()
-    docs = HOME / "Documents"
-    scripts = docs / "Scripts"
-    assets = HOME / ".config" / "scripts"
-
     trusted = False # property can be set by projects that use trusted config files
 
     def is_root(self):
@@ -93,9 +87,9 @@ class Path(BasePath):
                     yield path
 
                 if not match or recurse_on_match:
-                    if only_folders or self.is_dir():
+                    if only_folders or path.is_dir():
                         try:
-                            for child in self.iterdir():
+                            for child in path.iterdir():
                                 if follow_symlinks or not child.is_symlink():
                                     if not only_folders or child.is_dir():
                                         to_traverse.append(child)
@@ -111,3 +105,14 @@ class Path(BasePath):
         except FileNotFoundError:
             size = 0
         return size
+
+
+"""
+Add common folders
+this needs to be done in separate class to give all folders the extended functionality
+"""
+class Path(Path):
+    HOME = Path.home()
+    docs = HOME / "Documents"
+    scripts = docs / "Scripts"
+    assets = HOME / ".config" / "scripts"

@@ -2,7 +2,10 @@
 Extended pathlib with extra functionality
 
 ## Installation
+
+```shell
 pip install git+https://github.com/quintenroets/superpathlib
+```
 
 ## Usage
 Use 

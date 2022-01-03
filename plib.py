@@ -25,14 +25,13 @@ class Path(BasePath):
     _flavour = _windows_flavour if os.name == 'nt' else _posix_flavour # needed to enherit from pathlib Path
     trusted = False # property can be set by projects that use trusted config files
 
-    def open(self, **kwargs):
+    def open(self, mode='r', **kwargs):
         try:
-            res = super().open(**kwargs)
+            res = super().open(mode, **kwargs)
         except FileNotFoundError:
-            mode = kwargs.get('mode', 'r')
             if 'w' in mode:
                 self.parent.mkdir(parents=True)
-                res = super().open(**kwargs)
+                res = super().open(mode, **kwargs)
             elif 'b' in mode:
                 res = io.BytesIO(b"")
             else:

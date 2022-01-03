@@ -13,8 +13,7 @@ instead of
 from pathlib import Path
 ```
 
-To gain access to additional functions on path instances such as:
-
+To gain access to additional functions on path instances such as
     * is_root: whether path or first existing parent is owned by root user
     * write: write content to file with dynamic check of content type to determine correct format
     * load: load content of path with yaml extension in yaml format

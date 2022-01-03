@@ -18,5 +18,5 @@ setup(
     description='extended pathlib',
     name=NAME,
     version='1.0',
-    py_modules = ["spathlib"],
+    py_modules = ["path"],
 )

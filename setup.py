@@ -1,0 +1,22 @@
+from setuptools import setup, find_packages
+from libs.cli import Cli
+
+NAME = "superpathlib"
+
+def read(filename):
+    try:
+        with open(filename) as fp:
+            content = fp.read().split("\n")
+    except FileNotFoundError:
+        content = []
+    return content
+
+
+setup(
+    author="Quinten Roets",
+    author_email="quinten.roets@gmail.com",
+    description='extended pathlib',
+    name=NAME,
+    version='1.0',
+    py_modules = ["spathlib"],
+)

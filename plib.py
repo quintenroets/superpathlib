@@ -153,13 +153,13 @@ class Path(BasePath):
                         except PermissionError:
                             pass  # skip folders that do not allow listing
 
-    def rmtree(self):
+    def rmtree(self, missing_ok=False):
         for path in self.iterdir():
             if path.is_dir():
                 path.rmtree()
             else:
                 path.unlink()
-        self.unlink()
+        self.unlink(missing_ok=missing_ok)
 
 
 """

@@ -48,9 +48,13 @@ class Path(BasePath):
     def size(self):
         return self.stat().st_size
 
-    @catch_missing(default=[])
-    def iterdir(self):
-        return super().iterdir()
+    @catch_missing(default=0)
+    def rmdir(self):
+        return super().rmdir()
+
+    def iterdir(self, missing_ok=True):
+        children = [] if missing_ok and not self.exists() else super().iterdir()
+        return children
 
     def is_root(self):
         path = self
@@ -159,7 +163,7 @@ class Path(BasePath):
                 path.rmtree()
             else:
                 path.unlink()
-        self.unlink(missing_ok=missing_ok)
+        self.rmdir()
 
 
 """

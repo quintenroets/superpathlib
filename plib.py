@@ -26,7 +26,6 @@ Extend pathlib functionality and enable further extensions by inheriting
 
 class Path(BasePath):
     _flavour = _windows_flavour if os.name == 'nt' else _posix_flavour  # needed to inherit from pathlib Path
-    trusted = False  # property can be set by projects that use trusted config files
 
     @catch_missing(default=0)
     def mtime(self):
@@ -77,13 +76,16 @@ class Path(BasePath):
         with path.open("w") as fp:
             return yaml.dump(content, fp, Dumper=yaml.CDumper)  # CDumper much faster
 
-    def load(self, *names):
+    def load(self, *names, loader=yaml.CFullLoader):
         """
-        Load content from path in yaml format
+
+        :param names: subnames to add to path before reading
+        :param loader: the yaml parser: CFullLoader allows you to instantiate any object
+                                        and should not be used for untrusted files
+        :return: Content in path that contains yaml format
         """
         path = self.subpath(*names, suffix=yaml_suffix)
         with path.open() as fp:
-            loader = yaml.CLoader if Path.trusted else yaml.CSafeLoader  # unsafe Cloader is faster
             content = yaml.load(fp, Loader=loader) or {}
             return content
 

@@ -31,6 +31,7 @@ To gain access to additional functionality on path instances such as:
     * is_root(): whether path or first existing parent is owned by root user
     * write: write content to file with dynamic check of content type to determine correct format
     * find: recursively find all paths under a path that match a condition with extra options for efficiency
+    * rmtree: remove directory recursively
     * ..
 
 Or inherit from this class to define your own additional functionality:

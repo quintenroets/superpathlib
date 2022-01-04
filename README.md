@@ -19,16 +19,19 @@ instead of
 from pathlib import Path
 ```
 
-To gain access to additional functions on path instances such as:
-* Automatically creating parents when writing file instead of throwing error
-* Automatically returning default value accessing nonexistent files
-* is_root: whether path or first existing parent is owned by root user
-* write: write content to file with dynamic check of content type to determine correct format
-* C implementation of yaml loading and saving that is much faster
-* load: load content of path with yaml extension in yaml format
-* save: write content of path with yaml extension in yaml format
-* find: recursively find all paths under a path that match a condition
-* ..
+To gain access to additional functionality on path instances such as:
+* Generic structures:
+    * save(): write generic structure to path
+    * load(): load generic structure from path
+    * C implementations used (much faster)
+* Error handling:
+    * Automatically create parents when parent of written file does not exist
+    * Automatically return default value when accessing nonexistent files
+* Additional functions:
+    * is_root(): whether path or first existing parent is owned by root user
+    * write: write content to file with dynamic check of content type to determine correct format
+    * find: recursively find all paths under a path that match a condition with extra options for efficiency
+    * ..
 
 Or inherit from this class to define your own additional functionality:
 

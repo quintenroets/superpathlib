@@ -20,8 +20,11 @@ from pathlib import Path
 ```
 
 To gain access to additional functions on path instances such as:
+* Automatically creating parents when writing file instead of throwing error
+* Automatically returning default value accessing nonexistent files
 * is_root: whether path or first existing parent is owned by root user
 * write: write content to file with dynamic check of content type to determine correct format
+* C implementation of yaml loading and saving that is much faster
 * load: load content of path with yaml extension in yaml format
 * save: write content of path with yaml extension in yaml format
 * find: recursively find all paths under a path that match a condition

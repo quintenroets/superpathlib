@@ -19,4 +19,5 @@ setup(
     name=NAME,
     version='1.0',
     py_modules = ["plib"],
+    install_requires=read("requirements.txt"),
 )

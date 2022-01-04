@@ -19,6 +19,19 @@ def catch_missing(default=None):
     return wrap_function
 
 
+def create_parents(func):
+    def wrapper(*args, **kwargs):
+        try:
+            res = func(*args, **kwargs)
+        except FileNotFoundError:
+            path = args[0]
+            # exist_ok=True: catch race conditions when calling multiple times
+            path.parent.mkdir(parents=True, exist_ok=True)
+            res = func(*args, **kwargs)
+        return res
+    return wrapper
+
+
 """
 Extend pathlib functionality and enable further extensions by inheriting
 """
@@ -44,6 +57,10 @@ class Path(BasePath):
         while not path.exists():
             path = path.parent
         return path.stat().st_uid == 0
+
+    @create_parents
+    def touch(self, mode=0o666, exist_ok=True):
+        super().touch(mode=mode, exist_ok=exist_ok)
 
     def write(self, content):
         if isinstance(content, str):
@@ -135,6 +152,14 @@ class Path(BasePath):
                                         to_traverse.append(child)
                         except PermissionError:
                             pass  # skip folders that do not allow listing
+
+    def rmtree(self):
+        for path in self.iterdir():
+            if path.is_dir():
+                path.rmtree()
+            else:
+                path.unlink()
+        self.unlink()
 
 
 """

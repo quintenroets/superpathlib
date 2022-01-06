@@ -185,7 +185,7 @@ class Path(BasePath):
             os.startfile(url)
         else:
             import subprocess
-            subprocess.run(('xdg-open', url), stderr=subprocess.DEVNULL) # hide annoying messages
+            subprocess.run(('xdg-open', url), stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL) # hide annoying messages
 
 
 """

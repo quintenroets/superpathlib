@@ -175,15 +175,17 @@ class Path(BasePath):
         self.rmdir()
         
     
-    def startfile(self):
+    def start(url):
         """
-        Open file in cross-platform way as if you clicked on it
+        :param url: Path instance or string
+        Open url in cross-platform way as if it was double-clicked
         """
+        
         if os.name == 'nt':
-            os.startfile(self)
+            os.startfile(url)
         else:
             import subprocess
-            subprocess.run(('xdg-open', self), stderr=subprocess.DEVNULL) # hide annoying messages
+            subprocess.run(('xdg-open', url), stderr=subprocess.DEVNULL) # hide annoying messages
 
 
 """

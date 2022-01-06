@@ -28,7 +28,7 @@ To gain access to additional functionality on path instances such as:
     * Automatically create parents when parent of written file does not exist
     * Automatically return default value when accessing nonexistent files
 * Additional functions:
-    * startfile(): open path in cross-platform way as if it was double-clicked
+    * start(): open path in cross-platform way as if it was double-clicked
     * is_root(): whether path or first existing parent is owned by root user
     * write: write content to file with dynamic check of content type to determine correct format
     * find: recursively find all paths under a path that match a condition with extra options for efficiency

@@ -1,8 +1,11 @@
 import io
 import os
 
-import yaml
 from pathlib import Path as BasePath, _posix_flavour, _windows_flavour
+
+# Long import times relative to their usage frequency: lazily imported
+# import yaml
+# import subprocess
 
 yaml_suffix = ".yaml"
 
@@ -95,6 +98,9 @@ class Path(BasePath):
         :param names: subnames to add to path before writing
         :return: yaml dump result
         """
+        
+        import yaml # lazy import
+        
         path = self.subpath(*names, suffix=yaml_suffix)
         with path.open("w") as fp:
             return yaml.dump(content, fp, Dumper=yaml.CDumper)  # C implementation much faster
@@ -105,6 +111,9 @@ class Path(BasePath):
         :param trusted: if the path is trusted, an unsafe loader can be used to instantiate any object
         :return: Content in path that contains yaml format
         """
+        
+        import yaml # lazy import
+        
         path = self.subpath(*names, suffix=yaml_suffix)
         with path.open() as fp:
             loader = yaml.CUnsafeLoader if trusted else yaml.CFullLoader  # C implementation much faster
@@ -164,6 +173,17 @@ class Path(BasePath):
             else:
                 path.unlink()
         self.rmdir()
+        
+    
+    def startfile(self):
+        """
+        Open file in cross-platform way as if you clicked on it
+        """
+        if os.name == 'nt':
+            os.startfile(self)
+        else:
+            import subprocess
+            subprocess.run(('xdg-open', self))
 
 
 """

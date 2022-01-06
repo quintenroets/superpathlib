@@ -173,19 +173,6 @@ class Path(BasePath):
             else:
                 path.unlink()
         self.rmdir()
-        
-    
-    def start(url):
-        """
-        :param url: Path instance or string
-        Open url in cross-platform way as if it was double-clicked
-        """
-        
-        if os.name == 'nt':
-            os.startfile(url)
-        else:
-            import subprocess
-            subprocess.run(('xdg-open', url), stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL) # hide annoying messages
 
 
 """

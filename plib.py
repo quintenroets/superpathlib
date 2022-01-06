@@ -183,7 +183,7 @@ class Path(BasePath):
             os.startfile(self)
         else:
             import subprocess
-            subprocess.run(('xdg-open', self))
+            subprocess.run(('xdg-open', self), stderr=subprocess.DEVNULL) # hide annoying messages
 
 
 """

@@ -20,7 +20,7 @@ from pathlib import Path
 ```
 
 To gain access to additional functionality on path instances such as:
-* Generic structures:
+* Load and save generic structures to files:
     * save(): write generic structure to path
     * load(): load generic structure from path
     * C implementations used (much faster)
@@ -40,7 +40,7 @@ Or inherit from this class to define your own additional functionality:
 from plib import Path as BasePath
 
 class Path(BasePath):
-    def count_childer(self):
+    def count_children(self):
         return len(list(self.iterdir()))
 ```
 

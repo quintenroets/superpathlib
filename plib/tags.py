@@ -20,7 +20,7 @@ class XDGTags:
     def get(self):
         tags = set({})
         if self.tags and self.tags.has_key(self.name):
-            tags = self.tags[self.name].decode().strip(delim)
+            tags = self.tags[self.name].decode().strip().split(delim)
         return tags
     
     def set(self, *values, name=default_tag_name):

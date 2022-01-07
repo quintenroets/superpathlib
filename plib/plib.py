@@ -49,9 +49,9 @@ class Path(BasePath):
         return self.stat().st_mtime
         
     @mtime.setter
-    def mtime(self, time: int):
-        import subprocess
+    def mtime(self, time: float):
         os.utime(self, (time, time)) # set create time as well
+        import subprocess
         try:
             subprocess.run(('touch', '-d', f'@{time}', self))
         except subprocess.CalledProcessError:

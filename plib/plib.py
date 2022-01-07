@@ -75,6 +75,27 @@ class Path(BasePath):
     def iterdir(self, missing_ok=True):
         children = [] if missing_ok and not self.exists() else super().iterdir()
         return children
+        
+    @property
+    def tags(self):
+        from .tags import XDGTags
+        return XDGTags(self).get()
+    
+    @tags.setter
+    def tags(self, *values):
+        from .tags import XDGTags
+        if len(values) == 1 and values[0] == None:
+            XDGTags(self).clear()
+        else:
+            XDGTags(self).set(*values)
+            
+    @property
+    def tag(self):
+        return self.tags[0] if self.tags else None
+    
+    @tag.setter
+    def tag(self, value):
+        self.tags = value
 
     @property
     def is_root(self):
@@ -187,27 +208,6 @@ class Path(BasePath):
             else:
                 path.unlink()
         self.rmdir()
-        
-    @property
-    def tags(self):
-        from .tags import XDGTags
-        return XDGTags(self).get()
-    
-    @tags.setter
-    def tags(self, *values):
-        from .tags import XDGTags
-        if len(values) == 1 and values[0] == None:
-            XDGTags(self).clear()
-        else:
-            XDGTags(self).set(*values)
-            
-    @property
-    def tag(self):
-        return self.tags[0] if self.tags else None
-    
-    @tag.setter
-    def tag(self, value):
-        self.tags = value
 
 
 """

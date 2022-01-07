@@ -28,11 +28,18 @@ To gain access to additional functionality on path instances such as:
     * Automatically create parents when parent of written file does not exist
     * Automatically return default value when accessing nonexistent files
 * Additional functions:
-    * is_root(): whether path or first existing parent is owned by root user
-    * write: write content to file with dynamic check of content type to determine correct format
-    * find: recursively find all paths under a path that match a condition with extra options for efficiency
-    * rmtree: remove directory recursively
+    * write(): write content to file with dynamic check of content type to determine correct format
+    * find(): recursively find all paths under a path that match a condition with extra options for efficiency
+    * rmtree(): remove directory recursively
     * ..
+* Access to additional properties:
+    * is_root: whether path or first existing parent is owned by root user
+    * mtime: modified time of the path
+    * size: size of the content in the path
+    * tag: tag assigned to path: can be used for alternative ordering or metadata
+* Easily modify properties (Linux only):
+    * mtime: path.mtime = timestamp -> sets the modified time of a path instance to timestamp
+    * tag: path.tag = value -> sets the tag value of a path instance
 
 Or inherit from this class to define your own additional functionality:
 

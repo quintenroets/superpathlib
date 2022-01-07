@@ -56,11 +56,6 @@ class Path(BasePath):
             subprocess.run(('touch', '-d', f'@{time}', self))
         except subprocess.CalledProcessError:
             pass # Doesn't work on Windows
-        
-    def touch(self, mode=0o666, exist_ok=True, mtime=None):
-        if mtime is not None:
-            self.mtime = mtime
-        super().touch(mode=mode, exist_ok=exist_ok)
 
     @property
     @catch_missing(default=0)
@@ -83,7 +78,9 @@ class Path(BasePath):
         return path.owner() == "root"
 
     @create_parents
-    def touch(self, mode=0o666, exist_ok=True):
+    def touch(self, mode=0o666, exist_ok=True, mtime=None):
+        if mtime is not None:
+            self.mtime = mtime
         super().touch(mode=mode, exist_ok=exist_ok)
 
     def write(self, content):

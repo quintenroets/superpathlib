@@ -17,6 +17,6 @@ setup(
     description='extended pathlib',
     name=NAME,
     version='1.0',
-    py_modules = ["plib"],
+    packages=find_packages(),
     install_requires=read("requirements.txt"),
 )

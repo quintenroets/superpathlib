@@ -63,7 +63,7 @@ class Path(BasePath):
         path = self
         while not path.exists():
             path = path.parent
-        return path.stat().st_uid == 0
+        return path.owner() == "root"
 
     @create_parents
     def touch(self, mode=0o666, exist_ok=True):
@@ -173,6 +173,11 @@ class Path(BasePath):
             else:
                 path.unlink()
         self.rmdir()
+        
+    @property
+    def tags(self):
+        from .tags import XDGTags
+        return XDGTags(self)
 
 
 """

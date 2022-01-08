@@ -41,7 +41,7 @@ Extend pathlib functionality and enable further extensions by inheriting
 
 
 class Path(BasePath):
-    _flavour = _windows_flavour if os.name == 'nt' else _posix_flavour  # needed to inherit from pathlib Path
+    _flavour = _windows_flavour if os.name == 'nt' else _posix_flavour  # needed to inherit from pathlib.Path
 
     @property
     @catch_missing(default=0.0)
@@ -209,6 +209,7 @@ class Path(BasePath):
                 path.unlink()
         self.rmdir()
     
+    
     """
     Add common folders
     Make the common folders properties with classmethods such that 
@@ -218,8 +219,6 @@ class Path(BasePath):
     @classmethod
     @property
     def HOME(cls):
-        """
-        """
         return cls.home()
     
     @classmethod
@@ -234,14 +233,5 @@ class Path(BasePath):
     
     @classmethod
     @property
-    def assets_root(cls):
-        return cls.HOME / ".config" / "scripts"
-    
-    @classmethod
-    @property
     def assets(cls):
-        module_name = cls.__module__.split(".")[0]
-        if module_name == "plib":
-            # base class: simply use assets root
-            module_name = ""
-        return cls.assets_root / module_name
+        return cls.HOME / ".config" / "scripts"

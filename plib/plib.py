@@ -234,5 +234,5 @@ class Path(BasePath):
     
     @classmethod
     @property
-    def assets():
+    def assets(cls):
         return cls.HOME / ".config" / "scripts"

@@ -234,5 +234,14 @@ class Path(BasePath):
     
     @classmethod
     @property
-    def assets(cls):
+    def assets_root(cls):
         return cls.HOME / ".config" / "scripts"
+    
+    @classmethod
+    @property
+    def assets(cls):
+        module_name = cls.__module__.split(".")[0]
+        if module_name == "plib":
+            # base class: simply use assets root
+            module_name = ""
+        return cls.assets_root / module_name

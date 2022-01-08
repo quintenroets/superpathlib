@@ -44,9 +44,9 @@ class Path(BasePath):
     _flavour = _windows_flavour if os.name == 'nt' else _posix_flavour  # needed to inherit from pathlib Path
 
     @property
-    @catch_missing(default=0)
+    @catch_missing(default=0.0)
     def mtime(self):
-        return int(self.stat().st_mtime)  # no huge precision needed
+        return self.stat().st_mtime
         
     @mtime.setter
     def mtime(self, time: float):
@@ -208,16 +208,31 @@ class Path(BasePath):
             else:
                 path.unlink()
         self.rmdir()
-
-
-"""
-Add common folders
-this needs to be done in separate class to give all folders the extended functionality
-"""
-
-
-class Path(Path):
-    HOME = Path.home()
-    docs = HOME / "Documents"
-    scripts = docs / "Scripts"
-    assets = HOME / ".config" / "scripts"
+    
+    """
+    Add common folders
+    Make the common folders properties with classmethods such that 
+    all child classes have common folders with all the right properties and methods
+    """
+    
+    @classmethod
+    @property
+    def HOME(cls):
+        """
+        """
+        return cls.home()
+    
+    @classmethod
+    @property
+    def docs(cls):
+        return cls.HOME / "Documents"
+    
+    @classmethod
+    @property
+    def scripts(cls):
+        return cls.docs / "Scripts"
+    
+    @classmethod
+    @property
+    def assets():
+        return cls.HOME / ".config" / "scripts"

@@ -43,30 +43,11 @@ Extend pathlib functionality and enable further extensions by inheriting
 class Path(BasePath):
     _flavour = _windows_flavour if os.name == 'nt' else _posix_flavour  # needed to inherit from pathlib.Path
 
-    @property
-    @catch_missing(default=0.0)
-    def mtime(self):
-        return self.stat().st_mtime
-        
-    @mtime.setter
-    def mtime(self, time: float):
-        os.utime(self, (time, time)) # set create time as well
-        import subprocess
-        try:
-            subprocess.run(('touch', '-d', f'@{time}', self))
-        except subprocess.CalledProcessError:
-            pass # Doesn't work on Windows
-
     @create_parents
     def touch(self, mode=0o666, exist_ok=True, mtime=None):
         super().touch(mode=mode, exist_ok=exist_ok)
         if mtime is not None:
             self.mtime = mtime  # set time after touch or it is immediately overwritten
-
-    @property
-    @catch_missing(default=0)
-    def size(self):
-        return self.stat().st_size
 
     @catch_missing(default=0)
     def rmdir(self):
@@ -79,34 +60,6 @@ class Path(BasePath):
     def rename(self, target):
         target.parent.mkdir(parents=True, exist_ok=True)
         return super().rename(target)
-        
-    @property
-    def tags(self):
-        from .tags import XDGTags
-        return XDGTags(self).get()
-    
-    @tags.setter
-    def tags(self, *values):
-        from .tags import XDGTags
-        if len(values) == 1 and values[0] == None:
-            XDGTags(self).clear()
-        else:
-            XDGTags(self).set(*values)
-            
-    @property
-    def tag(self):
-        return self.tags[0] if self.tags else None
-    
-    @tag.setter
-    def tag(self, value):
-        self.tags = value
-
-    @property
-    def is_root(self):
-        path = self
-        while not path.exists():
-            path = path.parent
-        return path.owner() == "root"
 
     def write(self, content):
         if isinstance(content, str):
@@ -213,6 +166,84 @@ class Path(BasePath):
                 path.unlink()
         self.rmdir()
     
+    
+    """
+    Add properties to read and write path content and metadata
+    """
+    @property
+    def content(self):
+        return self.load()
+    
+    @content.setter
+    def content(self, value):
+        return self.save(value)
+    
+    @property
+    def byte_content(self):
+        return self.read_bytes()
+    
+    @byte_content.setter
+    def byte_content(self, value):
+        return self.write_bytes(value)
+    
+    @property
+    def text(self):
+        return self.read_text()
+    
+    @text.setter
+    def text(self, value):
+        return self.write_text(value)
+
+    @property
+    @catch_missing(default=0.0)
+    def mtime(self):
+        return self.stat().st_mtime
+        
+    @mtime.setter
+    def mtime(self, time: float):
+        os.utime(self, (time, time)) # set create time as well
+        import subprocess
+        try:
+            subprocess.run(('touch', '-d', f'@{time}', self))
+        except subprocess.CalledProcessError:
+            pass # Doesn't work on Windows
+        
+    @property
+    def tags(self):
+        from .tags import XDGTags
+        return XDGTags(self).get()
+    
+    @tags.setter
+    def tags(self, *values):
+        from .tags import XDGTags
+        if len(values) == 1 and values[0] == None:
+            XDGTags(self).clear()
+        else:
+            XDGTags(self).set(*values)
+            
+    @property
+    def tag(self):
+        return self.tags[0] if self.tags else None
+    
+    @tag.setter
+    def tag(self, value):
+        self.tags = value
+
+    @property
+    @catch_missing(default=0)
+    def size(self):
+        return self.stat().st_size
+
+    @property
+    def is_root(self):
+        path = self
+        while not path.exists():
+            path = path.parent
+        return path.owner() == "root"
+    
+    
+    def copy_to(self, dest):
+        dest.byte_content = self.byte_content
     
     """
     Add common folders

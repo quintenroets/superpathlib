@@ -75,6 +75,10 @@ class Path(BasePath):
     def iterdir(self, missing_ok=True):
         children = [] if missing_ok and not self.exists() else super().iterdir()
         return children
+    
+    def rename(self, target):
+        target.parent.mkdir(parents=True, exist_ok=True)
+        return super().rename(target)
         
     @property
     def tags(self):

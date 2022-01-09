@@ -193,6 +193,10 @@ class Path(BasePath):
     @text.setter
     def text(self, value):
         return self.write_text(value)
+    
+    @property
+    def lines(self):
+        return self.text.split("\n")
 
     @property
     @catch_missing(default=0.0)

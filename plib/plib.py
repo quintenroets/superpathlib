@@ -268,5 +268,13 @@ class Path(BasePath):
     
     @classmethod
     @property
+    def script_assets(cls):
+        return cls.HOME / ".config" / "scripts"
+    
+    @classmethod
+    @property
     def assets(cls):
+        """
+        Often overwritten by child classes for specific project
+        """
         return cls.HOME / ".config" / "scripts"

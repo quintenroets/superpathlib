@@ -32,12 +32,22 @@ To gain access to additional functionality on path instances such as:
     * find(): recursively find all paths under a path that match a condition with extra options for efficiency
     * rmtree(): remove directory recursively
     * ..
+* Additional properties to read/write to file in particular format:
+    * content
+    * text
+    * byte_content
+    * lines
+    example usage: 
+
+        ```shell
+        path1.lines = [line for line in path2.lines if skip_content not in lines]
+        ```
 * Access to additional properties:
     * is_root: whether path or first existing parent is owned by root user
     * mtime: modified time of the path
     * size: size of the content in the path
     * tag: tag assigned to path: can be used for alternative ordering or metadata
-* Easily modify properties (Linux only):
+* Easily set path properties (Linux only):
     * mtime: path.mtime = timestamp -> sets the modified time of a path instance to timestamp
     * tag: path.tag = value -> sets the tag value of a path instance
 

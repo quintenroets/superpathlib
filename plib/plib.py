@@ -4,6 +4,7 @@ import os
 from pathlib import Path as BasePath, _posix_flavour, _windows_flavour
 
 # Long import times relative to their usage frequency: lazily imported
+# import json
 # import yaml
 # import subprocess
 
@@ -201,6 +202,18 @@ class Path(BasePath):
     @lines.setter
     def lines(self, lines):
         self.text = "\n".join(lines)
+    
+    @property
+    def json(self):
+        import json
+        with self.open() as fp:
+            return json.load(fp) or {}
+        
+    @json.setter
+    def json(self, value):
+        import json
+        with self.open("w") as fp:
+            return json.dump(value, fp)
 
     @property
     @catch_missing(default=0.0)

@@ -37,11 +37,13 @@ To gain access to additional functionality on path instances such as:
     * text
     * byte_content
     * lines
+    * json
     
     * example usage: 
 
         ```shell
         path1.lines = [line for line in path2.lines if skip_content not in line]
+        path.json = {key: value}
         ```
 * Access to additional properties:
     * is_root: whether path or first existing parent is owned by root user

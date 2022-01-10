@@ -41,7 +41,7 @@ To gain access to additional functionality on path instances such as:
     * example usage: 
 
         ```shell
-        path1.lines = [line for line in path2.lines if skip_content not in lines]
+        path1.lines = [line for line in path2.lines if skip_content not in line]
         ```
 * Access to additional properties:
     * is_root: whether path or first existing parent is owned by root user

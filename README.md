@@ -37,6 +37,7 @@ To gain access to additional functionality on path instances such as:
     * text
     * byte_content
     * lines
+    
     example usage: 
 
         ```shell

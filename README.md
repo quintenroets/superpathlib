@@ -38,7 +38,7 @@ To gain access to additional functionality on path instances such as:
     * byte_content
     * lines
     
-    example usage: 
+    * example usage: 
 
         ```shell
         path1.lines = [line for line in path2.lines if skip_content not in lines]

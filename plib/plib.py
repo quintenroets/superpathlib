@@ -196,7 +196,7 @@ class Path(BasePath):
     
     @property
     def lines(self):
-        return self.text.split("\n")
+        return self.text.strip().split("\n")
 
     @property
     @catch_missing(default=0.0)

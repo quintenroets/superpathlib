@@ -74,7 +74,7 @@ class Path(BasePath):
         try:
             res = super().open(mode, **kwargs)
         except FileNotFoundError:
-            if 'w' in mode:
+            if 'w' in mode or 'a' in mode:
                 # exist_ok=True: catch race conditions when calling multiple times
                 self.parent.mkdir(parents=True, exist_ok=True)
                 res = super().open(mode, **kwargs)

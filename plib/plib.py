@@ -303,4 +303,4 @@ class Path(BasePath):
     @classmethod
     @property
     def draft(cls):
-        returen cls.docs / "draft.txt"
+        return cls.docs / "draft.txt"

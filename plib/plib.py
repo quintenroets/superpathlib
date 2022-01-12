@@ -299,3 +299,8 @@ class Path(BasePath):
         Often overwritten by child classes for specific project
         """
         return cls.HOME / ".config" / "scripts"
+    
+    @classmethod
+    @property
+    def draft(cls):
+        returen cls.docs / "draft.txt"

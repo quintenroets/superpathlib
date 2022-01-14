@@ -7,6 +7,7 @@ from pathlib import Path as BasePath, _posix_flavour, _windows_flavour
 # import json
 # import yaml
 # import subprocess
+# import tempfile
 
 yaml_suffix = ".yaml"
 
@@ -305,12 +306,19 @@ class Path(BasePath):
     def draft(cls):
         return cls.docs / "draft.txt"
     
+    """
+    Add temporary file
+    """
+    @classmethod
+    def tempfile(cls, **kwargs):
+        import tempfile
+        _, path = tempfile.mkstemp(**kwargs)
+        return cls(path)
     
     """
     Add context manager for temporary files
     """
     def __enter__(self):
-        self.touch()
         return self
     
     def __exit__(self, *_):

@@ -304,3 +304,14 @@ class Path(BasePath):
     @property
     def draft(cls):
         return cls.docs / "draft.txt"
+    
+    
+    """
+    Add context manager for temporary files
+    """
+    def __enter__(self):
+        self.touch()
+        return self
+    
+    def __exit__(self, *_):
+        self.unlink()

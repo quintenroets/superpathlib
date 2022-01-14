@@ -53,6 +53,8 @@ To gain access to additional functionality on path instances such as:
 * Easily set path properties (Linux only):
     * mtime: path.mtime = timestamp -> sets the modified time of a path instance to timestamp
     * tag: path.tag = value -> sets the tag value of a path instance
+* Use path as context manager:
+    * Automatically create and remove temporary files
 
 Or inherit from this class to define your own additional functionality:
 

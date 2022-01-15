@@ -198,7 +198,9 @@ class Path(BasePath):
     
     @property
     def lines(self):
-        return self.text.strip().split("\n")
+        lines = self.text.strip().split("\n")
+        lines = [l for l in lines if l]
+        return lines
     
     @lines.setter
     def lines(self, lines):

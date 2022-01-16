@@ -9,7 +9,7 @@ from pathlib import Path as BasePath, _posix_flavour, _windows_flavour
 # import subprocess
 # import tempfile
 
-yaml_suffix = ".yaml"
+yaml_suffix = '.yaml'
 
 
 def catch_missing(default=None):
@@ -37,9 +37,9 @@ def create_parents(func):
     return wrapper
 
 
-"""
+'''
 Extend pathlib functionality and enable further extensions by inheriting
-"""
+'''
 
 
 class Path(BasePath):
@@ -80,31 +80,31 @@ class Path(BasePath):
                 self.parent.mkdir(parents=True, exist_ok=True)
                 res = super().open(mode, **kwargs)
             elif 'b' in mode:
-                res = io.BytesIO(b"")
+                res = io.BytesIO(b'')
             else:
-                res = io.StringIO("")
+                res = io.StringIO('')
             return res
         return res
 
     def save(self, content, *names):
-        """
+        '''
         :param content: Content to be saved in yaml format
         :param names: subnames to add to path before writing
         :return: yaml dump result
-        """
+        '''
         
         import yaml # lazy import
         
         path = self.subpath(*names, suffix=yaml_suffix)
-        with path.open("w") as fp:
+        with path.open('w') as fp:
             return yaml.dump(content, fp, Dumper=yaml.CDumper)  # C implementation much faster
 
     def load(self, *names, trusted=False):
-        """
+        '''
         :param names: subnames to add to path before reading
         :param trusted: if the path is trusted, an unsafe loader can be used to instantiate any object
         :return: Content in path that contains yaml format
-        """
+        '''
         
         import yaml # lazy import
         
@@ -115,9 +115,9 @@ class Path(BasePath):
             return content
 
     def subpath(self, *names, suffix=None):
-        """
+        '''
         Returns new path with subnames and suffix added
-        """
+        '''
         path = self
         for name in names:
             path /= name
@@ -126,11 +126,11 @@ class Path(BasePath):
         return path
 
     def find(self, condition=None, exclude=None, recurse_on_match=False, follow_symlinks=True, only_folders=False):
-        """
+        '''
         Find all subpaths under path that match condition
 
         only_folders can be used for efficiency reasons
-        """
+        '''
         if condition is None:
             recurse_on_match = True
 
@@ -169,9 +169,9 @@ class Path(BasePath):
         self.rmdir()
     
     
-    """
+    '''
     Add properties to read and write path content and metadata
-    """
+    '''
     @property
     def content(self):
         return self.load()
@@ -198,13 +198,13 @@ class Path(BasePath):
     
     @property
     def lines(self):
-        lines = self.text.strip().split("\n")
+        lines = self.text.strip().split('\n')
         lines = [l for l in lines if l]
         return lines
     
     @lines.setter
     def lines(self, lines):
-        self.text = "\n".join(lines)
+        self.text = '\n'.join(lines)
     
     @property
     def json(self):
@@ -215,7 +215,7 @@ class Path(BasePath):
     @json.setter
     def json(self, value):
         import json
-        with self.open("w") as fp:
+        with self.open('w') as fp:
             return json.dump(value, fp)
 
     @property
@@ -263,17 +263,17 @@ class Path(BasePath):
         path = self
         while not path.exists():
             path = path.parent
-        return path.owner() == "root"
+        return path.owner() == 'root'
     
     
     def copy_to(self, dest):
         dest.byte_content = self.byte_content
     
-    """
+    '''
     Add common folders
     Make the common folders properties with classmethods such that 
     all child classes have common folders with all the right properties and methods
-    """
+    '''
     
     @classmethod
     @property
@@ -283,43 +283,43 @@ class Path(BasePath):
     @classmethod
     @property
     def docs(cls):
-        return cls.HOME / "Documents"
+        return cls.HOME / 'Documents'
     
     @classmethod
     @property
     def scripts(cls):
-        return cls.docs / "Scripts"
+        return cls.docs / 'Scripts'
     
     @classmethod
     @property
     def script_assets(cls):
-        return cls.HOME / ".config" / "scripts"
+        return cls.HOME / '.config' / 'scripts'
     
     @classmethod
     @property
     def assets(cls):
-        """
+        '''
         Often overwritten by child classes for specific project
-        """
-        return cls.HOME / ".config" / "scripts"
+        '''
+        return cls.HOME / '.config' / 'scripts'
     
     @classmethod
     @property
     def draft(cls):
-        return cls.docs / "draft.txt"
+        return cls.docs / 'draft.txt'
     
-    """
+    '''
     Add temporary file
-    """
+    '''
     @classmethod
     def tempfile(cls, **kwargs):
         import tempfile
         _, path = tempfile.mkstemp(**kwargs)
         return cls(path)
     
-    """
+    '''
     Add context manager for temporary files
-    """
+    '''
     def __enter__(self):
         return self
     

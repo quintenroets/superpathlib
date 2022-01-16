@@ -3,14 +3,14 @@ try:
 except:
     xattr = None # Don't fail if xattr not supported (Windows)
 
-delim = ","
+delim = ','
 default_tag_name = 'user.xdg.tags'
 
-"""
+'''
 More user-friendly way to interact with tags.
 - Work with strings and integers instead of bytes
 - Use xdg tags by default -> useful for filemanager that can order according to this tag
-"""
+'''
 
 class XDGTags:
     def __init__(self, path, name=default_tag_name):
@@ -24,9 +24,9 @@ class XDGTags:
         return tags
     
     def set(self, *values, name=default_tag_name):
-        """
+        '''
         :param values: tag values to set
-        """
+        '''
         if self.tags is not None:
             values = {str(v).zfill(4) if isinstance(v, int) else str(v) for v in values}
             values = delim.join(values).encode()

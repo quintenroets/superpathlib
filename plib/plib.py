@@ -9,8 +9,6 @@ from pathlib import Path as BasePath, _posix_flavour, _windows_flavour
 # import subprocess
 # import tempfile
 
-yaml_suffix = '.yaml'
-
 
 def catch_missing(default=None):
     def wrap_function(func):
@@ -37,14 +35,17 @@ def create_parents(func):
     return wrapper
 
 
-'''
-Extend pathlib functionality and enable further extensions by inheriting
-'''
-
-
 class Path(BasePath):
+    """
+    Extend pathlib functionality and enable further extensions by inheriting
+    """
     _flavour = _windows_flavour if os.name == 'nt' else _posix_flavour  # needed to inherit from pathlib.Path
 
+
+    """
+    Overwrite existing methods to catch exceptions and handle them
+    """
+    
     @create_parents
     def touch(self, mode=0o666, exist_ok=True, mtime=None):
         super().touch(mode=mode, exist_ok=exist_ok)
@@ -85,100 +86,11 @@ class Path(BasePath):
                 res = io.StringIO('')
             return res
         return res
-
-    def save(self, content, *names):
-        '''
-        :param content: Content to be saved in yaml format
-        :param names: subnames to add to path before writing
-        :return: yaml dump result
-        '''
-        
-        import yaml # lazy import
-        
-        path = self.subpath(*names, suffix=yaml_suffix)
-        with path.open('w') as fp:
-            return yaml.dump(content, fp, Dumper=yaml.CDumper)  # C implementation much faster
-
-    def load(self, *names, trusted=False):
-        '''
-        :param names: subnames to add to path before reading
-        :param trusted: if the path is trusted, an unsafe loader can be used to instantiate any object
-        :return: Content in path that contains yaml format
-        '''
-        
-        import yaml # lazy import
-        
-        path = self.subpath(*names, suffix=yaml_suffix)
-        with path.open() as fp:
-            loader = yaml.CUnsafeLoader if trusted else yaml.CFullLoader  # C implementation much faster
-            content = yaml.load(fp, Loader=loader) or {}
-            return content
-
-    def subpath(self, *names, suffix=None):
-        '''
-        Returns new path with subnames and suffix added
-        '''
-        path = self
-        for name in names:
-            path /= name
-        if suffix is not None and path.suffix != suffix:
-            path = path.with_suffix(suffix)
-        return path
-
-    def find(self, condition=None, exclude=None, recurse_on_match=False, follow_symlinks=True, only_folders=False):
-        '''
-        Find all subpaths under path that match condition
-
-        only_folders can be used for efficiency reasons
-        '''
-        if condition is None:
-            recurse_on_match = True
-
-            def condition(_):
-                return True
-
-        if exclude is None:
-            def exclude(_):
-                return False
-
-        to_traverse = [self] if self.exists() else []
-        while to_traverse:
-            path = to_traverse.pop(0)
-
-            if not exclude(path):
-                match = condition(path)
-                if match:
-                    yield path
-
-                if not match or recurse_on_match:
-                    if only_folders or path.is_dir():
-                        try:
-                            for child in path.iterdir():
-                                if follow_symlinks or not child.is_symlink():
-                                    if not only_folders or child.is_dir():
-                                        to_traverse.append(child)
-                        except PermissionError:
-                            pass  # skip folders that do not allow listing
-
-    def rmtree(self, missing_ok=False):
-        for path in self.iterdir():
-            if path.is_dir():
-                path.rmtree()
-            else:
-                path.unlink()
-        self.rmdir()
     
     
-    '''
-    Add properties to read and write path content and metadata
-    '''
-    @property
-    def content(self):
-        return self.load()
-    
-    @content.setter
-    def content(self, value):
-        return self.save(value)
+    """
+    Properties to read & write path content in different formats
+    """
     
     @property
     def byte_content(self):
@@ -209,15 +121,40 @@ class Path(BasePath):
     @property
     def json(self):
         import json
-        with self.open() as fp:
-            return json.load(fp) or {}
+        return json.load(self.text or '{}')
         
     @json.setter
-    def json(self, value):
+    def json(self, content):
         import json
-        with self.open('w') as fp:
-            return json.dump(value, fp)
+        self.text = json.dumps(content)
+        
+    @property
+    def yaml(self):
+        import yaml
+        # C implementation much faster but only supported on Linux
+        Loader = yaml.CFullLoader if hasattr(yaml, 'CFullLoader') else yaml.FullLoader
+        return yaml.load(self.text, Loader=Loader) or {}
 
+    @yaml.setter
+    def yaml(self, value):
+        import yaml
+        # C implementation much faster but only supported on Linux
+        Dumper = yaml.CDumper if hasattr(yaml, 'CDumper') else yaml.Dumper  
+        self.text = yaml.dump(value, Dumper=Dumper)
+    
+    @property
+    def content(self):
+        return self.with_suffix('.yaml').yaml
+    
+    @content.setter
+    def content(self, value):
+        self.with_suffix('.yaml').yaml = value
+
+    
+    """
+    Properties to read & write path metadata
+    """
+    
     @property
     @catch_missing(default=0.0)
     def mtime(self):
@@ -266,14 +203,94 @@ class Path(BasePath):
         return path.owner() == 'root'
     
     
+    """
+    Additional functionality
+    """
+    
     def copy_to(self, dest):
         dest.byte_content = self.byte_content
     
-    '''
-    Add common folders
-    Make the common folders properties with classmethods such that 
+    def load(self, trusted=False):
+        """
+        :param trusted: if the path is trusted, an unsafe loader can be used to instantiate any object
+        :return: Content in path that contains yaml format
+        """
+        import yaml # lazy import
+        
+        path = self.with_suffix('.yaml')
+        loader = yaml.CUnsafeLoader if trusted else yaml.CFullLoader
+        return = yaml.load(path.text, Loader=loader) or {}
+    
+    def save(self, content):
+        self.content = content
+
+    def find(self, condition=None, exclude=None, recurse_on_match=False, follow_symlinks=True, only_folders=False):
+        """
+        Find all subpaths under path that match condition
+
+        only_folders option can be used for efficiency reasons
+        """
+        if condition is None:
+            recurse_on_match = True
+
+            def condition(_):
+                return True
+
+        if exclude is None:
+            def exclude(_):
+                return False
+
+        to_traverse = [self] if self.exists() else []
+        while to_traverse:
+            path = to_traverse.pop(0)
+
+            if not exclude(path):
+                match = condition(path)
+                if match:
+                    yield path
+
+                if not match or recurse_on_match:
+                    if only_folders or path.is_dir():
+                        try:
+                            for child in path.iterdir():
+                                if follow_symlinks or not child.is_symlink():
+                                    if not only_folders or child.is_dir():
+                                        to_traverse.append(child)
+                        except PermissionError:
+                            pass  # skip folders that do not allow listing
+
+    def rmtree(self, missing_ok=False):
+        for path in self.iterdir():
+            if path.is_dir():
+                path.rmtree()
+            else:
+                path.unlink()
+        self.rmdir()
+    
+    @classmethod
+    def tempfile(cls, **kwargs):
+        """
+        Usage:
+            with Path.tempfile() as tmp:
+                run_command(log_file=tmp)
+                logs = tmp.text
+            process_logs(logs)
+        """
+        import tempfile
+        _, path = tempfile.mkstemp(**kwargs)
+        return cls(path)
+    
+    def __enter__(self):
+        return self
+    
+    def __exit__(self, *_):
+        self.unlink()
+
+    
+    """
+    Common folders: properties with classmethods such that 
     all child classes have common folders with all the right properties and methods
-    '''
+    """
     
     @classmethod
     @property
@@ -298,30 +315,12 @@ class Path(BasePath):
     @classmethod
     @property
     def assets(cls):
-        '''
+        """
         Often overwritten by child classes for specific project
-        '''
+        """
         return cls.HOME / '.config' / 'scripts'
     
     @classmethod
     @property
     def draft(cls):
         return cls.docs / 'draft.txt'
-    
-    '''
-    Add temporary file
-    '''
-    @classmethod
-    def tempfile(cls, **kwargs):
-        import tempfile
-        _, path = tempfile.mkstemp(**kwargs)
-        return cls(path)
-    
-    '''
-    Add context manager for temporary files
-    '''
-    def __enter__(self):
-        return self
-    
-    def __exit__(self, *_):
-        self.unlink()

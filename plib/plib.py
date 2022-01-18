@@ -121,7 +121,7 @@ class Path(BasePath):
     @property
     def json(self):
         import json
-        return json.load(self.text or '{}')
+        return json.loads(self.text or '{}')
         
     @json.setter
     def json(self, content):
@@ -219,7 +219,7 @@ class Path(BasePath):
         
         path = self.with_suffix('.yaml')
         loader = yaml.CUnsafeLoader if trusted else yaml.CFullLoader
-        return = yaml.load(path.text, Loader=loader) or {}
+        return yaml.load(path.text, Loader=loader) or {}
     
     def save(self, content):
         self.content = content

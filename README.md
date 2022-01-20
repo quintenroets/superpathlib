@@ -70,7 +70,7 @@ path = Path(filename)
         ```
 5) Enhance existing functionality
     * Automatically create parents when writing files, creating new files, renaming files, ..
-    * Return default values when path does not exist (e.g. size is 0, lines=[])
+    * Return default values when path does not exist (e.g. size = 0, lines=[])
 6) Inherit from this class to define your own additional functionality:
 
     example usage: 
@@ -83,7 +83,7 @@ path = Path(filename)
                 return len(list(self.iterdir()))
         ```
 
-        This only works for plib inheritance and not for pathlib
+        This only works for inheritance from plib and not from pathlib
 
 
 ## Installation

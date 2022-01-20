@@ -39,13 +39,12 @@ class Path(BasePath):
     """
     Extend pathlib functionality and enable further extensions by inheriting
     """
-    _flavour = _windows_flavour if os.name == 'nt' else _posix_flavour  # needed to inherit from pathlib.Path
+    _flavour = _windows_flavour if os.name == 'nt' else _posix_flavour  # _flavour attribute needs to inherited explicitely from pathlib
 
 
     """
-    Overwrite existing methods to catch exceptions and handle them
+    Overwrite existing methods with exception handling and default values
     """
-    
     @create_parents
     def touch(self, mode=0o666, exist_ok=True, mtime=None):
         super().touch(mode=mode, exist_ok=exist_ok)
@@ -57,20 +56,12 @@ class Path(BasePath):
         return super().rmdir()
 
     def iterdir(self, missing_ok=True):
-        children = [] if missing_ok and not self.exists() else super().iterdir()
-        return children
+        if self.exists() or not missing_ok:
+            yield from super().iterdir()
     
     def rename(self, target):
         target.parent.mkdir(parents=True, exist_ok=True)
         return super().rename(target)
-
-    def write(self, content):
-        if isinstance(content, str):
-            self.write_text(content)
-        elif isinstance(content, bytes):
-            self.write_bytes(content)
-        else:
-            self.save(content)
 
     def open(self, mode='r', **kwargs):
         try:
@@ -89,9 +80,8 @@ class Path(BasePath):
     
     
     """
-    Properties to read & write path content in different formats
+    Properties to read & write content in different formats
     """
-    
     @property
     def byte_content(self):
         return self.read_bytes()
@@ -152,9 +142,8 @@ class Path(BasePath):
 
     
     """
-    Properties to read & write path metadata
+    Properties to read & write metadata
     """
-    
     @property
     @catch_missing(default=0.0)
     def mtime(self):
@@ -206,9 +195,16 @@ class Path(BasePath):
     """
     Additional functionality
     """
-    
     def copy_to(self, dest):
         dest.byte_content = self.byte_content
+
+    def write(self, content):
+        if isinstance(content, str):
+            self.write_text(content)
+        elif isinstance(content, bytes):
+            self.write_bytes(content)
+        else:
+            self.save(content)
     
     def load(self, trusted=False):
         """
@@ -285,13 +281,11 @@ class Path(BasePath):
     
     def __exit__(self, *_):
         self.unlink()
-
     
     """
     Common folders: properties with classmethods such that 
     all child classes have common folders with all the right properties and methods
     """
-    
     @classmethod
     @property
     def HOME(cls):

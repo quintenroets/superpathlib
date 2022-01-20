@@ -1,17 +1,12 @@
-# superpathlib
-Extended pathlib with extra functionality
-
-## Installation
-
-```shell
-pip install git+https://github.com/quintenroets/superpathlib
-```
+# Superpathlib
+Superpathlib offers Path objects with functionality extended from pathlib to maximize your productivity with a minimal amount of code.
 
 ## Usage
 Use 
 
 ```shell
 from plib import Path
+path = Path(filename)
 ```
 instead of
 
@@ -19,51 +14,80 @@ instead of
 from pathlib import Path
 ```
 
-To gain access to additional functionality on path instances such as:
-* Load and save generic structures to files:
-    * save(): write generic structure to path
-    * load(): load generic structure from path
-    * C implementations used (much faster)
-* Error handling:
-    * Automatically create parents when parent of written file does not exist
-    * Automatically return default value when accessing nonexistent files
-* Additional functions:
-    * write(): write content to file with dynamic check of content type to determine correct format
-    * find(): recursively find all paths under a path that match a condition with extra options for efficiency
-    * rmtree(): remove directory recursively
-    * ..
-* Additional properties to read/write to file in particular format:
-    * content
+1) Use properties to read & write path content in different formats
     * text
     * byte_content
     * lines
+    * yaml
     * json
-    
-    * example usage: 
+    example usage: 
 
         ```shell
-        path1.lines = [line for line in path2.lines if skip_content not in line]
         path.json = {key: value}
+        
+        for line in path.lines:
+            if interesting(line):
+                process(line)
         ```
-* Access to additional properties:
-    * is_root: whether path or first existing parent is owned by root user
-    * mtime: modified time of the path
-    * size: size of the content in the path
-    * tag: tag assigned to path: can be used for alternative ordering or metadata
-* Easily set path properties (Linux only):
-    * mtime: path.mtime = timestamp -> sets the modified time of a path instance to timestamp
-    * tag: path.tag = value -> sets the tag value of a path instance
-* Use path as context manager:
-    * Automatically create and remove temporary files
+2) Use properties to get and set file metadata
+    * mtime: modified time
+    * size: filesize
+    * tag: can be used for alternative ordering or metadata
+    * is_root: whether the owner of the file is a root user
+    example usage: 
 
-Or inherit from this class to define your own additional functionality:
+        ```shell
+        path_new.mtime = path_old.mtime
+        
+        if path.tag != skip_keyword:
+            process(path)
+        ```
+3) Use properties to access commonly used folders:
+    * docs
+    * assets
+    * ..
+    example usage: 
+
+        ```shell
+        names_path = Path.assets / 'names'
+        names = names_path.lines
+        ```
+4) Use additional functionality
+    * find(): recursively find all paths under a root that match a condition (extra options available for performance optimization)
+    * rmtree(): remove directory recursively
+    * copy_to(): copy content to new file
+    * tempfile(): create temporary file that can be used as context manager
+    example usage: 
+
+        ```shell
+        with Path.tempfile() as tmp:
+            do_work(logfile=tmp)
+            log = tmp.text
+        process(log)
+        
+        condition = lambda p: (p / '.git').exists()
+        for git_path in root.find(condition):
+            process_git(git_path)
+        ```
+5) Enhance existing functionality
+    * Automatically create parents when writing files, creating new files, renaming files, ..
+    * Return default values when path does not exist (e.g. size is 0, lines=[])
+6) Inherit from this class to define your own additional functionality:
+    example usage: 
+
+        ```shell
+        from plib import Path as BasePath
+
+        class Path(BasePath):
+            def count_children(self):
+                return len(list(self.iterdir()))
+        ```
+
+        This only works for plib inheritance and not for pathlib
+
+
+## Installation
 
 ```shell
-from plib import Path as BasePath
-
-class Path(BasePath):
-    def count_children(self):
-        return len(list(self.iterdir()))
+pip install git+https://github.com/quintenroets/superpathlib
 ```
-
-This will not work if you inherit from pathlib.Path instead

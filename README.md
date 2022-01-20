@@ -8,11 +8,6 @@ Use
 from plib import Path
 path = Path(filename)
 ```
-instead of
-
-```shell
-from pathlib import Path
-```
 
 1) Use properties to read & write path content in different formats
     * text
@@ -20,6 +15,7 @@ from pathlib import Path
     * lines
     * yaml
     * json
+    
     example usage: 
 
         ```shell
@@ -34,6 +30,7 @@ from pathlib import Path
     * size: filesize
     * tag: can be used for alternative ordering or metadata
     * is_root: whether the owner of the file is a root user
+    
     example usage: 
 
         ```shell
@@ -46,6 +43,7 @@ from pathlib import Path
     * docs
     * assets
     * ..
+    
     example usage: 
 
         ```shell
@@ -57,6 +55,7 @@ from pathlib import Path
     * rmtree(): remove directory recursively
     * copy_to(): copy content to new file
     * tempfile(): create temporary file that can be used as context manager
+    
     example usage: 
 
         ```shell
@@ -73,6 +72,7 @@ from pathlib import Path
     * Automatically create parents when writing files, creating new files, renaming files, ..
     * Return default values when path does not exist (e.g. size is 0, lines=[])
 6) Inherit from this class to define your own additional functionality:
+
     example usage: 
 
         ```shell

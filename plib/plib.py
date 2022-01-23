@@ -1,7 +1,10 @@
+from __future__ import annotations  # https://www.python.org/dev/peps/pep-0563/
+
 import io
 import os
 
 from pathlib import Path as BasePath, _posix_flavour, _windows_flavour
+from typing import List
 
 # Long import times relative to their usage frequency: lazily imported
 # import json
@@ -83,29 +86,29 @@ class Path(BasePath):
     Properties to read & write content in different formats
     """
     @property
-    def byte_content(self):
+    def byte_content(self) -> bytes:
         return self.read_bytes()
     
     @byte_content.setter
-    def byte_content(self, value):
+    def byte_content(self, value: bytes) -> None:
         return self.write_bytes(value)
     
     @property
-    def text(self):
+    def text(self) -> str:
         return self.read_text()
     
     @text.setter
-    def text(self, value):
+    def text(self, value: str) -> None:
         return self.write_text(value)
     
     @property
-    def lines(self):
+    def lines(self) -> List[str]:
         lines = self.text.strip().split('\n')
         lines = [l for l in lines if l]
         return lines
     
     @lines.setter
-    def lines(self, lines):
+    def lines(self, lines: List[str]) -> None:
         self.text = '\n'.join(lines)
     
     @property
@@ -255,16 +258,18 @@ class Path(BasePath):
                         except PermissionError:
                             pass  # skip folders that do not allow listing
 
-    def rmtree(self, missing_ok=False):
+    def rmtree(self, missing_ok=False, remove_root=True):
         for path in self.iterdir():
             if path.is_dir():
                 path.rmtree()
             else:
                 path.unlink()
-        self.rmdir()
+        if remove_root:
+            self.rmdir()
+
     
     @classmethod
-    def tempfile(cls, **kwargs):
+    def tempfile(cls, **kwargs) -> Path:
         """
         Usage:
             with Path.tempfile() as tmp:
@@ -288,27 +293,27 @@ class Path(BasePath):
     """
     @classmethod
     @property
-    def HOME(cls):
+    def HOME(cls) -> Path:
         return cls.home()
     
     @classmethod
     @property
-    def docs(cls):
+    def docs(cls) -> Path:
         return cls.HOME / 'Documents'
     
     @classmethod
     @property
-    def scripts(cls):
+    def scripts(cls) -> Path:
         return cls.docs / 'Scripts'
     
     @classmethod
     @property
-    def script_assets(cls):
+    def script_assets(cls) -> Path:
         return cls.HOME / '.config' / 'scripts'
     
     @classmethod
     @property
-    def assets(cls):
+    def assets(cls) -> Path:
         """
         Often overwritten by child classes for specific project
         """
@@ -316,5 +321,5 @@ class Path(BasePath):
     
     @classmethod
     @property
-    def draft(cls):
+    def draft(cls) -> Path:
         return cls.docs / 'draft.txt'

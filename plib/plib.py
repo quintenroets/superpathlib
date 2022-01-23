@@ -201,6 +201,13 @@ class Path(BasePath):
     def copy_to(self, dest):
         dest.byte_content = self.byte_content
 
+    def is_empty(self):
+        return (
+            not self.exists()
+            or (self.is_dir() and next(self.iterdir(), None) == None)
+            or self.size == 0
+        )
+
     def write(self, content):
         if isinstance(content, str):
             self.write_text(content)

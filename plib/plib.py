@@ -143,7 +143,7 @@ class Path(BasePath):
 
         # C implementation much faster but only supported on Linux
         Dumper = yaml.CDumper if hasattr(yaml, "CDumper") else yaml.Dumper
-        self.text = yaml.dump(value, Dumper=Dumper)
+        self.text = yaml.dump(value, Dumper=Dumper, width=1024)
 
     @property
     def content(self):

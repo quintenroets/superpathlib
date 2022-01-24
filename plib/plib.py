@@ -69,6 +69,7 @@ class Path(BasePath):
             yield from super().iterdir()
 
     def rename(self, target):
+        target = Path(target)
         target.parent.mkdir(parents=True, exist_ok=True)
         return super().rename(target)
 

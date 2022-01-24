@@ -2,8 +2,8 @@ from __future__ import annotations  # https://www.python.org/dev/peps/pep-0563/
 
 import io
 import os
-
-from pathlib import Path as BasePath, _posix_flavour, _windows_flavour
+from pathlib import Path as BasePath
+from pathlib import _posix_flavour, _windows_flavour
 from typing import List
 
 # Long import times relative to their usage frequency: lazily imported

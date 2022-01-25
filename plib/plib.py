@@ -249,9 +249,6 @@ class Path(BasePath):
         if value:
             self.content = self.content | value
 
-    def __ior__(self, other):
-        return self.update(other)
-
     def find(
         self,
         condition=None,

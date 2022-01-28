@@ -247,7 +247,9 @@ class Path(BasePath):
     def update(self, value):
         # only read and write if value to add not empty
         if value:
-            self.content = self.content | value
+            content = self.content | value
+            self.content = content
+            return content
 
     def find(
         self,

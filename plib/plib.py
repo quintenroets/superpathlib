@@ -303,6 +303,12 @@ class Path(BasePath):
         if remove_root:
             self.rmdir()
 
+    def subpath(self, *parts):
+        path = self
+        for part in parts:
+            path /= part.replace(self._flavour.sep, "")
+        return path
+
     @classmethod
     def tempfile(cls, **kwargs) -> Path:
         """

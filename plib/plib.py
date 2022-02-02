@@ -306,7 +306,7 @@ class Path(BasePath):
     def subpath(self, *parts):
         path = self
         for part in parts:
-            path /= part.replace(self._flavour.sep, "")
+            path /= part.replace(self._flavour.sep, "_")
         return path
 
     @classmethod

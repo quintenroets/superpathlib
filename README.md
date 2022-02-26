@@ -90,4 +90,5 @@ This only works for inheritance from plib and not from pathlib
 
 ```shell
 pip install git+https://github.com/quintenroets/superpathlib
+requires python version >= 3.9
 ```

@@ -148,11 +148,17 @@ class Path(BasePath):
 
     @property
     def content(self):
-        return self.with_suffix(".yaml").yaml
+        return self.yaml_path.yaml
 
     @content.setter
     def content(self, value):
-        self.with_suffix(".yaml").yaml = value
+        self.yaml_path.yaml = value
+
+    @property
+    def yaml_path(self):
+        return (
+            self.with_suffix(".yaml") if self.suffix not in (".yaml", ".yml") else self
+        )
 
     """
     Properties to read & write metadata
@@ -237,9 +243,8 @@ class Path(BasePath):
         """
         import yaml  # lazy import
 
-        path = self.with_suffix(".yaml")
         loader = yaml.CUnsafeLoader if trusted else yaml.CFullLoader
-        return yaml.load(path.text, Loader=loader) or {}
+        return yaml.load(self.yaml_path.text, Loader=loader) or {}
 
     def save(self, content):
         self.content = content

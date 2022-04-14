@@ -5,7 +5,7 @@ import os
 from functools import wraps
 from pathlib import Path as BasePath
 from pathlib import _posix_flavour, _windows_flavour
-from typing import List
+from typing import Any, Iterable, List
 
 # Long import times relative to their usage frequency: lazily imported
 # import json
@@ -116,13 +116,13 @@ class Path(BasePath):
 
     @property
     def lines(self) -> List[str]:
-        lines = self.text.strip().split("\n")
+        lines = self.text.strip().split()
         lines = [l for l in lines if l]
         return lines
 
     @lines.setter
-    def lines(self, lines: List[str]) -> None:
-        self.text = "\n".join(lines)
+    def lines(self, lines: Iterable[Any]) -> None:
+        self.text = "\n".join(str(line) for line in lines)
 
     @property
     def json(self):

@@ -2,6 +2,7 @@ from __future__ import annotations  # https://www.python.org/dev/peps/pep-0563/
 
 import io
 import os
+from functools import wraps
 from pathlib import Path as BasePath
 from pathlib import _posix_flavour, _windows_flavour
 from typing import List
@@ -15,6 +16,7 @@ from typing import List
 
 def catch_missing(default=None):
     def wrap_function(func):
+        @wraps(func)
         def wrap_args(*args, **kwargs):
             try:
                 res = func(*args, **kwargs)
@@ -28,6 +30,7 @@ def catch_missing(default=None):
 
 
 def create_parents(func):
+    @wraps(func)
     def wrapper(*args, **kwargs):
         try:
             res = func(*args, **kwargs)
@@ -73,6 +76,9 @@ class Path(BasePath):
         target.parent.mkdir(parents=True, exist_ok=True)
         return super().rename(target)
 
+    def create_parent(self):
+        return super().mkdir(parents=True, exist_ok=True)
+
     def open(self, mode="r", **kwargs):
         try:
             res = super().open(mode, **kwargs)
@@ -98,7 +104,7 @@ class Path(BasePath):
 
     @byte_content.setter
     def byte_content(self, value: bytes) -> None:
-        return self.write_bytes(value)
+        self.write_bytes(value)
 
     @property
     def text(self) -> str:
@@ -106,7 +112,7 @@ class Path(BasePath):
 
     @text.setter
     def text(self, value: str) -> None:
-        return self.write_text(value)
+        self.write_text(value)
 
     @property
     def lines(self) -> List[str]:

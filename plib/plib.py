@@ -357,7 +357,7 @@ class Path(BasePath):
     @classmethod
     @property
     def script_assets(cls) -> Path:
-        return cls.HOME / ".config" / "scripts"
+        return cls.scripts / "assets"
 
     @classmethod
     @property
@@ -365,7 +365,7 @@ class Path(BasePath):
         """
         Often overwritten by child classes for specific project
         """
-        return cls.HOME / ".config" / "scripts"
+        return cls.script_assets
 
     @classmethod
     @property

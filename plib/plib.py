@@ -5,7 +5,9 @@ import os
 from functools import wraps
 from pathlib import Path as BasePath
 from pathlib import _posix_flavour, _windows_flavour
-from typing import Any, Iterable, List
+from typing import Any, Callable, Iterable, List
+
+from .utils import find_first_match
 
 # Long import times relative to their usage frequency: lazily imported
 # import json
@@ -78,6 +80,30 @@ class Path(BasePath):
 
     def create_parent(self):
         return super().mkdir(parents=True, exist_ok=True)
+
+    def with_nonexistent_name(self):
+        path = self
+        if path.exists():
+            stem = path.stem
+
+            def with_number(i: int):
+                return path.with_stem(f"{stem} ({i})")
+
+            def nonexistent(i):
+                return not with_number(i).exists()
+
+            first_free_number = find_first_match(nonexistent)
+            path = with_number(first_free_number)
+
+        return path
+
+    def with_timestamp(self):
+        import time
+        from datetime import datetime
+        from libs import timer
+
+        timestamp = datetime.fromtimestamp(int(time.time()))  # precision up to second
+        return self.with_stem(f"{self.stem} {timestamp}")
 
     def open(self, mode="r", **kwargs):
         try:

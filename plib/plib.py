@@ -142,7 +142,7 @@ class Path(BasePath):
 
     @property
     def lines(self) -> List[str]:
-        lines = self.text.strip().split()
+        lines = self.text.strip().split("\n")
         lines = [l for l in lines if l]
         return lines
 

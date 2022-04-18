@@ -79,7 +79,7 @@ class Path(BasePath):
         return super().rename(target)
 
     def create_parent(self):
-        return super().mkdir(parents=True, exist_ok=True)
+        return self.parent.mkdir(parents=True, exist_ok=True)
 
     def with_nonexistent_name(self):
         path = self

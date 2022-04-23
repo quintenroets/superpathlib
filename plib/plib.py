@@ -76,7 +76,14 @@ class Path(BasePath):
     def rename(self, target):
         target = Path(target)
         target.parent.mkdir(parents=True, exist_ok=True)
-        return super().rename(target)
+        try:
+            target = super().rename(target)
+        except OSError:
+            # throw when target is on different filesystem
+            import shutil
+            
+            target = shutil.move(self, target)
+        return target
 
     def create_parent(self):
         return self.parent.mkdir(parents=True, exist_ok=True)

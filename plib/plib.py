@@ -2,10 +2,9 @@ from __future__ import annotations  # https://www.python.org/dev/peps/pep-0563/
 
 import io
 import os
+import pathlib
 from functools import wraps
-from pathlib import Path as BasePath
-from pathlib import _posix_flavour, _windows_flavour
-from typing import Any, Callable, Iterable, List
+from typing import Any, Iterable, List
 
 from .utils import find_first_match
 
@@ -46,13 +45,13 @@ def create_parents(func):
     return wrapper
 
 
-class Path(BasePath):
+class Path(pathlib.Path):
     """
     Extend pathlib functionality and enable further extensions by inheriting
     """
 
     _flavour = (
-        _windows_flavour if os.name == "nt" else _posix_flavour
+        pathlib._windows_flavour if os.name == "nt" else pathlib._posix_flavour
     )  # _flavour attribute needs to inherited explicitely from pathlib
 
     """
@@ -79,9 +78,9 @@ class Path(BasePath):
         try:
             target = super().rename(target)
         except OSError:
-            # throw when target is on different filesystem
-            import shutil
-            
+            # thrown when target is on different filesystem
+            import shutil  # noqa:autoimport
+
             target = shutil.move(self, target)
         return target
 
@@ -105,9 +104,8 @@ class Path(BasePath):
         return path
 
     def with_timestamp(self):
-        import time
-        from datetime import datetime
-        from libs import timer
+        import time  # noqa: autoimport
+        from datetime import datetime  # noqa: autoimport
 
         timestamp = datetime.fromtimestamp(int(time.time()))  # precision up to second
         return self.with_stem(f"{self.stem} {timestamp}")
@@ -159,19 +157,19 @@ class Path(BasePath):
 
     @property
     def json(self):
-        import json
+        import json  # noqa: autoimport
 
         return json.loads(self.text or "{}")
 
     @json.setter
     def json(self, content):
-        import json
+        import json  # noqa: autoimport
 
         self.text = json.dumps(content)
 
     @property
     def yaml(self):
-        import yaml
+        import yaml  # noqa: autoimport
 
         # C implementation much faster but only supported on Linux
         Loader = yaml.CFullLoader if hasattr(yaml, "CFullLoader") else yaml.FullLoader
@@ -179,7 +177,7 @@ class Path(BasePath):
 
     @yaml.setter
     def yaml(self, value):
-        import yaml
+        import yaml  # noqa: autoimport
 
         # C implementation much faster but only supported on Linux
         Dumper = yaml.CDumper if hasattr(yaml, "CDumper") else yaml.Dumper
@@ -211,7 +209,8 @@ class Path(BasePath):
     @mtime.setter
     def mtime(self, time: float):
         os.utime(self, (time, time))  # set create time as well
-        import subprocess
+
+        import subprocess  # noqa: autoimport
 
         try:
             subprocess.run(("touch", "-d", f"@{time}", self))
@@ -220,13 +219,13 @@ class Path(BasePath):
 
     @property
     def tags(self):
-        from .tags import XDGTags
+        from .tags import XDGTags  # noqa: autoimport
 
         return XDGTags(self).get()
 
     @tags.setter
     def tags(self, *values):
-        from .tags import XDGTags
+        from .tags import XDGTags  # noqa: autoimport
 
         if len(values) == 1 and values[0] == None:
             XDGTags(self).clear()
@@ -280,7 +279,7 @@ class Path(BasePath):
         :param trusted: if the path is trusted, an unsafe loader can be used to instantiate any object
         :return: Content in path that contains yaml format
         """
-        import yaml  # lazy import
+        import yaml  # noqa: autoimport
 
         loader = yaml.CUnsafeLoader if trusted else yaml.CFullLoader
         return yaml.load(self.yaml_path.text, Loader=loader) or {}
@@ -362,7 +361,7 @@ class Path(BasePath):
                 logs = tmp.text
             process_logs(logs)
         """
-        import tempfile
+        import tempfile  # noqa: autoimport
 
         _, path = tempfile.mkstemp(**kwargs)
         return cls(path)

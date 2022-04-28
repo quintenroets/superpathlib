@@ -227,7 +227,7 @@ class Path(pathlib.Path):
     def tags(self, *values):
         from .tags import XDGTags  # noqa: autoimport
 
-        if len(values) == 1 and values[0] == None:
+        if len(values) == 1 and values[0] in (None, []):
             XDGTags(self).clear()
         else:
             XDGTags(self).set(*values)

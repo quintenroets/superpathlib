@@ -37,8 +37,7 @@ def create_parents(func):
             res = func(*args, **kwargs)
         except FileNotFoundError:
             path = args[0]
-            # exist_ok=True: catch race conditions when calling multiple times
-            path.parent.mkdir(parents=True, exist_ok=True)
+            path.create_parent()
             res = func(*args, **kwargs)
         return res
 
@@ -74,7 +73,7 @@ class Path(pathlib.Path):
 
     def rename(self, target):
         target = Path(target)
-        target.parent.mkdir(parents=True, exist_ok=True)
+        target.create_parent()
         try:
             target = super().rename(target)
         except OSError:
@@ -85,7 +84,8 @@ class Path(pathlib.Path):
         return target
 
     def create_parent(self):
-        return self.parent.mkdir(parents=True, exist_ok=True)
+        self.parent.mkdir(parents=True, exist_ok=True)
+        return self.parent
 
     def with_nonexistent_name(self):
         path = self
@@ -116,7 +116,7 @@ class Path(pathlib.Path):
         except FileNotFoundError:
             if "w" in mode or "a" in mode:
                 # exist_ok=True: catch race conditions when calling multiple times
-                self.parent.mkdir(parents=True, exist_ok=True)
+                self.create_parent()
                 res = super().open(mode, **kwargs)
             elif "b" in mode:
                 res = io.BytesIO(b"")

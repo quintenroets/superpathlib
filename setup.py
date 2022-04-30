@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from setuptools import find_packages, setup
 
 NAME = "superpathlib"
@@ -16,10 +18,11 @@ setup(
     author="Quinten Roets",
     author_email="quinten.roets@gmail.com",
     url="https://github.com/quintenroets/superpathlib",
-    download_url="https://github.com/quintenroets/superpathlib/archive/refs/tags/v0.0.1.tar.gz",
+    download_url="https://github.com/quintenroets/superpathlib/archive/refs/tags/v0.0.2.tar.gz",
     description="extended pathlib",
+    long_description=Path("README.md").read_text(),
     name=NAME,
-    version="0.0.1",
+    version="0.0.2",
     packages=find_packages(),
     install_requires=read("requirements.txt"),
 )

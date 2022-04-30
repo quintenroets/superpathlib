@@ -15,6 +15,7 @@ def read(filename):
 setup(
     author="Quinten Roets",
     author_email="quinten.roets@gmail.com",
+    url="https://github.com/quintenroets/superpathlib",
     description="extended pathlib",
     name=NAME,
     version="1.0",

@@ -16,9 +16,10 @@ setup(
     author="Quinten Roets",
     author_email="quinten.roets@gmail.com",
     url="https://github.com/quintenroets/superpathlib",
+    download_url="https://github.com/quintenroets/superpathlib/archive/refs/tags/v0.0.1.tar.gz",
     description="extended pathlib",
     name=NAME,
-    version="1.0",
+    version="0.0.1",
     packages=find_packages(),
     install_requires=read("requirements.txt"),
 )

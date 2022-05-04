@@ -370,7 +370,7 @@ class Path(pathlib.Path):
         return self
 
     def __exit__(self, *_):
-        self.unlink()
+        self.unlink(missing_ok=True)
 
     """
     Common folders: properties with classmethods such that 

@@ -142,8 +142,8 @@ class Path(pathlib.Path):
         return self.read_text()
 
     @text.setter
-    def text(self, value: str) -> None:
-        self.write_text(value)
+    def text(self, value: Any) -> None:
+        self.write_text(str(value))
 
     @property
     def lines(self) -> List[str]:

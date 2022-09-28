@@ -24,11 +24,16 @@ for line in path.lines:
     if interesting(line):
         process(line)
 ```
-### 2) Use properties to get and set file metadata
-* mtime: modified time
-* size: filesize
-* tag: can be used for alternative ordering or metadata
-* is_root: whether the owner of the file is a root user
+### 2) Use instance properties to get/set file metadata:
+* get:
+    * size: filesize
+    * is_root: whether the owner of the file is a root user
+    * has_children: whether a path has children
+    * amount_of_children: amount of children in a folder
+    * 
+* get & set:
+    * mtime: modified time
+    * tag: can be used for alternative ordering or metadata
 
 examples:
 
@@ -38,7 +43,7 @@ path_new.mtime = path_old.mtime
 if path.tag != skip_keyword:
     process(path)
 ```
-### 3) Use properties to access commonly used folders:
+### 3) Use class properties to access commonly used folders:
 * docs
 * assets
 * ..
@@ -52,8 +57,11 @@ names = names_path.lines
 ### 4) Use additional functionality
 * find(): recursively find all paths under a root that match a condition (extra options available for performance optimization)
 * rmtree(): remove directory recursively
-* copy_to(): copy content to new file
+* copy_to(dest): copy content to dest
+* copy_properties_to(dest): recursively copy path properties (mtime, tag) to all n-level children of dest
 * tempfile(): create temporary file that can be used as context manager
+* unzip(): extract zip path to folder with same name and cleanup extraction folder
+* pop_parent(): remove first parent from path in filesystem
 
 examples: 
 

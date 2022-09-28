@@ -3,6 +3,7 @@ from __future__ import annotations  # https://www.python.org/dev/peps/pep-0563/
 import io
 import os
 import pathlib
+import zipfile
 from functools import wraps
 from typing import Any, Iterable, List
 
@@ -11,6 +12,7 @@ from .utils import find_first_match
 # Long import times relative to their usage frequency: lazily imported
 # import json
 # import yaml
+# import shutil
 # import subprocess
 # import tempfile
 
@@ -252,12 +254,78 @@ class Path(pathlib.Path):
             path = path.parent
         return path.owner() == "root"
 
+    @property
+    def has_children(self):
+        return next(self.iterdir(), None) is not None if self.is_dir() else False
+
+    @property
+    def amount_of_children(self):
+        return sum(1 for _ in self.iterdir()) if self.is_dir() else 0
+
     """
     Additional functionality
     """
 
-    def copy_to(self, dest):
+    def copy_to(self, dest: Path):
         dest.byte_content = self.byte_content
+
+    def copy_properties_to(dest: Path):
+        for path in dest.find():
+            path.tag = source.tag
+            path.mtime = source.mtime
+
+    def check_zip(self):
+        if self.suffix == ".zip":
+            self.unzip()
+
+    def unzip(
+        self,
+        extract_folder: Path | None = None,
+        remove_existing: bool = True,
+        preserve_properties: bool = True,
+        remove_original: bool = True,
+    ):
+        def cleanup(path: Path):
+            (path / "__MACOSX").rmtree()
+            subfolder = path / path.name
+            if subfolder.exists() and path.amount_of_children == 1:
+                subfolder.pop_parent()
+
+        if extract_folder is None:
+            extract_folder = self.with_suffix("")
+
+        if remove_existing:
+            extract_folder.rmtree()
+
+        with zipfile.ZipFile(self) as zip_file:
+            zip_file.extractall(path=extract_folder)
+
+        cleanup(extract_folder)
+        if preserve_properties:
+            self.copy_properties_to(extract_folder)
+        if remove_original:
+            self.unlink()
+
+    def pop_parent(self):
+        """
+        Remove first parent from path in filesystem
+        """
+        dest = self.parent.parent / self.name
+        parent = self.parent
+        temp_dest = dest.with_nonexistent_name()  # can only move to nonexisting path
+
+        self.rename(temp_dest)
+
+        if not parent.has_children:
+            parent.rmdir()
+        if not parent.exists():
+            temp_dest.rename(dest)
+        else:
+            import shutil  # noqa: autoimport
+
+            # merge in existing folder
+            shutil.copytree(temp_dest, dest, dirs_exist_ok=True)
+            temp_dest.rmtree()
 
     def is_empty(self):
         return (

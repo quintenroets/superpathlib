@@ -269,10 +269,10 @@ class Path(pathlib.Path):
     def copy_to(self, dest: Path):
         dest.byte_content = self.byte_content
 
-    def copy_properties_to(dest: Path):
+    def copy_properties_to(self, dest: Path):
         for path in dest.find():
-            path.tag = source.tag
-            path.mtime = source.mtime
+            path.tag = self.tag
+            path.mtime = self.mtime
 
     def check_zip(self):
         if self.suffix == ".zip":

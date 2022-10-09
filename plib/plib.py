@@ -32,7 +32,7 @@ def catch_missing(default=None):
     return wrap_function
 
 
-def create_parents(func):
+def create_parent_on_missing(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
         try:
@@ -42,6 +42,16 @@ def create_parents(func):
             path.create_parent()
             res = func(*args, **kwargs)
         return res
+
+    return wrapper
+
+
+def create_parent(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        path = func(*args, **kwargs)
+        path.create_parent()
+        return path
 
     return wrapper
 
@@ -59,7 +69,7 @@ class Path(pathlib.Path):
     Overwrite existing methods with exception handling and default values
     """
 
-    @create_parents
+    @create_parent_on_missing
     def touch(self, mode=0o666, exist_ok=True, mtime=None):
         super().touch(mode=mode, exist_ok=exist_ok)
         if mtime is not None:

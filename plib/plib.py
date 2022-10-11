@@ -276,8 +276,10 @@ class Path(pathlib.Path):
     Additional functionality
     """
 
-    def copy_to(self, dest: Path):
+    def copy_to(self, dest: Path, include_properties=True):
         dest.byte_content = self.byte_content
+        if include_properties:
+            self.copy_properties_to(dest)
 
     def copy_properties_to(self, dest: Path):
         for path in dest.find():

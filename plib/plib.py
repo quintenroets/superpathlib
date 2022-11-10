@@ -1,20 +1,24 @@
 from __future__ import annotations  # https://www.python.org/dev/peps/pep-0563/
 
 import io
+import json
 import os
 import pathlib
+import shutil
+import subprocess
+import tempfile
+import time
 import zipfile
+from collections.abc import Iterable
 from functools import wraps
-from typing import Any, Iterable, List
+from typing import Any
 
 from .utils import find_first_match
 
 # Long import times relative to their usage frequency: lazily imported
-# import json
 # import yaml
-# import shutil
-# import subprocess
-# import tempfile
+# from datatime import datetime
+# from .tags import XDGTags
 
 
 def catch_missing(default=None):
@@ -57,8 +61,8 @@ def create_parent(func):
 
 
 class Path(pathlib.Path):
-    """
-    Extend pathlib functionality and enable further extensions by inheriting
+    """Extend pathlib functionality and enable further extensions by
+    inheriting.
     """
 
     _flavour = (
@@ -89,9 +93,6 @@ class Path(pathlib.Path):
         try:
             target = super().rename(target)
         except OSError:
-            # thrown when target is on different filesystem
-            import shutil  # noqa:autoimport
-
             target = shutil.move(self, target)
         return target
 
@@ -116,7 +117,6 @@ class Path(pathlib.Path):
         return path
 
     def with_timestamp(self):
-        import time  # noqa: autoimport
         from datetime import datetime  # noqa: autoimport
 
         timestamp = datetime.fromtimestamp(int(time.time()))  # precision up to second
@@ -158,9 +158,9 @@ class Path(pathlib.Path):
         self.write_text(str(value))
 
     @property
-    def lines(self) -> List[str]:
-        lines = self.text.strip().split("\n")
-        lines = [l for l in lines if l]
+    def lines(self) -> list[str]:
+        lines = self.text.strip().splitlines()
+        lines = [line for line in lines if line]
         return lines
 
     @lines.setter
@@ -169,14 +169,10 @@ class Path(pathlib.Path):
 
     @property
     def json(self):
-        import json  # noqa: autoimport
-
         return json.loads(self.text or "{}")
 
     @json.setter
     def json(self, content):
-        import json  # noqa: autoimport
-
         self.text = json.dumps(content)
 
     @property
@@ -221,8 +217,6 @@ class Path(pathlib.Path):
     @mtime.setter
     def mtime(self, time: float):
         os.utime(self, (time, time))  # set create time as well
-
-        import subprocess  # noqa: autoimport
 
         try:
             subprocess.run(("touch", "-d", f"@{time}", self))
@@ -319,9 +313,7 @@ class Path(pathlib.Path):
             self.unlink()
 
     def pop_parent(self):
-        """
-        Remove first parent from path in filesystem
-        """
+        """Remove first parent from path in filesystem."""
         dest = self.parent.parent / self.name
         parent = self.parent
         temp_dest = dest.with_nonexistent_name()  # can only move to nonexisting path
@@ -333,8 +325,6 @@ class Path(pathlib.Path):
         if not parent.exists():
             temp_dest.rename(dest)
         else:
-            import shutil  # noqa: autoimport
-
             # merge in existing folder
             shutil.copytree(temp_dest, dest, dirs_exist_ok=True)
             temp_dest.rmtree()
@@ -342,7 +332,7 @@ class Path(pathlib.Path):
     def is_empty(self):
         return (
             not self.exists()
-            or (self.is_dir() and next(self.iterdir(), None) == None)
+            or (self.is_dir() and next(self.iterdir(), None) is None)
             or self.size == 0
         )
 
@@ -356,7 +346,8 @@ class Path(pathlib.Path):
 
     def load(self, trusted=False):
         """
-        :param trusted: if the path is trusted, an unsafe loader can be used to instantiate any object
+        :param trusted: if the path is trusted, an unsafe loader
+                        can be used to instantiate any object
         :return: Content in path that contains yaml format
         """
         import yaml  # noqa: autoimport
@@ -383,7 +374,7 @@ class Path(pathlib.Path):
         only_folders=False,
     ):
         """
-        Find all subpaths under path that match condition
+        Find all subpaths under path that match condition.
 
         only_folders option can be used for efficiency reasons
         """
@@ -441,8 +432,6 @@ class Path(pathlib.Path):
                 logs = tmp.text
             process_logs(logs)
         """
-        import tempfile  # noqa: autoimport
-
         _, path = tempfile.mkstemp(**kwargs)
         return cls(path)
 
@@ -453,7 +442,7 @@ class Path(pathlib.Path):
         self.unlink(missing_ok=True)
 
     """
-    Common folders: properties with classmethods such that 
+    Common folders: use properties and classmethods such that
     all child classes have common folders with all the right properties and methods
     """
 
@@ -480,9 +469,7 @@ class Path(pathlib.Path):
     @classmethod
     @property
     def assets(cls) -> Path:
-        """
-        Often overwritten by child classes for specific project
-        """
+        """Often overwritten by child classes for specific project."""
         return cls.script_assets
 
     @classmethod

@@ -9,7 +9,7 @@ import subprocess
 import tempfile
 import time
 from collections.abc import Iterable
-from functools import wraps
+from functools import cached_property, wraps
 from typing import Any
 
 from .utils import find_first_match
@@ -279,10 +279,13 @@ class Path(pathlib.Path):
             path.tag = self.tag
             path.mtime = self.mtime
 
+    @cached_property
+    def archive_format(self):
+        return shutil._find_unpack_format(str(self))
+
     def unpack_if_archive(self, extract_dir: Path = None):
-        archive_format = shutil._find_unpack_format(str(self))
-        if archive_format is not None:
-            self.unpack(extract_dir, format=archive_format)
+        if self.archive_format is not None:
+            self.unpack(extract_dir)
 
     def unpack(
         self,
@@ -298,8 +301,16 @@ class Path(pathlib.Path):
             if subfolder.exists() and path.amount_of_children == 1:
                 subfolder.pop_parent()
 
+        if format is None:
+            format = self.archive_format
+
         if extract_dir is None:
-            extract_dir = self.with_suffix("")
+            extract_name = self.name
+            unpack_info = shutil._UNPACK_FORMATS[format]
+            for archive_ext in unpack_info[0]:
+                if extract_name.endswith(archive_ext):
+                    extract_name = extract_name.replace(archive_ext, "")
+            extract_dir = self.with_name(extract_name)
 
         if remove_existing:
             extract_dir.rmtree()

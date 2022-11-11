@@ -8,7 +8,6 @@ import shutil
 import subprocess
 import tempfile
 import time
-import zipfile
 from collections.abc import Iterable
 from functools import wraps
 from typing import Any
@@ -280,16 +279,18 @@ class Path(pathlib.Path):
             path.tag = self.tag
             path.mtime = self.mtime
 
-    def check_zip(self):
-        if self.suffix == ".zip":
-            self.unzip()
+    def unpack_if_archive(self, extract_dir: Path = None):
+        archive_format = shutil._find_unpack_format(str(self))
+        if archive_format is not None:
+            self.unpack(extract_dir, format=archive_format)
 
-    def unzip(
+    def unpack(
         self,
-        extract_folder: Path | None = None,
+        extract_dir: Path | None = None,
         remove_existing: bool = True,
         preserve_properties: bool = True,
         remove_original: bool = True,
+        format: str = None,
     ):
         def cleanup(path: Path):
             (path / "__MACOSX").rmtree()
@@ -297,18 +298,17 @@ class Path(pathlib.Path):
             if subfolder.exists() and path.amount_of_children == 1:
                 subfolder.pop_parent()
 
-        if extract_folder is None:
-            extract_folder = self.with_suffix("")
+        if extract_dir is None:
+            extract_dir = self.with_suffix("")
 
         if remove_existing:
-            extract_folder.rmtree()
+            extract_dir.rmtree()
 
-        with zipfile.ZipFile(self) as zip_file:
-            zip_file.extractall(path=extract_folder)
+        shutil.unpack_archive(self, extract_dir=extract_dir, format=format)
 
-        cleanup(extract_folder)
+        cleanup(extract_dir)
         if preserve_properties:
-            self.copy_properties_to(extract_folder)
+            self.copy_properties_to(extract_dir)
         if remove_original:
             self.unlink()
 

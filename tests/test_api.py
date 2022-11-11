@@ -1,0 +1,68 @@
+import pytest
+
+from plib import Path
+
+
+@pytest.fixture()
+def path():
+    with Path.tempfile() as path:
+        yield path
+    assert not path.exists()
+
+
+@pytest.fixture()
+def folder():
+    with Path.tempfile() as path:
+        path.unlink()
+        path.mkdir()
+        yield path
+        path.rmtree()
+        path.touch()
+
+
+@pytest.fixture()
+def content():
+    return {"test": "content"}
+
+
+def test_tempfile():
+    with Path.tempfile() as path:
+        assert path.exists()
+    assert not path.exists()
+
+
+def test_yaml(path, content):
+    path.yaml = content
+    assert path.yaml == content
+
+
+def test_json(path, content):
+    path.json = content
+    assert path.json == content
+
+
+def test_deletion(path):
+    path.unlink()
+    assert not path.exists()
+
+
+def test_parent(path):
+    child_path = path / "child.txt"
+    assert child_path.parent == path
+
+
+def test_unpack(folder):
+    archive_assets = Path(__file__).parent / "assets" / "archives"
+    assert not archive_assets.is_empty()
+    for path in archive_assets.iterdir():
+        path.unpack(folder, remove_existing=True, remove_original=False)
+        test_file = folder / "test.txt"
+        assert test_file.text.strip() == "testcontent"
+
+
+def test_unpack_check(folder):
+    non_archive_assets = Path(__file__).parent / "assets" / "non_archives"
+    assert not non_archive_assets.is_empty()
+    for path in non_archive_assets.iterdir():
+        path.unpack_if_archive(folder)
+        assert folder.is_empty()

@@ -283,9 +283,9 @@ class Path(pathlib.Path):
     def archive_format(self):
         return shutil._find_unpack_format(str(self))
 
-    def unpack_if_archive(self, extract_dir: Path = None):
+    def unpack_if_archive(self, extract_dir: Path = None, recursive=True):
         if self.archive_format is not None:
-            self.unpack(extract_dir)
+            self.unpack(extract_dir, recursive=recursive)
 
     def unpack(
         self,
@@ -294,6 +294,7 @@ class Path(pathlib.Path):
         preserve_properties: bool = True,
         remove_original: bool = True,
         format: str = None,
+        recursive: bool = True,
     ):
         def cleanup(path: Path):
             (path / "__MACOSX").rmtree()
@@ -322,6 +323,10 @@ class Path(pathlib.Path):
             self.copy_properties_to(extract_dir)
         if remove_original:
             self.unlink()
+
+        if recursive:
+            for path in extract_dir.find():
+                path.unpack_if_archive()
 
     def pop_parent(self):
         """Remove first parent from path in filesystem."""

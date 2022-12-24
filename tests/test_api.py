@@ -51,13 +51,20 @@ def test_parent(path):
     assert child_path.parent == path
 
 
-def test_unpack(folder):
+def test_tar_unpack(folder):
     archive_assets = Path(__file__).parent / "assets" / "archives"
-    assert not archive_assets.is_empty()
-    for path in archive_assets.iterdir():
-        path.unpack(folder, remove_existing=True, remove_original=False)
-        test_file = folder / "test.txt"
-        assert test_file.text.strip() == "testcontent"
+    archive_path = archive_assets / "test.tar.gz"
+    archive_path.unpack(folder, remove_existing=True, remove_original=False)
+    test_file = folder / "test.txt"
+    assert test_file.text.strip() == "testcontent"
+
+
+def test_recursive_unpack(folder):
+    archive_assets = Path(__file__).parent / "assets" / "archives"
+    archive_path = archive_assets / "recursive.zip"
+    archive_path.unpack(folder, remove_existing=True, remove_original=False)
+    test_file = folder / "test" / "test" / "test.txt"
+    assert test_file.text.strip() == "testcontent"
 
 
 def test_unpack_check(folder):

@@ -20,25 +20,10 @@ def folder():
         path.touch()
 
 
-@pytest.fixture()
-def content():
-    return {"test": "content"}
-
-
 def test_tempfile():
     with Path.tempfile() as path:
         assert path.exists()
     assert not path.exists()
-
-
-def test_yaml(path, content):
-    path.yaml = content
-    assert path.yaml == content
-
-
-def test_json(path, content):
-    path.json = content
-    assert path.json == content
 
 
 def test_deletion(path):

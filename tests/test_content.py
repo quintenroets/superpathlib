@@ -1,0 +1,101 @@
+import pytest
+from hypothesis import HealthCheck, given, settings, strategies
+
+from plib import Path
+
+
+def dictionary_strategy():
+    return strategies.dictionaries(keys=strategies.text(), values=strategies.text())
+
+
+def nested_dictionary_generator():
+    return strategies.dictionaries(
+        keys=strategies.text(),
+        values=dictionary_strategy(),
+    )
+
+
+def text_strategy():
+    alphabet = strategies.characters(blacklist_categories=("Cc", "Cs", "Zs"))
+    return strategies.text(alphabet=alphabet)
+
+
+dictionary_content = given(content=nested_dictionary_generator())
+text_content = given(text=text_strategy())
+ignore_fixture_warning = settings(
+    suppress_health_check=(HealthCheck.function_scoped_fixture,)
+)
+
+
+@pytest.fixture()
+def path():
+    with Path.tempfile() as path:
+        yield path
+    assert not path.exists()
+
+
+@pytest.fixture()
+def encryption_path(path):
+    with path.encrypted as encryption_path:
+        yield encryption_path
+    assert not encryption_path.exists()
+
+
+@given(byte_content=strategies.binary())
+@ignore_fixture_warning
+def test_bytes(path, byte_content):
+    path.byte_content = byte_content
+    assert path.byte_content == byte_content
+
+
+@text_content
+@ignore_fixture_warning
+def test_text(path, text):
+    path.text = text
+    assert path.text == text
+
+
+@given(text_lines=strategies.lists(text_strategy()))
+@ignore_fixture_warning
+def test_lines(path, text_lines):
+    path.lines = text_lines
+    while text_lines and not text_lines[-1].strip():
+        text_lines.pop(-1)
+    text_lines = [line for line in text_lines if line]
+    assert path.lines == text_lines
+
+
+@dictionary_content
+@ignore_fixture_warning
+def test_json(path, content):
+    path.json = content
+    assert path.json == content
+
+
+@dictionary_content
+@ignore_fixture_warning
+def test_yaml(path, content):
+    path.yaml = content
+    assert path.yaml == content
+
+
+@settings(
+    max_examples=2,
+    deadline=2000,
+    suppress_health_check=(HealthCheck.function_scoped_fixture,),
+)
+@given(byte_content=strategies.binary())
+def test_encrypted_bytes(encryption_path, byte_content):
+    encryption_path.byte_content = byte_content
+    assert encryption_path.byte_content == byte_content
+
+
+@settings(
+    max_examples=2,
+    deadline=2000,
+    suppress_health_check=(HealthCheck.function_scoped_fixture,),
+)
+@given(text=text_strategy())
+def test_encrypted_text(encryption_path, text):
+    encryption_path.text = text
+    assert encryption_path.text == text

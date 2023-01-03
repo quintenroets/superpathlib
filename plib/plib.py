@@ -204,6 +204,11 @@ class Path(pathlib.Path):
             self.with_suffix(".yaml") if self.suffix not in (".yaml", ".yml") else self
         )
 
+    @property
+    def encrypted(self):
+        path = self.with_suffix(self.suffix + ".gpg")
+        return EncryptedPath(path)
+
     """
     Properties to read & write metadata
     """
@@ -218,7 +223,7 @@ class Path(pathlib.Path):
         os.utime(self, (time, time))  # set create time as well
 
         try:
-            subprocess.run(("touch", "-d", f"@{time}", self))
+            subprocess.run(("touch", "-d", "@%f" % time, self))
         except subprocess.CalledProcessError:
             pass  # Doesn't work on Windows
 
@@ -458,8 +463,8 @@ class Path(pathlib.Path):
         self.unlink(missing_ok=True)
 
     """
-    Common folders: use properties and classmethods such that
-    all child classes have common folders with all the right properties and methods
+    Common folders: use properties and classmethods to guarantee
+                    the same behavior for all derived classes
     """
 
     @classmethod
@@ -492,3 +497,40 @@ class Path(pathlib.Path):
     @property
     def draft(cls) -> Path:
         return cls.docs / "draft.txt"
+
+
+class EncryptedPath(Path):
+    @cached_property
+    def password(self):
+        command = 'ksshaskpass -- "Enter passphrase for file encryption: "'
+        return subprocess.getoutput(command)
+
+    @property
+    def encryption_command(self):
+        return *self.decryption_command, "-c"
+
+    @property
+    def decryption_command(self):
+        return "gpg", "--passphrase", self.password, "--batch", "--quiet", "--yes"
+
+    def read_bytes(self) -> bytes:
+        encrypted_bytes = super().read_bytes()
+        process = subprocess.Popen(
+            self.decryption_command, stdin=subprocess.PIPE, stdout=subprocess.PIPE
+        )
+        decrypted_bytes, _ = process.communicate(input=encrypted_bytes)
+        return decrypted_bytes
+
+    def write_bytes(self, data: bytes) -> int:
+        process = subprocess.Popen(
+            self.encryption_command, stdin=subprocess.PIPE, stdout=subprocess.PIPE
+        )
+        encrypted_data = process.communicate(input=data)[0]
+        return super().write_bytes(encrypted_data)
+
+    def read_text(self, encoding: str | None = ..., errors: str | None = ...) -> str:
+        return self.read_bytes().decode()
+
+    def write_text(self, data: str, **_) -> int:
+        data = data.encode()
+        return self.write_bytes(data)

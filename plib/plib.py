@@ -130,9 +130,9 @@ class Path(pathlib.Path):
                 self.create_parent()
                 res = super().open(mode, **kwargs)
             elif "b" in mode:
-                res = io.BytesIO(b"")
+                res = io.BytesIO(self.encrypted.byte_content)
             else:
-                res = io.StringIO("")
+                res = io.StringIO(self.encrypted.text)
             return res
         return res
 
@@ -515,10 +515,13 @@ class EncryptedPath(Path):
 
     def read_bytes(self) -> bytes:
         encrypted_bytes = super().read_bytes()
-        process = subprocess.Popen(
-            self.decryption_command, stdin=subprocess.PIPE, stdout=subprocess.PIPE
-        )
-        decrypted_bytes, _ = process.communicate(input=encrypted_bytes)
+        if encrypted_bytes:
+            process = subprocess.Popen(
+                self.decryption_command, stdin=subprocess.PIPE, stdout=subprocess.PIPE
+            )
+            decrypted_bytes, _ = process.communicate(input=encrypted_bytes)
+        else:
+            decrypted_bytes = encrypted_bytes
         return decrypted_bytes
 
     def write_bytes(self, data: bytes) -> int:

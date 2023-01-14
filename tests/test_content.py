@@ -99,3 +99,41 @@ def test_encrypted_bytes(encryption_path, byte_content):
 def test_encrypted_text(encryption_path, text):
     encryption_path.text = text
     assert encryption_path.text == text
+
+
+@settings(
+    max_examples=2,
+    deadline=2000,
+    suppress_health_check=(HealthCheck.function_scoped_fixture,),
+)
+@given(byte_content=strategies.binary())
+def test_encrypted_bytes_fallback(path, byte_content):
+    # provided path reused across all cases for this function and exists in beginning
+    # => need to delete it in the first test case
+    path.unlink(missing_ok=True)
+
+    try:
+        path.encrypted.byte_content = byte_content
+        assert not path.exists()
+        assert path.byte_content == byte_content
+    finally:
+        path.encrypted.unlink()
+
+
+@settings(
+    max_examples=2,
+    deadline=2000,
+    suppress_health_check=(HealthCheck.function_scoped_fixture,),
+)
+@given(text=text_strategy())
+def test_encrypted_text_fallback(path, text):
+    # provided path reused across all cases for this function and exists in beginning
+    # => need to delete it in the first test case
+    path.unlink(missing_ok=True)
+
+    try:
+        path.encrypted.text = text
+        assert not path.exists()
+        assert path.text == text
+    finally:
+        path.encrypted.unlink()

@@ -45,3 +45,9 @@ def test_tag(path, tag):
 def test_size(path, byte_content):
     path.byte_content = byte_content
     assert path.size == len(byte_content)
+
+
+def test_filetypes(path):
+    filetype_mappings = {"text": "txt", "video": "mp4", "image": "jpg"}
+    for filetype, extension in filetype_mappings.items():
+        assert path.with_suffix(f".{extension}").filetype == filetype

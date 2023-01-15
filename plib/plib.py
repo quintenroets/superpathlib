@@ -2,6 +2,7 @@ from __future__ import annotations  # https://www.python.org/dev/peps/pep-0563/
 
 import io
 import json
+import mimetypes
 import os
 import pathlib
 import shutil
@@ -273,6 +274,13 @@ class Path(pathlib.Path):
     @property
     def amount_of_children(self):
         return sum(1 for _ in self.iterdir()) if self.is_dir() else 0
+
+    @property
+    def filetype(self):
+        filetype = mimetypes.guess_type(self)[0]
+        if filetype:
+            filetype = filetype.split("/")[0]
+        return filetype
 
     """
     Additional functionality

@@ -76,14 +76,14 @@ def test_lines(path, text_lines):
 
 
 @dictionary_content
-@ignore_fixture_warning
+@settings(suppress_health_check=(HealthCheck.function_scoped_fixture,), max_examples=10)
 def test_json(path, content):
     path.json = content
     assert path.json == content
 
 
 @dictionary_content
-@ignore_fixture_warning
+@settings(suppress_health_check=(HealthCheck.function_scoped_fixture,), max_examples=10)
 def test_yaml(path, content):
     path.yaml = content
     assert path.yaml == content

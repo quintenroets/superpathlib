@@ -55,6 +55,16 @@ def test_text(path, text):
     assert path.text == text
 
 
+def test_empty_file_text(path):
+    path.unlink()
+    assert path.text == ""
+
+
+def test_empty_file_byte_content(path):
+    path.unlink()
+    assert path.byte_content == b""
+
+
 @given(text_lines=strategies.lists(text_strategy()))
 @ignore_fixture_warning
 def test_lines(path, text_lines):

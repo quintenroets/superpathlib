@@ -129,10 +129,14 @@ class Path(pathlib.Path):
                 # exist_ok=True: catch race conditions when calling multiple times
                 self.create_parent()
                 res = super().open(mode, **kwargs)
-            elif "b" in mode:
-                res = io.BytesIO(self.encrypted.byte_content)
             else:
-                res = io.StringIO(self.encrypted.text)
+                encrypted = self.encrypted.exists()
+                if "b" in mode:
+                    byte_content = self.encrypted.byte_content if encrypted else b""
+                    res = io.BytesIO(byte_content)
+                else:
+                    text = self.encrypted.text if encrypted else ""
+                    res = io.StringIO(text)
             return res
         return res
 

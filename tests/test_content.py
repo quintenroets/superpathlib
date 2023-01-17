@@ -147,3 +147,14 @@ def test_encrypted_text_fallback(path, text):
         assert path.text == text
     finally:
         path.encrypted.unlink()
+
+
+@settings(
+    max_examples=2,
+    deadline=2000,
+    suppress_health_check=(HealthCheck.function_scoped_fixture,),
+)
+@given(text=text_strategy())
+def test_no_double_extension(encryption_path, text):
+    encryption_path.encrypted.text = text
+    assert encryption_path.text == text

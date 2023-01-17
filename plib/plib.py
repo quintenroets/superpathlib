@@ -211,7 +211,10 @@ class Path(pathlib.Path):
 
     @property
     def encrypted(self):
-        path = self.with_suffix(self.suffix + ".gpg") if self.suffix != ".pgp" else self
+        path = self
+        encryption_suffix = ".gpg"
+        if path.suffix != encryption_suffix:
+            path = path.with_suffix(path.suffix + encryption_suffix)
         return EncryptedPath(path)
 
     """

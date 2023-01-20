@@ -19,7 +19,7 @@ setup(
     author_email="quinten.roets@gmail.com",
     url="https://github.com/quintenroets/superpathlib",
     download_url=(
-        "https://github.com/quintenroets/superpathlib/archive/refs/tags/v0.0.2.tar.gz"
+        "https://github.com/quintenroets/superpathlib/archive/refs/tags/v0.0.3.tar.gz"
     ),
     description="extended pathlib",
     long_description=Path("README.md").read_text(),

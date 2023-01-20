@@ -29,8 +29,8 @@ for line in path.lines:
     * size: filesize
     * is_root: whether the owner of the file is a root user
     * has_children: whether a path has children
-    * amount_of_children: amount of children in a folder
-    * 
+    * number_of_children: number of children in a folder
+    * filetype: content type of a file
 * get & set:
     * mtime: modified time
     * tag: can be used for alternative ordering or metadata
@@ -40,7 +40,7 @@ examples:
 ```shell
 path_new.mtime = path_old.mtime
 
-if path.tag != skip_keyword:
+if path.tag != skip_keyword and path.filetype == "video":
     process(path)
 ```
 ### 3) Use class properties to access commonly used folders:
@@ -60,7 +60,7 @@ names = names_path.lines
 * copy_to(dest): copy content to dest
 * copy_properties_to(dest): recursively copy path properties (mtime, tag) to all n-level children of dest
 * tempfile(): create temporary file that can be used as context manager
-* unzip(): extract zip path to folder with same name and cleanup extraction folder
+* unpack(): extract archive(zip, tar, ..) file to desired folder
 * pop_parent(): remove first parent from path in filesystem
 
 examples: 
@@ -88,15 +88,15 @@ from plib import Path as BasePath
 
 class Path(BasePath):
     def count_children(self):
-        return len(list(self.iterdir()))
+        return sum(1 for _ in self.iterdir())
 ```
 
-This only works for inheritance from plib and not from pathlib
+This only works if you inherit from plib and not from the builtin pathlib
 
 
 ## Installation
 
 ```shell
-pip install git+https://github.com/quintenroets/superpathlib
+pip install superpathlib
 requires python version >= 3.9
 ```

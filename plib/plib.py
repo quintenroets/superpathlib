@@ -196,20 +196,6 @@ class Path(pathlib.Path):
         self.text = yaml.dump(value, Dumper=Dumper, width=1024)
 
     @property
-    def content(self):
-        return self.yaml_path.yaml
-
-    @content.setter
-    def content(self, value):
-        self.yaml_path.yaml = value
-
-    @property
-    def yaml_path(self):
-        return (
-            self.with_suffix(".yaml") if self.suffix not in (".yaml", ".yml") else self
-        )
-
-    @property
     def encrypted(self):
         path = self
         encryption_suffix = ".gpg"
@@ -275,7 +261,7 @@ class Path(pathlib.Path):
         return next(self.iterdir(), None) is not None if self.is_dir() else False
 
     @property
-    def amount_of_children(self):
+    def number_of_children(self):
         return sum(1 for _ in self.iterdir()) if self.is_dir() else 0
 
     @property
@@ -372,15 +358,7 @@ class Path(pathlib.Path):
             or self.size == 0
         )
 
-    def write(self, content):
-        if isinstance(content, str):
-            self.write_text(content)
-        elif isinstance(content, bytes):
-            self.write_bytes(content)
-        else:
-            self.save(content)
-
-    def load(self, trusted=False):
+    def load_yaml(self, trusted=False):
         """
         :param trusted: if the path is trusted, an unsafe loader
                         can be used to instantiate any object
@@ -389,17 +367,14 @@ class Path(pathlib.Path):
         import yaml  # noqa: autoimport
 
         loader = yaml.CUnsafeLoader if trusted else yaml.CFullLoader
-        return yaml.load(self.yaml_path.text, Loader=loader) or {}
-
-    def save(self, content):
-        self.content = content
+        return yaml.load(self.text, Loader=loader) or {}
 
     def update(self, value):
         # only read and write if value to add not empty
         if value:
-            content = self.content | value
-            self.content = content
-            return content
+            updated_content = self.yaml | value
+            self.yaml = updated_content
+            return updated_content
 
     def find(
         self,

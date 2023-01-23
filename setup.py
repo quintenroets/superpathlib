@@ -25,7 +25,7 @@ setup(
     long_description=Path("README.md").read_text(),
     long_description_content_type="text/markdown",
     name=NAME,
-    version="0.0.3",
+    version="0.0.4",
     packages=find_packages(),
     install_requires=read("requirements.txt"),
 )

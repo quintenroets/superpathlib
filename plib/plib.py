@@ -305,7 +305,7 @@ class Path(pathlib.Path):
         def cleanup(path: Path):
             (path / "__MACOSX").rmtree()
             subfolder = path / path.name
-            if subfolder.exists() and path.amount_of_children == 1:
+            if subfolder.exists() and path.number_of_children == 1:
                 subfolder.pop_parent()
 
         if format is None:

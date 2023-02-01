@@ -3,6 +3,7 @@ from pathlib import Path
 from setuptools import find_packages, setup
 
 NAME = "superpathlib"
+version = "0.0.5"
 
 
 def read(filename):
@@ -19,13 +20,14 @@ setup(
     author_email="quinten.roets@gmail.com",
     url="https://github.com/quintenroets/superpathlib",
     download_url=(
-        "https://github.com/quintenroets/superpathlib/archive/refs/tags/v0.0.3.tar.gz"
+        "https://github.com/quintenroets/"
+        f"superpathlib/archive/refs/tags/v{version}.tar.gz"
     ),
     description="extended pathlib",
     long_description=Path("README.md").read_text(),
     long_description_content_type="text/markdown",
     name=NAME,
-    version="0.0.4",
+    version=version,
     packages=find_packages(),
     install_requires=read("requirements.txt"),
 )

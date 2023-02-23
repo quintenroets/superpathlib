@@ -3,7 +3,7 @@ from pathlib import Path
 from setuptools import find_packages, setup
 
 NAME = "superpathlib"
-version = "0.0.5"
+version = "0.0.6"
 
 
 def read(filename):
@@ -30,4 +30,5 @@ setup(
     version=version,
     packages=find_packages(),
     install_requires=read("requirements.txt"),
+    python_requires=">3.9",
 )

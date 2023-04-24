@@ -355,7 +355,7 @@ class Path(pathlib.Path):
         return (
             not self.exists()
             or (self.is_dir() and next(self.iterdir(), None) is None)
-            or self.size == 0
+            or (self.is_file() and self.size == 0)
         )
 
     def load_yaml(self, trusted=False):

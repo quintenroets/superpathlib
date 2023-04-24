@@ -2,3 +2,5 @@
 hypothesis
 pre-commit
 pytest
+build
+twine

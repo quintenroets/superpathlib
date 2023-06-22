@@ -1,0 +1,29 @@
+[project]
+name = "superpathlib"
+version = "1.0.2"
+description = "Extended Pathlib"
+authors = [{name = "Quinten Roets", email = "qdr2104@columbia.edu"}]
+license = {text = "MIT"}
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = []
+
+[project.urls]
+"Source Code" = "https://github.com/quintenroets/superpathlib"
+
+[project.optional-dependencies]
+dev = [
+    "pre-commit",
+    "build",
+    "twine"
+]
+test = [
+    "hypothesis",
+    "numpy",
+    "pytest",
+    "PyYaml"
+]
+
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"

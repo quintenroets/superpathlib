@@ -1,3 +1,4 @@
+import numpy as np
 import pytest
 from hypothesis import HealthCheck, given, settings, strategies
 
@@ -87,6 +88,14 @@ def test_json(path, content):
 def test_yaml(path, content):
     path.yaml = content
     assert path.yaml == content
+
+
+@given(content=strategies.lists(strategies.floats()))
+@settings(suppress_health_check=(HealthCheck.function_scoped_fixture,), max_examples=10)
+def test_numpy(path, content):
+    numpy_content = np.array(content)
+    path.numpy = numpy_content
+    assert np.array_equal(path.numpy, numpy_content, equal_nan=True)
 
 
 @settings(

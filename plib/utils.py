@@ -1,10 +1,11 @@
-from typing import Callable
+from collections.abc import Callable
 
 
 def find_first_match(condition: Callable) -> int:
     """
     :param condition: Condition that number needs to match.
-                      The condition is assumed to be valid for all integers staring from an initial value.
+                      The condition is assumed to be valid for all integers staring
+                      from an initial value.
     :return: First integer for which condition is valid.
     """
 
@@ -13,7 +14,8 @@ def find_first_match(condition: Callable) -> int:
     while not condition(upper_bound):
         upper_bound *= 2
 
-    # narrow down range of first match = [lower_bound + 1, upper_bound] until one value left
+    # first match = [lower_bound + 1, upper_bound]
+    # narrow down range of first match until one value left
     lower_bound = upper_bound // 2
     while lower_bound + 1 < upper_bound:
         middle = (upper_bound + lower_bound) // 2

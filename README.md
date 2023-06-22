@@ -14,6 +14,7 @@ path = Path(filename)
 * lines
 * yaml
 * json
+* numpy
 
 examples: 
 
@@ -98,5 +99,8 @@ This only works if you inherit from plib and not from the builtin pathlib
 
 ```shell
 pip install superpathlib
-requires python version >= 3.9
 ```
+
+Install the packages corresponding with the properties you want to use
+* e.g. PyYaml for yaml property
+* Packages listed in requirements.txt

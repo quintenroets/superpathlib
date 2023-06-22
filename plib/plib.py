@@ -17,7 +17,7 @@ from .utils import find_first_match
 
 # Long import times relative to their usage frequency: lazily imported
 # import yaml
-# from datatime import datetime
+# from datetime import datetime
 # from .tags import XDGTags
 
 
@@ -68,9 +68,8 @@ class Path(pathlib.Path):
     _flavour = (
         pathlib._windows_flavour if os.name == "nt" else pathlib._posix_flavour
     )  # _flavour attribute needs to inherited explicitely from pathlib
-
-    """
-    Overwrite existing methods with exception handling and default values
+    """Overwrite existing methods with exception handling and default
+    values.
     """
 
     @create_parent_on_missing
@@ -194,6 +193,20 @@ class Path(pathlib.Path):
         # C implementation much faster but only supported on Linux
         Dumper = yaml.CDumper if hasattr(yaml, "CDumper") else yaml.Dumper
         self.text = yaml.dump(value, Dumper=Dumper, width=1024)
+
+    @property
+    def numpy(self):
+        import numpy as np  # noqa: autoimport
+
+        with self.open("rb") as fp:
+            return np.load(fp)  # noqa
+
+    @numpy.setter
+    def numpy(self, value):
+        import numpy as np  # noqa: autoimport
+
+        with self.open("wb") as fp:
+            np.save(fp, value)  # noqa
 
     @property
     def encrypted(self):

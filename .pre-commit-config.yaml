@@ -1,5 +1,9 @@
 fail_fast: true
 repos:
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.0.278
+    hooks:
+      - id: ruff
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.4.0
     hooks:
@@ -10,24 +14,6 @@ repos:
     hooks:
       - id: docformatter
         args: [--in-place, --pre-summary-newline, --close-quotes-on-newline]
-        stages: [commit]
-  - repo: https://github.com/asottile/pyupgrade
-    rev: v3.7.0
-    hooks:
-    -   id: pyupgrade
-        args: [--py310-plus]
-        stages: [commit]
-  - repo: https://github.com/hadialqattan/pycln
-    rev: v2.1.5
-    hooks:
-      - id: pycln
-        args: [-q, --all, --exclude, __init__.py]
-        stages: [commit]
-  - repo: https://github.com/pycqa/isort
-    rev: 5.12.0
-    hooks:
-      - id: isort
-        args: [--profile black]
         stages: [commit]
   - repo: https://github.com/psf/black
     rev: 23.3.0
@@ -57,12 +43,3 @@ repos:
         entry: publish
         pass_filenames: false
         always_run: true
-#  - repo: local
-#    hooks:
-#      - id: git
-#        name: git
-#        entry: git update-index --again
-#        language: system
-#        pass_filenames: false
-#        always_run: true
-#        stages: [commit]

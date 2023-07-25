@@ -1,50 +1,32 @@
 import math
 import time
 
-import pytest
-from hypothesis import HealthCheck, given, settings, strategies
+from content import byte_content, text_strategy
+from hypothesis import given, strategies
+from utils import ignore_fixture_warning
 
 from plib import Path
 
 
-def text_strategy():
-    alphabet = strategies.characters(
-        blacklist_categories=("Cc", "Cs", "Zs"), blacklist_characters=(",",)
-    )
-    return strategies.text(alphabet=alphabet)
-
-
-ignore_fixture_warning = settings(
-    suppress_health_check=(HealthCheck.function_scoped_fixture,)
-)
-
-
-@pytest.fixture()
-def path():
-    with Path.tempfile() as path:
-        yield path
-    assert not path.exists()
-
-
-@given(mtime=strategies.floats(min_value=0, max_value=time.time()))
 @ignore_fixture_warning
-def test_mtime(path, mtime):
+@given(mtime=strategies.floats(min_value=0, max_value=time.time()))
+def test_mtime(path: Path, mtime: float):
     path.mtime = mtime
     assert math.isclose(path.mtime, mtime, abs_tol=1e-3)
 
 
-@given(tag=text_strategy())
 @ignore_fixture_warning
-def test_tag(path, tag):
-    path.tag = tag
-    assert path.tag == tag
+@given(content=text_strategy(blacklist_characters=","))
+def test_tag(path: Path, content: str):
+    path.tag = content
+    assert path.tag == content
 
 
-@given(byte_content=strategies.binary())
 @ignore_fixture_warning
-def test_size(path, byte_content):
-    path.byte_content = byte_content
-    assert path.size == len(byte_content)
+@byte_content
+def test_size(path, content):
+    path.byte_content = content
+    assert path.size == len(content)
 
 
 def test_filetypes(path):

@@ -20,6 +20,7 @@ slower_test_settings = settings(
 @ignore_fixture_warning
 @byte_content
 def test_bytes(path: Path, content: bytes):
+    assert isinstance(Path.byte_content, property)
     path.byte_content = content
     assert path.byte_content == content
 
@@ -27,6 +28,7 @@ def test_bytes(path: Path, content: bytes):
 @ignore_fixture_warning
 @text_content
 def test_text(path: Path, content: str):
+    assert isinstance(Path.text, property)
     path.text = content
     assert path.text == content
 
@@ -44,6 +46,7 @@ def test_empty_file_byte_content(path: Path):
 @ignore_fixture_warning
 @text_lines_content
 def test_lines(path: Path, content: list[str]):
+    assert isinstance(Path.lines, property)
     path.lines = content
     while content and not content[-1].strip():
         content.pop(-1)
@@ -54,6 +57,7 @@ def test_lines(path: Path, content: list[str]):
 @slower_test_settings
 @dictionary_content
 def test_json(path: Path, content: dict):
+    assert isinstance(Path.json, property)
     path.json = content
     assert path.json == content
 
@@ -61,6 +65,7 @@ def test_json(path: Path, content: dict):
 @slower_test_settings
 @dictionary_content
 def test_yaml(path: Path, content: dict):
+    assert isinstance(Path.yaml, property)
     path.yaml = content
     assert path.yaml == content
 
@@ -68,6 +73,7 @@ def test_yaml(path: Path, content: dict):
 @slower_test_settings
 @floats_content
 def test_numpy(path: Path, content: list[float]):
+    assert isinstance(Path.numpy, property)
     numpy_content = np.array(content)
     path.numpy = numpy_content
     assert np.array_equal(path.numpy, numpy_content, equal_nan=True)

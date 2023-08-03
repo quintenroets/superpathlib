@@ -11,6 +11,7 @@ from plib import Path
 @ignore_fixture_warning
 @given(mtime=strategies.floats(min_value=0, max_value=time.time()))
 def test_mtime(path: Path, mtime: float):
+    assert isinstance(Path.mtime, property)
     path.mtime = mtime
     assert math.isclose(path.mtime, mtime, abs_tol=1e-3)
 
@@ -18,6 +19,7 @@ def test_mtime(path: Path, mtime: float):
 @ignore_fixture_warning
 @given(content=text_strategy(blacklist_characters=","))
 def test_tag(path: Path, content: str):
+    assert isinstance(Path.tag, property)
     path.tag = content
     assert path.tag == content
 
@@ -25,6 +27,7 @@ def test_tag(path: Path, content: str):
 @ignore_fixture_warning
 @byte_content
 def test_size(path, content):
+    assert isinstance(Path.size, property)
     path.byte_content = content
     assert path.size == len(content)
 

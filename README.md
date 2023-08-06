@@ -63,7 +63,7 @@ names = names_path.lines
 * tempfile(): create temporary file that can be used as context manager
 * unpack(): extract archive(zip, tar, ..) file to desired folder
 * pop_parent(): remove first parent from path in filesystem
-* from_uri(): create path object from uri string
+* from_uri(uri): create path object from uri string
 
 examples: 
 

@@ -44,6 +44,11 @@ def test_unpack_check(folder: Path):
         assert folder.is_empty()
 
 
+def test_uri(path: Path):
+    uri = path.as_uri()
+    assert Path.from_uri(uri) == path
+
+
 @ignore_fixture_warning
 @byte_content
 def test_copy(path: Path, path2: Path, content: bytes):

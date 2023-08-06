@@ -63,6 +63,7 @@ names = names_path.lines
 * tempfile(): create temporary file that can be used as context manager
 * unpack(): extract archive(zip, tar, ..) file to desired folder
 * pop_parent(): remove first parent from path in filesystem
+* from_uri(): create path object from uri string
 
 examples: 
 
@@ -85,14 +86,14 @@ for git_path in root.find(condition):
 example: 
 
 ```shell
-from plib import Path as BasePath
+import plib
 
-class Path(BasePath):
+class Path(plib.Path):
     def count_children(self):
         return sum(1 for _ in self.iterdir())
 ```
 
-This only works if you inherit from plib and not from the builtin pathlib
+This only works if you inherit from plib Path, not the standard library pathlib Path
 
 
 ## Installation

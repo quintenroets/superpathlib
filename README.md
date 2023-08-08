@@ -1,10 +1,14 @@
 # Superpathlib
-Superpathlib offers Path objects with functionality extended from pathlib to maximize your productivity with a minimal amount of code.
+Maximize your productivity using minimal code!
+
+Superpathlib enhances file operations, making them more intuitive and easy to implement. 
+This library builds upon Python's standard library [pathlib](https://docs.python.org/3/library/pathlib.html) module, offering an expansive range of added features without compromising performance.
 
 ## Usage
 
 ```shell
 from plib import Path
+
 path = Path(filename)
 ```
 
@@ -81,7 +85,7 @@ for git_path in root.find(condition):
 * Automatically create parents when writing files, creating new files, renaming files, ..
 * Return default values when path does not exist (e.g. size = 0, lines=[])
 
-### 6) Inherit from Path to define your own additional functionality:
+### 6) Inherit from plib Path to define your own additional functionality:
 
 example: 
 
@@ -93,7 +97,7 @@ class Path(plib.Path):
         return sum(1 for _ in self.iterdir())
 ```
 
-This only works if you inherit from plib Path, not the standard library pathlib Path
+This only works if you inherit from plib Path, not pathlib Path
 
 
 ## Installation

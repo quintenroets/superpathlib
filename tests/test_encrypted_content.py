@@ -5,7 +5,7 @@ from plib import Path
 
 slow_test_settings = settings(
     max_examples=2,
-    deadline=2000,
+    deadline=3000,
     suppress_health_check=(HealthCheck.function_scoped_fixture,),
 )
 

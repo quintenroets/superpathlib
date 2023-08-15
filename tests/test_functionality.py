@@ -1,3 +1,4 @@
+import pytest
 from content import byte_content
 from utils import ignore_fixture_warning
 
@@ -73,3 +74,82 @@ def test_copy_if_newer_skips(path: Path, path2: Path, content: bytes):
     path.mtime = path2.mtime - 1
     path.copy_to(path2, only_if_newer=True)
     assert path2.byte_content == b""
+
+
+@ignore_fixture_warning
+@byte_content
+def test_move(path: Path, path2: Path, content: bytes):
+    path.byte_content = content
+    path.rename(path2)
+    assert_moved(path, path2, content)
+
+
+@ignore_fixture_warning
+@byte_content
+def test_move_existing(path: Path, path2: Path, content: bytes):
+    path.byte_content = content
+    path2.byte_content = content
+    path.rename(path2)
+
+    assert_moved(path, path2, content)
+
+
+@ignore_fixture_warning
+@byte_content
+def test_move_folder(folder: Path, folder2: Path, content: bytes):
+    filename = folder.name
+    subpath = folder / filename
+    subpath.byte_content = content
+
+    folder2.rmtree()
+    folder.rename(folder2)
+
+    subpath2 = folder2 / filename
+    assert_moved(subpath, subpath2, content)
+    subpath2.unlink()
+    assert_empty(folder, folder2)
+
+
+@ignore_fixture_warning
+@byte_content
+def test_move_folder_existing(folder: Path, folder2: Path, content: bytes):
+    def move_function():
+        folder.rename(folder2, exist_ok=True)
+
+    verify_move_existing(move_function, folder, folder2, content)
+
+
+@ignore_fixture_warning
+@byte_content
+def test_replace_folder_existing(folder: Path, folder2: Path, content: bytes):
+    def move_function():
+        folder.replace(folder2)
+
+    verify_move_existing(move_function, folder, folder2, content)
+
+
+def verify_move_existing(move_function, folder: Path, folder2: Path, content: bytes):
+    filename = folder.name
+    subpath = folder / filename
+    subpath2 = folder2 / filename
+    for test_subpath in (subpath, subpath2):
+        test_subpath.byte_content = content
+
+    with pytest.raises(OSError):
+        folder.rename(folder2)
+
+    move_function()
+
+    assert_moved(subpath, subpath2, content)
+    subpath2.unlink()
+    assert_empty(folder, folder2)
+
+
+def assert_empty(*paths: Path):
+    for path in paths:
+        assert path.is_empty()
+
+
+def assert_moved(source: Path, dest: Path, content: bytes):
+    assert source.byte_content == b""
+    assert dest.byte_content == content

@@ -1,5 +1,6 @@
+from __future__ import annotations
+
 import io
-import shutil
 from functools import wraps
 
 from . import encryption
@@ -12,7 +13,7 @@ def create_parent_on_missing(func):
         try:
             res = func(*args, **kwargs)
         except FileNotFoundError:
-            path: encryption.Path = args[0]
+            path = encryption.Path(args[0])
             path.create_parent()
             res = func(*args, **kwargs)
         return res
@@ -39,14 +40,29 @@ class Path(encryption.Path):
         if self.exists() or not missing_ok:
             yield from super().iterdir()
 
-    def rename(self, target):
-        target = self.__class__(target)
-        target.create_parent()
+    @create_parent_on_missing
+    def rename(self, target, exist_ok=False):
+        rename = super().replace if exist_ok else super().rename
         try:
-            target = super().rename(target)
+            target = rename(target)
+        except OSError as e:
+            if exist_ok and "Directory not empty" in str(e):
+                target.rmtree()
+                target = rename(target)
+            else:
+                raise
+        """
+
+        try:
+            target = rename(target)
         except OSError:
+            use if target is on different file system
             target = shutil.move(self, target)
+        """
         return target
+
+    def replace(self, target: str | Path):
+        return self.rename(target, exist_ok=True)
 
     def open(self, mode: str = "r", **kwargs):
         try:

@@ -110,7 +110,7 @@ class Path(metadata_properties.Path):
         """
         dest = self.parent.parent / self.name
         parent = self.parent
-        temp_dest = dest.with_nonexistent_name()  # can only move to non existing path
+        temp_dest = dest.with_nonexistent_name()  # can only move to non-existing path
 
         self.rename(temp_dest)
 

@@ -84,6 +84,7 @@ for git_path in root.find(condition):
 ### 5) Enhance existing functionality
 * Automatically create parents when writing files, creating new files, renaming files, ..
 * Return default values when path does not exist (e.g. size = 0, lines=[])
+* Support replacing folders instead files only if specified
 
 ### 6) Inherit from plib Path to define your own additional functionality:
 

@@ -4,7 +4,7 @@ from plib import Path
 
 
 def provision_path():
-    with Path.tempfile() as path:
+    with Path.tempfile(in_memory=False) as path:
         yield path
     assert not path.exists()
 

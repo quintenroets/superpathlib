@@ -211,12 +211,16 @@ class Path(metadata_properties.Path):
         return cls(path_str)
 
     @classmethod
-    def tempfile(cls, **kwargs) -> Path:
+    def tempfile(cls, in_memory=True, **kwargs) -> Path:
         """Usage:
 
         with Path.tempfile() as tmp:     run_command(log_file=tmp)     logs = tmp.text
         process_logs(logs)
         """
+        if in_memory:
+            in_memory_folder = cls("/") / "dev" / "shm"
+            if in_memory_folder.exists():
+                kwargs["dir"] = in_memory_folder
         _, path = tempfile.mkstemp(**kwargs)
         return cls(path)
 

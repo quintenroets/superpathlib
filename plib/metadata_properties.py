@@ -1,6 +1,7 @@
 import mimetypes
 import os
 import subprocess
+import warnings
 from functools import wraps
 
 from . import content_properties
@@ -92,3 +93,16 @@ class Path(content_properties.Path):
         if filetype:
             filetype = filetype.split("/")[0]
         return filetype
+
+    @property
+    def content_hash(self):
+        # dirhash package throws annoying warnings
+        warnings.filterwarnings(
+            action="ignore", module="pkg_resources|dirhash", category=DeprecationWarning
+        )
+
+        import dirhash  # noqa: E402, autoimport
+
+        # use default algorithm used in cloud provider checksums
+        # can be efficient because not used for cryptographic security
+        return dirhash.dirhash(self, "md5")

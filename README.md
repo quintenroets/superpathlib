@@ -36,6 +36,7 @@ for line in path.lines:
     * has_children: whether a path has children
     * number_of_children: number of children in a folder
     * filetype: content type of a file
+    * content_hash: a hash of the complete substructure found in a folder
 * get & set:
     * mtime: modified time
     * tag: can be used for alternative ordering or metadata

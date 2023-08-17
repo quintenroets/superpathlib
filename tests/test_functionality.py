@@ -103,13 +103,13 @@ def test_move_folder(folder: Path, folder2: Path, content: bytes):
     subpath = folder / filename
     subpath.byte_content = content
 
+    content_hash = folder.content_hash
     folder2.rmtree()
+
     folder.rename(folder2)
 
-    subpath2 = folder2 / filename
-    assert_moved(subpath, subpath2, content)
-    subpath2.unlink()
-    assert_empty(folder, folder2)
+    assert folder.is_empty()
+    assert folder2.content_hash == content_hash
 
 
 @ignore_fixture_warning
@@ -139,13 +139,13 @@ def test_move_folder_different_filesystem(
     subpath = folder / filename
     subpath.byte_content = content
 
+    content_hash = folder.content_hash
     in_memory_folder.rmtree()
     folder.rename(in_memory_folder)
 
-    subpath2 = in_memory_folder / filename
-    assert_moved(subpath, subpath2, content)
-    subpath2.unlink()
-    assert_empty(folder, in_memory_folder)
+    in_memory_folder / filename
+    assert folder.is_empty()
+    assert in_memory_folder.content_hash == content_hash
 
 
 @ignore_fixture_warning
@@ -181,16 +181,11 @@ def verify_move_existing(
     with pytest.raises(expected_existing_error):
         folder.rename(folder2)
 
+    content_hash = folder.content_hash
     move_function()
 
-    assert_moved(subpath, subpath2, content)
-    subpath2.unlink()
-    assert_empty(folder, folder2)
-
-
-def assert_empty(*paths: Path):
-    for path in paths:
-        assert path.is_empty()
+    assert folder.is_empty()
+    assert folder2.content_hash == content_hash
 
 
 def assert_moved(source: Path, dest: Path, content: bytes):

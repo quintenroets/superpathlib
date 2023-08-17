@@ -11,6 +11,7 @@ from .utils import find_first_match
 
 # Long import times relative to usage frequency: lazy imports
 # from datetime import datetime
+# import dirhash
 
 
 class Path(metadata_properties.Path):

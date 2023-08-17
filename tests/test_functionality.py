@@ -1,3 +1,5 @@
+import shutil
+
 import pytest
 from content import byte_content
 from utils import ignore_fixture_warning
@@ -128,14 +130,55 @@ def test_replace_folder_existing(folder: Path, folder2: Path, content: bytes):
     verify_move_existing(move_function, folder, folder2, content)
 
 
-def verify_move_existing(move_function, folder: Path, folder2: Path, content: bytes):
+@ignore_fixture_warning
+@byte_content
+def test_move_folder_different_filesystem(
+    folder: Path, in_memory_folder: Path, content: bytes
+):
+    filename = folder.name
+    subpath = folder / filename
+    subpath.byte_content = content
+
+    in_memory_folder.rmtree()
+    folder.rename(in_memory_folder)
+
+    subpath2 = in_memory_folder / filename
+    assert_moved(subpath, subpath2, content)
+    subpath2.unlink()
+    assert_empty(folder, in_memory_folder)
+
+
+@ignore_fixture_warning
+@byte_content
+def test_move_folder_existing_different_filesystem(
+    folder: Path, in_memory_folder: Path, content: bytes
+):
+    def move_function():
+        folder.rename(in_memory_folder, exist_ok=True)
+
+    verify_move_existing(
+        move_function,
+        folder,
+        in_memory_folder,
+        content,
+        expected_existing_error=shutil.Error,
+    )
+
+
+def verify_move_existing(
+    move_function,
+    folder: Path,
+    folder2: Path,
+    content: bytes,
+    expected_existing_error=OSError,
+):
     filename = folder.name
     subpath = folder / filename
     subpath2 = folder2 / filename
     for test_subpath in (subpath, subpath2):
         test_subpath.byte_content = content
 
-    with pytest.raises(OSError):
+    with pytest.raises(expected_existing_error):
         folder.rename(folder2)
 
     move_function()

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import io
+import shutil
 from functools import wraps
 
 from . import encryption
@@ -49,16 +50,13 @@ class Path(encryption.Path):
             if exist_ok and "Directory not empty" in str(e):
                 target.rmtree()
                 target = rename(target)
+            elif "Invalid cross-device link" in str(e):
+                # target is on different file system
+                if exist_ok and target.exists():
+                    target.rmtree()
+                target = shutil.move(self, target)
             else:
                 raise
-        """
-
-        try:
-            target = rename(target)
-        except OSError:
-            use if target is on different file system
-            target = shutil.move(self, target)
-        """
         return target
 
     def replace(self, target: str | Path):

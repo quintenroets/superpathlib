@@ -101,7 +101,7 @@ class Path(content_properties.Path):
             action="ignore", module="pkg_resources|dirhash", category=DeprecationWarning
         )
 
-        import dirhash  # noqa: E402, autoimport
+        import dirhash  # noqa: E402, F401, autoimport
 
         # use default algorithm used in cloud provider checksums
         # can be efficient because not used for cryptographic security

@@ -1,5 +1,3 @@
-import shutil
-
 import pytest
 from content import byte_content
 from utils import ignore_fixture_warning
@@ -161,7 +159,7 @@ def test_move_folder_existing_different_filesystem(
         folder,
         in_memory_folder,
         content,
-        expected_existing_error=shutil.Error,
+        expected_existing_error=Exception,
     )
 
 
@@ -170,7 +168,7 @@ def verify_move_existing(
     folder: Path,
     folder2: Path,
     content: bytes,
-    expected_existing_error=OSError,
+    expected_existing_error: type[Exception] = OSError,
 ):
     filename = folder.name
     subpath = folder / filename

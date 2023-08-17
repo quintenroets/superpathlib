@@ -52,8 +52,12 @@ class Path(encryption.Path):
                 target = rename(target)
             elif "Invalid cross-device link" in str(e):
                 # target is on different file system
-                if exist_ok and target.exists():
-                    target.rmtree()
+                if target.exists():
+                    if exist_ok:
+                        target.rmtree()
+                    else:
+                        message = f"Target already exists: {target}"
+                        raise Exception(message)
                 target = shutil.move(self, target)
             else:
                 raise

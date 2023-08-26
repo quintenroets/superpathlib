@@ -13,8 +13,6 @@ def provision_folder(path):
     path.unlink()
     path.mkdir()
     yield path
-    path.rmtree()
-    path.touch()
 
 
 @pytest.fixture()

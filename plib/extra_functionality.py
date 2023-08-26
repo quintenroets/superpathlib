@@ -229,4 +229,7 @@ class Path(metadata_properties.Path):
         return self
 
     def __exit__(self, *_):
-        self.unlink(missing_ok=True)
+        if self.is_file():
+            self.unlink(missing_ok=True)
+        else:
+            self.rmtree()

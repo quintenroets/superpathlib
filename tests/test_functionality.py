@@ -96,6 +96,18 @@ def test_move_existing(path: Path, path2: Path, content: bytes):
 
 @ignore_fixture_warning
 @byte_content
+def test_move_parent_not_existing(folder: Path, folder2: Path, content: bytes):
+    folder.rmtree()
+    path = folder / folder.name
+    folder2.rmtree()
+    path2 = folder2 / folder2.name
+    path.byte_content = content
+    path.rename(path2)
+    assert_moved(path, path2, content)
+
+
+@ignore_fixture_warning
+@byte_content
 def test_move_folder(folder: Path, folder2: Path, content: bytes):
     filename = folder.name
     subpath = folder / filename

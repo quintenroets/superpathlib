@@ -42,9 +42,11 @@ class Path(encryption.Path):
             yield from super().iterdir()
 
     @create_parent_on_missing
-    def rename(self, target, exist_ok=False):
-        rename = super().replace if exist_ok and target.exists() else super().rename
+    def rename(self, target: str | Path, exist_ok=False):
+        target = self.__class__(target)
+        rename = super().replace if exist_ok else super().rename
         try:
+            target.create_parent()
             target = rename(target)
         except OSError as e:
             if exist_ok and "Directory not empty" in str(e):
@@ -58,6 +60,8 @@ class Path(encryption.Path):
                     else:
                         message = f"Target already exists: {target}"
                         raise Exception(message)
+                else:
+                    target.create_parent()
                 target = shutil.move(self, target)
             else:
                 raise

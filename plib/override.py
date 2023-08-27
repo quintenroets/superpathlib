@@ -43,7 +43,7 @@ class Path(encryption.Path):
 
     @create_parent_on_missing
     def rename(self, target, exist_ok=False):
-        rename = super().replace if exist_ok else super().rename
+        rename = super().replace if exist_ok and target.exists() else super().rename
         try:
             target = rename(target)
         except OSError as e:

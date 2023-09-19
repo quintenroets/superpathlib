@@ -1,3 +1,5 @@
+[![PyPI version](https://badge.fury.io/py/superpathlib.svg)](https://badge.fury.io/py/superpathlib)
+
 # Superpathlib
 Maximize your productivity using minimal code!
 

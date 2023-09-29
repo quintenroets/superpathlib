@@ -193,7 +193,7 @@ class Path(metadata_properties.Path):
 
     def rmtree(self, missing_ok=False, remove_root=True):
         for path in self.iterdir():
-            if path.is_dir():
+            if path.is_dir() and not path.is_symlink():
                 path.rmtree()
             else:
                 path.unlink()

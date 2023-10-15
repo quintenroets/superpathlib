@@ -56,7 +56,10 @@ class Path(encryption.Path):
                 # target is on different file system
                 if target.exists():
                     if exist_ok:
-                        target.rmtree()
+                        if self.is_dir():
+                            target.rmtree()
+                        else:
+                            target.unlink()
                     else:
                         message = f"Target already exists: {target}"
                         raise Exception(message)

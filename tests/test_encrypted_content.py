@@ -12,21 +12,21 @@ slow_test_settings = settings(
 
 @slow_test_settings
 @byte_content
-def test_encrypted_bytes(encryption_path: Path, content: bytes):
+def test_encrypted_bytes(encryption_path: Path, content: bytes) -> None:
     encryption_path.byte_content = content
     assert encryption_path.byte_content == content
 
 
 @slow_test_settings
 @text_content
-def test_encrypted_text(encryption_path: Path, content: str):
+def test_encrypted_text(encryption_path: Path, content: str) -> None:
     encryption_path.text = content
     assert encryption_path.text == content
 
 
 @slow_test_settings
 @byte_content
-def test_encrypted_bytes_fallback(path: Path, content: bytes):
+def test_encrypted_bytes_fallback(path: Path, content: bytes) -> None:
     # provided path reused across all cases for this function and exists in beginning
     # => need to delete it in the first test case
     path.unlink(missing_ok=True)
@@ -41,7 +41,7 @@ def test_encrypted_bytes_fallback(path: Path, content: bytes):
 
 @slow_test_settings
 @text_content
-def test_encrypted_text_fallback(path: Path, content: str):
+def test_encrypted_text_fallback(path: Path, content: str) -> None:
     # provided path reused across all cases for this function and exists in beginning
     # => need to delete it in the first test case
     path.unlink(missing_ok=True)
@@ -56,6 +56,6 @@ def test_encrypted_text_fallback(path: Path, content: str):
 
 @slow_test_settings
 @text_content
-def test_no_double_extension(encryption_path, content):
+def test_no_double_extension(encryption_path: Path, content: str) -> None:
     encryption_path.encrypted.text = content
     assert encryption_path.text == content

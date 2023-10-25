@@ -2,7 +2,9 @@ import mimetypes
 import os
 import subprocess
 import warnings
+from collections.abc import Callable
 from functools import wraps
+from typing import Any
 
 from . import content_properties
 
@@ -10,10 +12,10 @@ from . import content_properties
 # from .tags import XDGTags
 
 
-def catch_missing(default=None):
-    def wrap_function(func):
+def catch_missing(default: Any = None) -> Callable:
+    def wrap_function(func: Callable) -> Callable:
         @wraps(func)
-        def wrap_args(*args, **kwargs):
+        def wrap_args(*args: Any, **kwargs: Any) -> Any:
             try:
                 res = func(*args, **kwargs)
             except FileNotFoundError:
@@ -32,11 +34,11 @@ class Path(content_properties.Path):
 
     @property
     @catch_missing(default=0.0)
-    def mtime(self):
+    def mtime(self) -> float:
         return self.stat().st_mtime
 
     @mtime.setter
-    def mtime(self, time: float):
+    def mtime(self, time: float) -> None:
         os.utime(self, (time, time))  # set create time as well
 
         try:
@@ -45,57 +47,59 @@ class Path(content_properties.Path):
             pass  # Doesn't work on Windows
 
     @property
-    def tags(self):
-        from .tags import XDGTags  # noqa: autoimport
+    def tags(self) -> list[str]:
+        from .tags import XDGTags  # noqa: autoimport, E402
 
         return XDGTags(self).get()
 
     @tags.setter
-    def tags(self, *values):
-        from .tags import XDGTags  # noqa: autoimport
+    def tags(self, values: list[str | int | None]) -> None:
+        from .tags import XDGTags  # noqa: autoimport, E402
 
-        if len(values) == 1 and values[0] in (None, []):
+        if len(values) == 0:
             XDGTags(self).clear()
         else:
             XDGTags(self).set(*values)
 
     @property
-    def tag(self):
+    def tag(self) -> str | None:
         return self.tags[0] if self.tags else None
 
     @tag.setter
-    def tag(self, value):
-        self.tags = value
+    def tag(self, value: str | int | None) -> None:
+        from .tags import XDGTags  # noqa: autoimport, E402
+
+        XDGTags(self).set(value)
 
     @property
     @catch_missing(default=0)
-    def size(self):
+    def size(self) -> int:
         return self.stat().st_size
 
     @property
-    def is_root(self):
+    def is_root(self) -> bool:
         path = self
         while not path.exists():
             path = path.parent
         return path.owner() == "root"
 
     @property
-    def has_children(self):
+    def has_children(self) -> bool:
         return next(self.iterdir(), None) is not None if self.is_dir() else False
 
     @property
-    def number_of_children(self):
+    def number_of_children(self) -> int:
         return sum(1 for _ in self.iterdir()) if self.is_dir() else 0
 
     @property
-    def filetype(self):
+    def filetype(self) -> str | None:
         filetype = mimetypes.guess_type(self)[0]
         if filetype:
             filetype = filetype.split("/")[0]
         return filetype
 
     @property
-    def content_hash(self):
+    def content_hash(self) -> str:
         # dirhash package throws annoying warnings
         warnings.filterwarnings(
             action="ignore", module="pkg_resources|dirhash", category=DeprecationWarning

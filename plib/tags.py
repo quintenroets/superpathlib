@@ -1,9 +1,15 @@
+from __future__ import annotations
+
 try:
     import xattr  # noqa
 
-
 except ModuleNotFoundError:
     xattr = None  # Don't fail if xattr not supported (Windows)
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from plib.metadata_properties import Path  # noqa: autoimport
 
 delim = ","
 default_tag_name = "user.xdg.tags"
@@ -17,25 +23,29 @@ class XDGTags:
         useful for filemanager that can order according to this tag
     """
 
-    def __init__(self, path, name=default_tag_name):
+    def __init__(self, path: Path, name: str = default_tag_name):
         self.tags = xattr.xattr(path) if xattr is not None else None
         self.name = name
 
-    def get(self):
-        tags = set({})
+    def get(self) -> list[str]:
+        tags = []
         if self.tags and self.tags.has_key(self.name):
             tags = self.tags[self.name].decode().strip().split(delim)
         return tags
 
-    def set(self, *values):
+    def set(self, *values: str | int | None) -> None:
         """
         :param values: tag values to set
         """
         if self.tags is not None:
-            values = {str(v).zfill(4) if isinstance(v, int) else str(v) for v in values}
-            values = delim.join(values).encode()
-            self.tags.set(self.name, values)
+            values_set = {
+                str(v).zfill(4) if isinstance(v, int) else str(v)
+                for v in values
+                if v is not None
+            }
+            values_str = delim.join(values_set).encode()
+            self.tags.set(self.name, values_str)
 
-    def clear(self):
+    def clear(self) -> None:
         if self.tags is not None and self.tags.has_key(self.name):
             self.tags.remove(self.name)

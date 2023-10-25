@@ -19,7 +19,7 @@ slower_test_settings = settings(
 
 @ignore_fixture_warning
 @byte_content
-def test_bytes(path: Path, content: bytes):
+def test_bytes(path: Path, content: bytes) -> None:
     assert isinstance(Path.byte_content, property)
     path.byte_content = content
     assert path.byte_content == content
@@ -27,25 +27,25 @@ def test_bytes(path: Path, content: bytes):
 
 @ignore_fixture_warning
 @text_content
-def test_text(path: Path, content: str):
+def test_text(path: Path, content: str) -> None:
     assert isinstance(Path.text, property)
     path.text = content
     assert path.text == content
 
 
-def test_empty_file_text(path: Path):
+def test_empty_file_text(path: Path) -> None:
     path.unlink()
     assert path.text == ""
 
 
-def test_empty_file_byte_content(path: Path):
+def test_empty_file_byte_content(path: Path) -> None:
     path.unlink()
     assert path.byte_content == b""
 
 
 @ignore_fixture_warning
 @text_lines_content
-def test_lines(path: Path, content: list[str]):
+def test_lines(path: Path, content: list[str]) -> None:
     assert isinstance(Path.lines, property)
     path.lines = content
     while content and not content[-1].strip():
@@ -56,7 +56,7 @@ def test_lines(path: Path, content: list[str]):
 
 @slower_test_settings
 @dictionary_content
-def test_json(path: Path, content: dict):
+def test_json(path: Path, content: dict) -> None:
     assert isinstance(Path.json, property)
     path.json = content
     assert path.json == content
@@ -64,7 +64,7 @@ def test_json(path: Path, content: dict):
 
 @slower_test_settings
 @dictionary_content
-def test_yaml(path: Path, content: dict):
+def test_yaml(path: Path, content: dict) -> None:
     assert isinstance(Path.yaml, property)
     path.yaml = content
     assert path.yaml == content
@@ -72,7 +72,7 @@ def test_yaml(path: Path, content: dict):
 
 @slower_test_settings
 @floats_content
-def test_numpy(path: Path, content: list[float]):
+def test_numpy(path: Path, content: list[float]) -> None:
     assert isinstance(Path.numpy, property)
     numpy_content = np.array(content)
     path.numpy = numpy_content
@@ -81,7 +81,7 @@ def test_numpy(path: Path, content: list[float]):
 
 @ignore_fixture_warning
 @byte_content
-def test_bytes_in_memory(in_memory_path: Path, content: bytes):
+def test_bytes_in_memory(in_memory_path: Path, content: bytes) -> None:
     assert isinstance(Path.byte_content, property)
     in_memory_path.byte_content = content
     assert in_memory_path.byte_content == content

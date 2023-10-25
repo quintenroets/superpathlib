@@ -9,5 +9,7 @@ class Path(pathlib.Path):
 
     # _flavour attribute explicitly required to inherit from pathlib
     _flavour = (
-        pathlib._windows_flavour if os.name == "nt" else pathlib._posix_flavour  # noqa
+        pathlib._windows_flavour  # type: ignore # noqa
+        if os.name == "nt"
+        else pathlib._posix_flavour  # type: ignore[attr-defined] # noqa
     )

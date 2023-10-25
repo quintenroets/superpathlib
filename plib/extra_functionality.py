@@ -4,10 +4,14 @@ import shutil
 import tempfile
 import time
 import urllib.parse
+from collections.abc import Callable, Generator
 from functools import cached_property
+from typing import Any, TypeVar
 
 from . import metadata_properties
 from .utils import find_first_match
+
+PathType = TypeVar("PathType", bound="Path")
 
 # Long import times relative to usage frequency: lazy imports
 # from datetime import datetime
@@ -19,19 +23,19 @@ class Path(metadata_properties.Path):
     Additional functionality.
     """
 
-    def create_parent(self) -> Path:
+    def create_parent(self: PathType) -> PathType:
         self.parent.mkdir(parents=True, exist_ok=True)
         return self.parent
 
-    def with_nonexistent_name(self) -> Path:
+    def with_nonexistent_name(self: PathType) -> PathType:
         path = self
         if path.exists():
             stem = path.stem
 
-            def with_number(i: int):
+            def with_number(i: int) -> PathType:
                 return path.with_stem(f"{stem} ({i})")
 
-            def nonexistent(i):
+            def nonexistent(i: int) -> bool:
                 return not with_number(i).exists()
 
             first_free_number = find_first_match(nonexistent)
@@ -39,56 +43,71 @@ class Path(metadata_properties.Path):
 
         return path
 
-    def with_timestamp(self) -> Path:
-        from datetime import datetime  # noqa: autoimport
+    def with_timestamp(self: PathType) -> PathType:
+        from datetime import datetime  # noqa: E402, autoimport
 
         timestamp = datetime.fromtimestamp(int(time.time()))  # precision up to second
         return self.with_stem(f"{self.stem} {timestamp}")
 
-    def copy_to(self, dest: Path, include_properties=True, only_if_newer=False):
+    def copy_to(
+        self,
+        dest: PathType,
+        include_properties: bool = True,
+        only_if_newer: bool = False,
+    ) -> None:
         if not only_if_newer or self.mtime > dest.mtime:
             dest.byte_content = self.byte_content
             if include_properties:
                 self.copy_properties_to(dest)
 
-    def copy_properties_to(self, dest: Path):
+    def copy_properties_to(self, dest: PathType) -> None:
         for path in dest.find():
             path.tag = self.tag
             path.mtime = self.mtime
 
     @cached_property
     def archive_format(self) -> str:
-        return shutil._find_unpack_format(str(self))  # noqa
+        # noinspection PyProtectedMember
+        return shutil._find_unpack_format(str(self))  # type: ignore[attr-defined]
 
-    def unpack_if_archive(self, extract_dir: Path = None, recursive=True):
+    def unpack_if_archive(
+        self, extract_dir: PathType | None = None, recursive: bool = True
+    ) -> None:
         if self.archive_format is not None:
             self.unpack(extract_dir, recursive=recursive)
 
     def unpack(
-        self,
-        extract_dir: Path | None = None,
+        self: PathType,
+        extract_dir: PathType | None = None,
         remove_existing: bool = True,
         preserve_properties: bool = True,
         remove_original: bool = True,
-        archive_format: str = None,
+        archive_format: str | None = None,
         recursive: bool = True,
-    ):
-        def cleanup(path: Path):
-            (path / "__MACOSX").rmtree()
-            subfolder = path / path.name
-            if subfolder.exists() and path.number_of_children == 1:
+    ) -> None:
+        def cleanup(cleanup_path: PathType) -> None:
+            (cleanup_path / "__MACOSX").rmtree()
+            subfolder = cleanup_path / cleanup_path.name
+            if subfolder.exists() and cleanup_path.number_of_children == 1:
                 subfolder.pop_parent()
+
+        def cast_path(casted_path: PathType | None) -> PathType:
+            return casted_path  # type: ignore
 
         if archive_format is None:
             archive_format = self.archive_format
 
         if extract_dir is None:
             extract_name = self.name
-            unpack_info = shutil._UNPACK_FORMATS[archive_format]  # noqa
+            # noinspection PyProtectedMember
+            unpack_formats = shutil._UNPACK_FORMATS  # type: ignore[attr-defined]
+            unpack_info = unpack_formats[archive_format]
             for archive_ext in unpack_info[0]:
                 if extract_name.endswith(archive_ext):
                     extract_name = extract_name.replace(archive_ext, "")
             extract_dir = self.with_name(extract_name)
+
+        extract_dir = cast_path(extract_dir)
 
         if remove_existing:
             extract_dir.rmtree()
@@ -98,6 +117,7 @@ class Path(metadata_properties.Path):
         cleanup(extract_dir)
         if preserve_properties:
             self.copy_properties_to(extract_dir)
+
         if remove_original:
             self.unlink()
 
@@ -105,7 +125,7 @@ class Path(metadata_properties.Path):
             for path in extract_dir.find():
                 path.unpack_if_archive()
 
-    def pop_parent(self):
+    def pop_parent(self) -> None:
         """
         Remove first parent from path in filesystem.
         """
@@ -124,39 +144,43 @@ class Path(metadata_properties.Path):
             shutil.copytree(temp_dest, dest, dirs_exist_ok=True)
             temp_dest.rmtree()
 
-    def is_empty(self):
+    def is_empty(self) -> bool:
         return (
             not self.exists()
             or (self.is_dir() and next(self.iterdir(), None) is None)
             or (self.is_file() and self.size == 0)
         )
 
-    def load_yaml(self, trusted=False):
+    def load_yaml(self, trusted: bool = False) -> dict | list:
         """
         :param trusted: if the path is trusted, an unsafe loader
                         can be used to instantiate any object
         :return: Content in path that contains yaml format
         """
-        import yaml  # noqa: autoimport
+        import yaml  # noqa: E402, autoimport
 
-        loader = yaml.CUnsafeLoader if trusted else yaml.CFullLoader
-        return yaml.load(self.text, Loader=loader) or {}
+        Loader: type[yaml.CFullLoader | yaml.FullLoader] = (
+            yaml.CFullLoader if hasattr(yaml, "CFullLoader") else yaml.FullLoader
+        )
+        return yaml.load(self.text, Loader=Loader) or {}
 
-    def update(self, value):
+    def update(self, value: dict) -> dict:
         # only read and write if value to add not empty
         if value:
             updated_content = self.yaml | value
             self.yaml = updated_content
-            return updated_content
+        else:
+            updated_content = value
+        return updated_content
 
     def find(
-        self,
-        condition=None,
-        exclude=None,
-        recurse_on_match=False,
-        follow_symlinks=False,
-        only_folders=False,
-    ):
+        self: PathType,
+        condition: Callable | None = None,
+        exclude: Callable | None = None,
+        recurse_on_match: bool = False,
+        follow_symlinks: bool = False,
+        only_folders: bool = False,
+    ) -> Generator[PathType, None, None]:
         """Find all subpaths under path that match condition.
 
         only_folders option can be used for efficiency reasons
@@ -164,12 +188,12 @@ class Path(metadata_properties.Path):
         if condition is None:
             recurse_on_match = True
 
-            def condition(_):
+            def condition(_: Any) -> bool:
                 return True
 
         if exclude is None:
 
-            def exclude(_):
+            def exclude(_: Any) -> bool:
                 return False
 
         to_traverse = [self] if self.exists() else []
@@ -191,7 +215,7 @@ class Path(metadata_properties.Path):
                         except PermissionError:
                             pass  # skip folders that do not allow listing
 
-    def rmtree(self, missing_ok=False, remove_root=True):
+    def rmtree(self, missing_ok: bool = False, remove_root: bool = True) -> None:
         for path in self.iterdir():
             if path.is_dir() and not path.is_symlink():
                 path.rmtree()
@@ -200,19 +224,21 @@ class Path(metadata_properties.Path):
         if remove_root:
             self.rmdir()
 
-    def subpath(self, *parts):
+    def subpath(self: PathType, *parts: str) -> PathType:
         path = self
         for part in parts:
             path /= part.replace(self._flavour.sep, "_")
         return path
 
     @classmethod
-    def from_uri(cls, uri: str):
+    def from_uri(cls: type[PathType], uri: str) -> PathType:
         path_str = urllib.parse.urlparse(uri).path
         return cls(path_str)
 
     @classmethod
-    def tempfile(cls, in_memory=True, **kwargs) -> Path:
+    def tempfile(
+        cls: type[PathType], in_memory: bool = True, **kwargs: Any
+    ) -> PathType:
         """Usage:
 
         with Path.tempfile() as tmp:     run_command(log_file=tmp)     logs = tmp.text
@@ -225,10 +251,10 @@ class Path(metadata_properties.Path):
         _, path = tempfile.mkstemp(**kwargs)
         return cls(path)
 
-    def __enter__(self):
+    def __enter__(self: PathType) -> PathType:
         return self
 
-    def __exit__(self, *_):
+    def __exit__(self, *_: Any) -> None:
         if self.is_file():
             self.unlink(missing_ok=True)
         else:

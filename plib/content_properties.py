@@ -52,7 +52,7 @@ class Path(base.Path):
         return json.loads(self.text or "{}")
 
     @json.setter
-    def json(self, content: dict):
+    def json(self, content: dict) -> None:
         self.text = json.dumps(content)
 
     @property
@@ -60,11 +60,13 @@ class Path(base.Path):
         import yaml  # noqa: autoimport
 
         # C implementation much faster but only supported on Linux
-        Loader = yaml.CFullLoader if hasattr(yaml, "CFullLoader") else yaml.FullLoader
+        Loader: type[yaml.CFullLoader | yaml.FullLoader] = (
+            yaml.CFullLoader if hasattr(yaml, "CFullLoader") else yaml.FullLoader
+        )
         return yaml.load(self.text, Loader=Loader) or {}
 
     @yaml.setter
-    def yaml(self, value: dict):
+    def yaml(self, value: dict) -> None:
         import yaml  # noqa: autoimport
 
         # C implementation much faster but only supported on Linux
@@ -79,7 +81,7 @@ class Path(base.Path):
             return np.load(fp)  # noqa
 
     @numpy.setter
-    def numpy(self, value: np.ndarray):
+    def numpy(self, value: np.ndarray) -> None:
         import numpy as np  # noqa: autoimport
 
         with self.open("wb") as fp:

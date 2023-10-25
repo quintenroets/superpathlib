@@ -1,43 +1,42 @@
 from __future__ import annotations
 
+from simple_classproperty import classproperty
+
 from . import base
 
 
 class Path(base.Path):
-    """
-    Expose common folders as attributes use properties and classmethods to ensure same
-    behavior for child classes.
+    """Expose common folders as attributes.
+
+    Use classmethod properties to ensure child classes return instance
+    of child class. The classmethod and property decorators are combined
+    in a single decorated because chaining them directly is deprecated
+    since python3.11.
     """
 
-    @classmethod
-    @property
-    def HOME(cls) -> Path:  # noqa
+    @classproperty
+    def HOME(cls) -> Path:
         return cls.home()
 
-    @classmethod
-    @property
-    def docs(cls) -> Path:  # noqa
+    @classproperty
+    def docs(cls) -> Path:
         return cls.HOME / "Documents"
 
-    @classmethod
-    @property
-    def scripts(cls) -> Path:  # noqa
+    @classproperty
+    def scripts(cls) -> Path:
         return cls.docs / "Scripts"
 
-    @classmethod
-    @property
+    @classproperty
     def script_assets(cls) -> Path:  # noqa
         return cls.scripts / "assets"
 
-    @classmethod
-    @property
+    @classproperty
     def assets(cls) -> Path:  # noqa
         """
         Often overwritten by child classes for specific project.
         """
         return cls.script_assets  # noqa
 
-    @classmethod
-    @property
+    @classproperty
     def draft(cls) -> Path:  # noqa
         return cls.docs / "draft.txt"

@@ -1,11 +1,14 @@
 [project]
 name = "superpathlib"
-version = "1.2.0"
+version = "1.2.1"
 description = "Extended Pathlib"
 authors = [{name = "Quinten Roets", email = "qdr2104@columbia.edu"}]
 license = {text = "MIT"}
 readme = "README.md"
 requires-python = ">=3.10"
+dependencies = [
+    "simple-classproperty"
+]
 
 [project.urls]
 "Source Code" = "https://github.com/quintenroets/superpathlib"

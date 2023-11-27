@@ -1,3 +1,4 @@
+import hashlib
 import math
 import time
 
@@ -45,3 +46,11 @@ def test_filetypes(path: Path) -> None:
     filetype_mappings = {"text": "txt", "video": "mp4", "image": "jpg"}
     for filetype, extension in filetype_mappings.items():
         assert path.with_suffix(f".{extension}").filetype == filetype
+
+
+@ignore_fixture_warning
+@byte_content
+def test_content_hash(path: Path, content: bytes) -> None:
+    path.byte_content = content
+    content_hash = hashlib.new("sha512", data=content).hexdigest()
+    assert path.content_hash == content_hash

@@ -1,6 +1,6 @@
 [project]
 name = "superpathlib"
-version = "1.2.3"
+version = "1.3.0"
 description = "Extended Pathlib"
 authors = [{name = "Quinten Roets", email = "qdr2104@columbia.edu"}]
 license = {text = "MIT"}
@@ -19,11 +19,22 @@ dev = [
     "pre-commit",
     "types-PyYAML"
 ]
+
+full = [
+    "dirhash",
+    "numpy",
+    "pytest",
+    "PyYaml",
+    "xattr",
+]
+
 test = [
+    "dirhash",
     "hypothesis",
     "numpy",
     "pytest",
-    "PyYaml"
+    "PyYaml",
+    "xattr",
 ]
 
 [tool.setuptools.package-data]

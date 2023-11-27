@@ -11,9 +11,9 @@ from utils import ignore_fixture_warning
 
 from plib import Path
 
+suppressed_health_checks = (HealthCheck.function_scoped_fixture,)
 slower_test_settings = settings(
-    max_examples=10,
-    suppress_health_check=(HealthCheck.function_scoped_fixture,),
+    max_examples=10, suppress_health_check=suppressed_health_checks
 )
 
 

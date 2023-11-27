@@ -167,7 +167,9 @@ class Path(metadata_properties.Path):
     def update(self, value: dict) -> dict:
         # only read and write if value to add not empty
         if value:
-            updated_content = self.yaml | value
+            current_content = self.yaml
+            assert isinstance(current_content, dict)
+            updated_content = current_content | value
             self.yaml = updated_content
         else:
             updated_content = value

@@ -48,15 +48,15 @@ class Path(base.Path):
         self.text = "\n".join(str(line) for line in lines)
 
     @property
-    def json(self) -> dict:
+    def json(self) -> dict | list:
         return json.loads(self.text or "{}")
 
     @json.setter
-    def json(self, content: dict) -> None:
+    def json(self, content: dict | list) -> None:
         self.text = json.dumps(content)
 
     @property
-    def yaml(self) -> dict:
+    def yaml(self) -> dict | list:
         import yaml  # noqa: autoimport
 
         # C implementation much faster but only supported on Linux
@@ -66,7 +66,7 @@ class Path(base.Path):
         return yaml.load(self.text, Loader=Loader) or {}
 
     @yaml.setter
-    def yaml(self, value: dict) -> None:
+    def yaml(self, value: dict | list) -> None:
         import yaml  # noqa: autoimport
 
         # C implementation much faster but only supported on Linux

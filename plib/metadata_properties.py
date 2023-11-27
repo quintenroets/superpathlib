@@ -1,3 +1,4 @@
+import hashlib
 import mimetypes
 import os
 import subprocess
@@ -48,13 +49,13 @@ class Path(content_properties.Path):
 
     @property
     def tags(self) -> list[str]:
-        from .tags import XDGTags  # noqa: autoimport, E402
+        from .tags import XDGTags  # noqa: E402, autoimport
 
         return XDGTags(self).get()
 
     @tags.setter
     def tags(self, values: list[str | int | None]) -> None:
-        from .tags import XDGTags  # noqa: autoimport, E402
+        from .tags import XDGTags  # noqa: E402, autoimport
 
         if len(values) == 0:
             XDGTags(self).clear()
@@ -67,7 +68,7 @@ class Path(content_properties.Path):
 
     @tag.setter
     def tag(self, value: str | int | None) -> None:
-        from .tags import XDGTags  # noqa: autoimport, E402
+        from .tags import XDGTags  # noqa: E402, autoimport
 
         XDGTags(self).set(value)
 
@@ -100,6 +101,10 @@ class Path(content_properties.Path):
 
     @property
     def content_hash(self) -> str:
+        return self.file_content_hash if self.is_file() else self.dir_content_hash
+
+    @property
+    def dir_content_hash(self) -> str:
         # dirhash package throws annoying warnings
         warnings.filterwarnings(
             action="ignore", module="pkg_resources|dirhash", category=DeprecationWarning
@@ -110,3 +115,7 @@ class Path(content_properties.Path):
         # use default algorithm used in cloud provider checksums
         # can be efficient because not used for cryptographic security
         return dirhash.dirhash(self, "md5")
+
+    @property
+    def file_content_hash(self) -> str:
+        return hashlib.new("sha512", data=self.byte_content).hexdigest()

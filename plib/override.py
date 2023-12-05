@@ -5,10 +5,12 @@ import shutil
 from collections.abc import Callable, Generator
 from functools import wraps
 from pathlib import PurePath
-from typing import IO, Any
+from typing import IO, Any, TypeVar
 
 from . import encryption
 from .metadata_properties import catch_missing
+
+T = TypeVar("T", bound="Path")
 
 
 def create_parent_on_missing(func: Callable) -> Callable:
@@ -42,7 +44,7 @@ class Path(encryption.Path):
     def rmdir(self) -> None:
         return super().rmdir()
 
-    def iterdir(self, missing_ok: bool = True) -> Generator[Path, None, None]:
+    def iterdir(self: T, missing_ok: bool = True) -> Generator[T, None, None]:
         if self.exists() or not missing_ok:
             yield from super().iterdir()
 

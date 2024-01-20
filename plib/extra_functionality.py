@@ -218,13 +218,15 @@ class Path(metadata_properties.Path):
                             pass  # skip folders that do not allow listing
 
     def rmtree(self, missing_ok: bool = False, remove_root: bool = True) -> None:
-        for path in self.iterdir():
-            if path.is_dir() and not path.is_symlink():
-                path.rmtree()
+        try:
+            shutil.rmtree(self)
+        except FileNotFoundError as exception:
+            if missing_ok:
+                pass
             else:
-                path.unlink()
-        if remove_root:
-            self.rmdir()
+                raise exception
+        if not remove_root:
+            self.mkdir()
 
     def subpath(self: PathType, *parts: str) -> PathType:
         path = self

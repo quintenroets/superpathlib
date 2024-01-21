@@ -39,13 +39,19 @@ class Path(base.Path):
 
     @property
     def lines(self) -> list[str]:
-        lines = self.text.strip().splitlines()
-        lines = [line for line in lines if line]
-        return lines
+        return self.text.splitlines()
 
     @lines.setter
     def lines(self, lines: Iterable[Any]) -> None:
         self.text = "\n".join(str(line) for line in lines)
+
+    @property
+    def content_lines(self) -> list[str]:
+        return [line for line in self.lines if line]
+
+    @content_lines.setter
+    def content_lines(self, lines: Iterable[Any]) -> None:
+        self.lines = typing.cast(list[str], (line for line in lines if line))
 
     @property
     def json(self) -> dict | list:

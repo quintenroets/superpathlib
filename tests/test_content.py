@@ -48,6 +48,14 @@ def test_empty_file_byte_content(path: Path) -> None:
 def test_lines(path: Path, content: list[str]) -> None:
     assert isinstance(Path.lines, property)
     path.lines = content
+    assert path.lines == [line for line in content if line]
+
+
+@ignore_fixture_warning
+@text_lines_content
+def test_content_lines(path: Path, content: list[str]) -> None:
+    assert isinstance(Path.lines, property)
+    path.lines = content
     while content and not content[-1].strip():
         content.pop(-1)
     text_lines = [line for line in content if line]

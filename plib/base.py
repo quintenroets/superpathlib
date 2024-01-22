@@ -1,5 +1,6 @@
 import os
 import pathlib
+import sys
 
 
 class Path(pathlib.Path):
@@ -8,8 +9,15 @@ class Path(pathlib.Path):
     """
 
     # _flavour attribute explicitly required to inherit from pathlib
-    _flavour = (
-        pathlib._windows_flavour  # type: ignore # noqa
-        if os.name == "nt"
-        else pathlib._posix_flavour  # type: ignore[attr-defined] # noqa
-    )
+    if sys.version_info.minor <= 11:
+        _flavour = (
+            pathlib._windows_flavour  # type: ignore[attr-defined] # noqa
+            if os.name == "nt"
+            else pathlib._posix_flavour  # type: ignore[attr-defined] # noqa
+        )
+    else:
+        _flavour = (
+            pathlib.ntpath  # type: ignore[attr-defined] # noqa
+            if os.name == "nt"
+            else pathlib.posixpath  # type: ignore[attr-defined] # noqa
+        )

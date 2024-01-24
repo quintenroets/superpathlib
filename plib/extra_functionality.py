@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 import shutil
 import tempfile
 import time
@@ -253,7 +254,7 @@ class Path(metadata_properties.Path):
             if in_memory_folder.exists():
                 kwargs["dir"] = in_memory_folder
         file_handle, path = tempfile.mkstemp(**kwargs)
-        file_handle.close()
+        os.close(file_handle)
         return cls(path)
 
     def __enter__(self: PathType) -> PathType:

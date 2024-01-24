@@ -252,7 +252,8 @@ class Path(metadata_properties.Path):
             in_memory_folder = cls("/") / "dev" / "shm"
             if in_memory_folder.exists():
                 kwargs["dir"] = in_memory_folder
-        _, path = tempfile.mkstemp(**kwargs)
+        file_handle, path = tempfile.mkstemp(**kwargs)
+        file_handle.close()
         return cls(path)
 
     def __enter__(self: PathType) -> PathType:

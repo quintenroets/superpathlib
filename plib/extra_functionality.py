@@ -7,7 +7,10 @@ import time
 import urllib.parse
 from collections.abc import Callable, Generator
 from functools import cached_property
+from types import TracebackType
 from typing import Any, TypeVar
+
+from psutil import AccessDenied
 
 from . import metadata_properties
 from .utils import find_first_match
@@ -220,7 +223,7 @@ class Path(metadata_properties.Path):
 
     def rmtree(self, missing_ok: bool = False, remove_root: bool = True) -> None:
         try:
-            shutil.rmtree(self)
+            shutil.rmtree(self, onerror=self._on_error)  # type: ignore
         except FileNotFoundError as exception:
             if missing_ok:
                 pass
@@ -228,6 +231,20 @@ class Path(metadata_properties.Path):
                 raise exception
         if not remove_root:
             self.mkdir()
+
+    @classmethod
+    def _on_error(
+        cls,
+        _: bool,
+        path_str: str,
+        exc_info: tuple[Exception, type[Exception], TracebackType],
+    ) -> None:
+        if isinstance(exc_info[0], AccessDenied):
+            path = Path(path_str)
+            path.chmod(0o777)
+            path.unlink()
+        else:
+            raise exc_info[0]
 
     def subpath(self: PathType, *parts: str) -> PathType:
         path = self

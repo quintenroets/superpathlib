@@ -240,9 +240,9 @@ class Path(metadata_properties.Path):
         cls,
         _: bool,
         path_str: str,
-        exc_info: tuple[Exception, type[Exception], TracebackType],
+        exc_info: tuple[type[Exception], Exception, TracebackType],
     ) -> None:
-        if isinstance(exc_info[0], PermissionError):
+        if exc_info[0] is PermissionError and os.name == "nt":
             path = Path(path_str)
             path.chmod(0o777)
             path.unlink()

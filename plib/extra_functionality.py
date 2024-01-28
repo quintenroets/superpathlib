@@ -262,7 +262,7 @@ class Path(metadata_properties.Path):
 
     @classmethod
     def tempfile(
-        cls: type[PathType], in_memory: bool = True, **kwargs: Any
+        cls: type[PathType], in_memory: bool = True, create: bool = True, **kwargs: Any
     ) -> PathType:
         """Usage:
 
@@ -273,9 +273,12 @@ class Path(metadata_properties.Path):
             in_memory_folder = cls("/") / "dev" / "shm"
             if in_memory_folder.exists():
                 kwargs["dir"] = in_memory_folder
-        file_handle, path = tempfile.mkstemp(**kwargs)
+        file_handle, path_str = tempfile.mkstemp(**kwargs)
         os.close(file_handle)
-        return cls(path)
+        path = cls(path_str)
+        if not create:
+            path.unlink()
+        return path
 
     def __enter__(self: PathType) -> PathType:
         return self

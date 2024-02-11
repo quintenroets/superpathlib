@@ -287,4 +287,4 @@ class Path(metadata_properties.Path):
         if self.is_file():
             self.unlink(missing_ok=True)
         else:
-            self.rmtree()
+            self.rmtree(missing_ok=True)

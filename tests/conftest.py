@@ -1,9 +1,8 @@
 from collections.abc import Iterator
 
 import pytest
-
-from plib import Path
-from plib.encryption import EncryptedPath
+from superpathlib import Path
+from superpathlib.encryption import EncryptedPath
 
 
 def provision_path(in_memory: bool = False) -> Iterator[Path]:

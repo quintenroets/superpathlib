@@ -1,15 +1,18 @@
-[![PyPI version](https://badge.fury.io/py/superpathlib.svg)](https://badge.fury.io/py/superpathlib)
-
 # Superpathlib
+[![PyPI version](https://badge.fury.io/py/superpathlib.svg)](https://badge.fury.io/py/superpathlib)
+![Python version](https://img.shields.io/badge/python-3.10+-brightgreen)
+![Operating system](https://img.shields.io/badge/os-linux%20%7c%20macOS%20%7c%20windows-brightgreen)
+![Coverage](https://img.shields.io/badge/coverage-100%25-brightgreen)
+
 Maximize your productivity using minimal code!
 
-Superpathlib enhances file operations, making them more intuitive and easy to implement. 
-This library builds upon Python's standard library [pathlib](https://docs.python.org/3/library/pathlib.html) module, offering an expansive range of added features without compromising performance.
+Superpathlib enhances file operations, making them more intuitive and easy to implement.
+This library extends Python's standard library [pathlib](https://docs.python.org/3/library/pathlib.html) module, offering an expansive range of added features without compromising performance.
 
 ## Usage
 
 ```shell
-from plib import Path
+from superpathlib import Path
 
 path = Path(filename)
 ```
@@ -22,7 +25,7 @@ path = Path(filename)
 * json
 * numpy
 
-examples: 
+examples:
 
 ```shell
 path.json = {key: value}
@@ -56,7 +59,7 @@ if path.tag != skip_keyword and path.filetype == "video":
 * assets
 * ..
 
-example: 
+example:
 
 ```shell
 names_path = Path.assets / 'names'
@@ -72,7 +75,7 @@ names = names_path.lines
 * pop_parent(): remove first parent from path in filesystem
 * from_uri(uri): create path object from uri string
 
-examples: 
+examples:
 
 ```shell
 with Path.tempfile() as tmp:
@@ -80,8 +83,8 @@ with Path.tempfile() as tmp:
     log = tmp.text
 process(log)
 
-condition = lambda p: (p / '.git').exists()
-for git_path in root.find(condition):
+is_git_root = lambda p: (p / '.git').exists()
+for git_path in root.find(is_git_root):
     process_git(git_path)
 ```
 ### 5) Enhance existing functionality
@@ -89,19 +92,19 @@ for git_path in root.find(condition):
 * Return default values when path does not exist (e.g. size = 0, lines=[])
 * Support replacing folders instead files only if specified
 
-### 6) Inherit from plib Path to define your own additional functionality:
+### 6) Inherit from superpathlib Path to define your own additional functionality:
 
-example: 
+example:
 
 ```shell
-import plib
+import superpathlib
 
-class Path(plib.Path):
+class Path(superpathlib.Path):
     def count_children(self):
         return sum(1 for _ in self.iterdir())
 ```
 
-This only works if you inherit from plib Path, not pathlib Path
+This only works if you inherit from superpathlib Path, not pathlib Path
 
 
 ## Installation
@@ -109,7 +112,11 @@ This only works if you inherit from plib Path, not pathlib Path
 ```shell
 pip install superpathlib
 ```
+or
+```shell
+pip install superpathlib[full]
+```
 
-Install the packages corresponding with the properties you want to use
+Install the packages corresponding with the properties you want to use:
 * e.g. PyYaml for yaml property
-* Packages listed in requirements.txt
+* Packages listed in pyproject.toml

@@ -1,7 +1,7 @@
 from collections.abc import Callable
 
 
-def find_first_match(condition: Callable) -> int:
+def find_first_match(condition: Callable[..., bool]) -> int:
     """
     :param condition: Condition that number needs to match.
                       The condition is assumed to be valid for all integers staring

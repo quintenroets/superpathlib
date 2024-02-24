@@ -1,5 +1,4 @@
-from __future__ import annotations
-
+import typing
 from typing import TypeVar
 
 from simple_classproperty import classproperty
@@ -26,17 +25,20 @@ class Path(base.Path):
     @classmethod
     @classproperty
     def docs(cls: type[T]) -> T:
-        return cls.HOME / "Documents"
+        path = cls.HOME / "Documents"
+        return typing.cast(T, path)
 
     @classmethod
     @classproperty
     def scripts(cls: type[T]) -> T:
-        return cls.docs / "Scripts"
+        path = cls.docs / "Scripts"
+        return typing.cast(T, path)
 
     @classmethod
     @classproperty
     def script_assets(cls: type[T]) -> T:
-        return cls.scripts / "assets"
+        path = cls.scripts / "assets"
+        return typing.cast(T, path)
 
     @classmethod
     @classproperty
@@ -44,9 +46,10 @@ class Path(base.Path):
         """
         Often overwritten by child classes for specific project.
         """
-        return cls.script_assets
+        return typing.cast(T, cls.script_assets)
 
     @classmethod
     @classproperty
     def draft(cls: type[T]) -> T:
-        return cls.docs / "draft.txt"
+        path = cls.docs / "draft.txt"
+        return typing.cast(T, path)

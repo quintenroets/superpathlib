@@ -1,12 +1,11 @@
 from __future__ import annotations
 
+import os
 import subprocess
 from functools import cached_property
-from typing import Any, TypeVar
+from typing import Any
 
 from . import extra_functionality
-
-PathType = TypeVar("PathType", bound="Path")
 
 
 class Path(extra_functionality.Path):
@@ -21,9 +20,13 @@ class Path(extra_functionality.Path):
 
 class EncryptedPath(Path):
     @cached_property
-    def password(self) -> str:
-        command = 'ksshaskpass -- "Enter passphrase for file encryption: "'
-        return subprocess.getoutput(command)
+    def password(self) -> str:  # pragma: nocover
+        if "GITHUB_ACTION" in os.environ:
+            password = "github_action_password"
+        else:
+            command = 'ksshaskpass -- "Enter passphrase for file encryption: "'
+            password = subprocess.getoutput(command)
+        return password
 
     @property
     def encryption_command(self) -> tuple[str, ...]:

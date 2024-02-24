@@ -5,9 +5,8 @@ import time
 from content import byte_content, text_strategy
 from hypothesis import given, strategies
 from hypothesis.strategies import lists
+from superpathlib import Path
 from utils import ignore_fixture_warning
-
-from plib import Path
 
 
 @ignore_fixture_warning
@@ -54,3 +53,17 @@ def test_content_hash(path: Path, content: bytes) -> None:
     path.byte_content = content
     content_hash = hashlib.new("sha512", data=content).hexdigest()
     assert path.content_hash == content_hash
+
+
+def test_number_of_children(directory: Path) -> None:
+    assert directory.number_of_children == 0
+
+
+def test_is_root(directory: Path) -> None:
+    directory.rmdir()
+    assert directory.is_root is True
+
+
+def test_default(path: Path) -> None:
+    path.unlink()
+    assert path.mtime == 0

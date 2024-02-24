@@ -1,10 +1,14 @@
 from collections.abc import Callable
 
 import pytest
-from content import byte_content
+from content import (
+    byte_content,
+    dictionary_content,
+    slower_test_settings,
+    text_lines_content,
+)
+from superpathlib import Path
 from utils import ignore_fixture_warning
-
-from plib import Path
 
 
 def test_tempfile() -> None:
@@ -110,7 +114,7 @@ def test_move_parent_not_existing(
     assert_moved(path, path2, content)
 
 
-@ignore_fixture_warning
+@slower_test_settings
 @byte_content
 def test_move_directory(directory: Path, directory2: Path, content: bytes) -> None:
     filename = directory.name
@@ -184,7 +188,7 @@ def test_move_directory_existing_different_filesystem(
 
 
 def verify_move_existing(
-    move_function: Callable,
+    move_function: Callable[[], None],
     directory: Path,
     directory2: Path,
     content: bytes,
@@ -209,3 +213,75 @@ def verify_move_existing(
 def assert_moved(source: Path, dest: Path, content: bytes) -> None:
     assert source.byte_content == b""
     assert dest.byte_content == content
+
+
+def test_with_non_existent_name(path: Path) -> None:
+    paths: list[Path] = []
+    for _ in range(5):
+        new_path = path.with_nonexistent_name()
+        if paths:
+            assert paths[-1] != new_path
+        else:
+            assert new_path != path
+        new_path.touch()
+        paths.append(new_path)
+
+    for created_path in paths:
+        created_path.unlink()
+
+
+def test_with_timestamp(path: Path) -> None:
+    assert path.with_timestamp()
+
+
+def test_load_yaml(path: Path) -> None:
+    path.load_yaml()
+
+
+@ignore_fixture_warning
+@text_lines_content
+def test_subpath(path: Path, content: list[str]) -> None:
+    parts = [name for name in content if name]
+    sub_path = path.subpath(*parts)
+    for part in parts:
+        cleaned_part = part.replace("/", "_").replace(".", "_")
+        assert cleaned_part in sub_path.parts
+
+
+def test_rmtree_not_existing(path: Path) -> None:
+    path.unlink()
+    with pytest.raises(FileNotFoundError):
+        path.rmtree()
+
+
+def test_rmtree_preserve_root(directory: Path) -> None:
+    directory.rmtree(remove_root=False)
+
+
+@dictionary_content
+def test_yaml_update(content: dict[str, str]) -> None:
+    with Path.tempfile() as path:
+        path.update(content)
+        assert path.yaml == content
+
+
+def test_pop_parent(directory: Path) -> None:
+    grandchild = directory / "child" / "grandchild"
+    grandchild.touch()
+    grandchild.pop_parent()
+    assert not grandchild.exists()
+
+
+def test_pop_parent_same_name(directory: Path) -> None:
+    grandchild = directory / "child" / "child"
+    grandchild.touch()
+    grandchild.pop_parent()
+    assert not grandchild.exists()
+
+
+def test_rmdir(directory: Path) -> None:
+    directory.rmdir()
+
+
+def test_touch(path: Path) -> None:
+    path.touch(mtime=1)

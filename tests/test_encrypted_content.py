@@ -1,7 +1,6 @@
 from content import byte_content, text_content
 from hypothesis import HealthCheck, settings
-
-from plib import Path
+from superpathlib import Path
 
 slow_test_settings = settings(
     max_examples=2,
@@ -15,6 +14,11 @@ slow_test_settings = settings(
 def test_encrypted_bytes(encryption_path: Path, content: bytes) -> None:
     encryption_path.byte_content = content
     assert encryption_path.byte_content == content
+
+
+def test_encrypted_bytes_empty(encryption_path: Path) -> None:
+    Path(encryption_path).byte_content = b""
+    assert encryption_path.byte_content == b""
 
 
 @slow_test_settings

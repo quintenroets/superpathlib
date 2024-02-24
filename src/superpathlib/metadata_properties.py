@@ -2,23 +2,28 @@ import hashlib
 import mimetypes
 import os
 import subprocess
+import typing
 import warnings
 from collections.abc import Callable
 from functools import wraps
-from typing import Any
-
-from . import content_properties
 
 # Long import times relative to usage frequency: lazy imports
 # from .tags import XDGTags
+from typing import Any, TypeVar
+
+from . import content_properties
+
+T = TypeVar("T")
 
 
-def catch_missing(default: Any = None) -> Callable:
-    def wrap_function(func: Callable) -> Callable:
-        @wraps(func)
+def catch_missing(
+    default: Any = None,
+) -> Callable[[Callable[..., T]], Callable[..., T]]:
+    def wrap_function(function: Callable[..., T]) -> Callable[..., T]:
+        @wraps(function)
         def wrap_args(*args: Any, **kwargs: Any) -> Any:
             try:
-                res = func(*args, **kwargs)
+                res = function(*args, **kwargs)
             except FileNotFoundError:
                 res = default
             return res
@@ -44,7 +49,7 @@ class Path(content_properties.Path):
 
         try:
             subprocess.run(("touch", "-d", "@%f" % time, self))
-        except subprocess.CalledProcessError:
+        except subprocess.CalledProcessError:  # pragma: nocover
             pass  # Doesn't work on Windows
 
     @property
@@ -114,7 +119,8 @@ class Path(content_properties.Path):
 
         # use default algorithm used in cloud provider checksums
         # can be efficient because not used for cryptographic security
-        return dirhash.dirhash(self, "md5")
+        content_hash = dirhash.dirhash(self, "md5")
+        return typing.cast(str, content_hash)
 
     @property
     def file_content_hash(self) -> str:

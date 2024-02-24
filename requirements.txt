@@ -1,3 +1,0 @@
-dirhash
-numpy
-PyYaml

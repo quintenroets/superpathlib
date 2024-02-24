@@ -1,7 +1,6 @@
-from __future__ import annotations
-
 import io
 import shutil
+import typing
 from collections.abc import Callable, Generator
 from functools import wraps
 from pathlib import PurePath
@@ -13,7 +12,7 @@ from .metadata_properties import catch_missing
 T = TypeVar("T", bound="Path")
 
 
-def create_parent_on_missing(func: Callable) -> Callable:
+def create_parent_on_missing(func: Callable[..., Any]) -> Callable[..., Any]:
     @wraps(func)
     def wrapper(*args: Any, **kwargs: Any) -> Any:
         try:
@@ -49,7 +48,7 @@ class Path(encryption.Path):
             yield from super().iterdir()
 
     @create_parent_on_missing
-    def rename(self, target: str | Path, exist_ok: bool = False) -> Path:
+    def rename(self: T, target: str | T, exist_ok: bool = False) -> T:
         target_path = self.__class__(target)
         rename = super().replace if exist_ok else super().rename
         try:
@@ -66,7 +65,7 @@ class Path(encryption.Path):
                         if self.is_dir():
                             target_path.rmtree()
                         else:
-                            target_path.unlink()
+                            target_path.unlink()  # pragma: nocover
                     else:
                         message = f"Target already exists: {target_path }"
                         raise Exception(message)
@@ -77,8 +76,9 @@ class Path(encryption.Path):
                 raise
         return target_path
 
-    def replace(self, target: str | PurePath) -> Path:
-        return self.rename(target, exist_ok=True)
+    def replace(self: T, target: str | PurePath) -> T:
+        path = self.rename(target, exist_ok=True)
+        return typing.cast(T, path)
 
     def open(self, mode: str = "r", **kwargs: Any) -> IO[Any]:  # type: ignore
         try:

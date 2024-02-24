@@ -23,28 +23,28 @@ def test_parent(path: Path) -> None:
     assert child_path.parent == path
 
 
-def test_tar_unpack(folder: Path) -> None:
+def test_tar_unpack(directory: Path) -> None:
     archive_assets = Path(__file__).parent / "assets" / "archives"
     archive_path = archive_assets / "test.tar.gz"
-    archive_path.unpack(folder, remove_existing=True, remove_original=False)
-    test_file = folder / "test.txt"
+    archive_path.unpack(directory, remove_existing=True, remove_original=False)
+    test_file = directory / "test.txt"
     assert test_file.text.strip() == "testcontent"
 
 
-def test_recursive_unpack(folder: Path) -> None:
+def test_recursive_unpack(directory: Path) -> None:
     archive_assets = Path(__file__).parent / "assets" / "archives"
     archive_path = archive_assets / "recursive.zip"
-    archive_path.unpack(folder, remove_existing=True, remove_original=False)
-    test_file = folder / "test" / "test" / "test.txt"
+    archive_path.unpack(directory, remove_existing=True, remove_original=False)
+    test_file = directory / "test" / "test" / "test.txt"
     assert test_file.text.strip() == "testcontent"
 
 
-def test_unpack_check(folder: Path) -> None:
+def test_unpack_check(directory: Path) -> None:
     non_archive_assets = Path(__file__).parent / "assets" / "non_archives"
     assert not non_archive_assets.is_empty()
     for path in non_archive_assets.iterdir():
-        path.unpack_if_archive(folder)
-        assert folder.is_empty()
+        path.unpack_if_archive(directory)
+        assert directory.is_empty()
 
 
 def test_uri(path: Path) -> None:
@@ -98,11 +98,13 @@ def test_move_existing(path: Path, path2: Path, content: bytes) -> None:
 
 @ignore_fixture_warning
 @byte_content
-def test_move_parent_not_existing(folder: Path, folder2: Path, content: bytes) -> None:
-    folder.rmtree()
-    path = folder / folder.name
-    folder2.rmtree()
-    path2 = folder2 / folder2.name
+def test_move_parent_not_existing(
+    directory: Path, directory2: Path, content: bytes
+) -> None:
+    directory.rmtree()
+    path = directory / directory.name
+    directory2.rmtree()
+    path2 = directory2 / directory2.name
     path.byte_content = content
     path.rename(path2)
     assert_moved(path, path2, content)
@@ -110,68 +112,72 @@ def test_move_parent_not_existing(folder: Path, folder2: Path, content: bytes) -
 
 @ignore_fixture_warning
 @byte_content
-def test_move_folder(folder: Path, folder2: Path, content: bytes) -> None:
-    filename = folder.name
-    subpath = folder / filename
+def test_move_directory(directory: Path, directory2: Path, content: bytes) -> None:
+    filename = directory.name
+    subpath = directory / filename
     subpath.byte_content = content
 
-    content_hash = folder.content_hash
-    folder2.rmtree()
+    content_hash = directory.content_hash
+    directory2.rmtree()
 
-    folder.rename(folder2)
+    directory.rename(directory2)
 
-    assert folder.is_empty()
-    assert folder2.content_hash == content_hash
-
-
-@ignore_fixture_warning
-@byte_content
-def test_move_folder_existing(folder: Path, folder2: Path, content: bytes) -> None:
-    def move_function() -> None:
-        folder.rename(folder2, exist_ok=True)
-
-    verify_move_existing(move_function, folder, folder2, content)
+    assert directory.is_empty()
+    assert directory2.content_hash == content_hash
 
 
 @ignore_fixture_warning
 @byte_content
-def test_replace_folder_existing(folder: Path, folder2: Path, content: bytes) -> None:
-    def move_function() -> None:
-        folder.replace(folder2)
-
-    verify_move_existing(move_function, folder, folder2, content)
-
-
-@ignore_fixture_warning
-@byte_content
-def test_move_folder_different_filesystem(
-    folder: Path, in_memory_folder: Path, content: bytes
+def test_move_directory_existing(
+    directory: Path, directory2: Path, content: bytes
 ) -> None:
-    filename = folder.name
-    subpath = folder / filename
+    def move_function() -> None:
+        directory.rename(directory2, exist_ok=True)
+
+    verify_move_existing(move_function, directory, directory2, content)
+
+
+@ignore_fixture_warning
+@byte_content
+def test_replace_directory_existing(
+    directory: Path, directory2: Path, content: bytes
+) -> None:
+    def move_function() -> None:
+        directory.replace(directory2)
+
+    verify_move_existing(move_function, directory, directory2, content)
+
+
+@ignore_fixture_warning
+@byte_content
+def test_move_directory_different_filesystem(
+    directory: Path, in_memory_directory: Path, content: bytes
+) -> None:
+    filename = directory.name
+    subpath = directory / filename
     subpath.byte_content = content
 
-    content_hash = folder.content_hash
-    in_memory_folder.rmtree()
-    folder.rename(in_memory_folder)
+    content_hash = directory.content_hash
+    in_memory_directory.rmtree()
+    directory.rename(in_memory_directory)
 
-    in_memory_folder / filename
-    assert folder.is_empty()
-    assert in_memory_folder.content_hash == content_hash
+    in_memory_directory / filename
+    assert directory.is_empty()
+    assert in_memory_directory.content_hash == content_hash
 
 
 @ignore_fixture_warning
 @byte_content
-def test_move_folder_existing_different_filesystem(
-    folder: Path, in_memory_folder: Path, content: bytes
+def test_move_directory_existing_different_filesystem(
+    directory: Path, in_memory_directory: Path, content: bytes
 ) -> None:
     def move_function() -> None:
-        folder.rename(in_memory_folder, exist_ok=True)
+        directory.rename(in_memory_directory, exist_ok=True)
 
     verify_move_existing(
         move_function,
-        folder,
-        in_memory_folder,
+        directory,
+        in_memory_directory,
         content,
         expected_existing_error=Exception,
     )
@@ -179,25 +185,25 @@ def test_move_folder_existing_different_filesystem(
 
 def verify_move_existing(
     move_function: Callable,
-    folder: Path,
-    folder2: Path,
+    directory: Path,
+    directory2: Path,
     content: bytes,
     expected_existing_error: type[Exception] = OSError,
 ) -> None:
-    filename = folder.name
-    subpath = folder / filename
-    subpath2 = folder2 / filename
+    filename = directory.name
+    subpath = directory / filename
+    subpath2 = directory2 / filename
     for test_subpath in (subpath, subpath2):
         test_subpath.byte_content = content
 
     with pytest.raises(expected_existing_error):
-        folder.rename(folder2)
+        directory.rename(directory2)
 
-    content_hash = folder.content_hash
+    content_hash = directory.content_hash
     move_function()
 
-    assert folder.is_empty()
-    assert folder2.content_hash == content_hash
+    assert directory.is_empty()
+    assert directory2.content_hash == content_hash
 
 
 def assert_moved(source: Path, dest: Path, content: bytes) -> None:

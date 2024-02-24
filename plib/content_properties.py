@@ -51,7 +51,8 @@ class Path(base.Path):
 
     @content_lines.setter
     def content_lines(self, lines: Iterable[Any]) -> None:
-        self.lines = typing.cast(list[str], (line for line in lines if line))
+        lines = (line for line in lines if line)
+        self.lines = typing.cast(list[str], lines)
 
     @property
     def json(self) -> dict | list:

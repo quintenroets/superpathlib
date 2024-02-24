@@ -88,7 +88,7 @@ class Path(metadata_properties.Path):
         recursive: bool = True,
     ) -> None:
         def cleanup(cleanup_path: PathType) -> None:
-            (cleanup_path / "__MACOSX").rmtree()
+            (cleanup_path / "__MACOSX").rmtree(missing_ok=True)
             subfolder = cleanup_path / cleanup_path.name
             if subfolder.exists() and cleanup_path.number_of_children == 1:
                 subfolder.pop_parent()
@@ -112,7 +112,7 @@ class Path(metadata_properties.Path):
         extract_dir = cast_path(extract_dir)
 
         if remove_existing:
-            extract_dir.rmtree()
+            extract_dir.rmtree(missing_ok=True)
 
         shutil.unpack_archive(self, extract_dir=extract_dir, format=archive_format)
 
@@ -278,6 +278,12 @@ class Path(metadata_properties.Path):
         path = cls(path_str)
         if not create:
             path.unlink()
+        return path
+
+    @classmethod
+    def tempdir(cls: type[PathType], in_memory: bool = True) -> PathType:
+        path = cls.tempfile(in_memory=in_memory, create=False)
+        path.mkdir()
         return path
 
     def __enter__(self: PathType) -> PathType:

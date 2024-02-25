@@ -1,50 +1,70 @@
 [project]
 name = "superpathlib"
-version = "1.3.13"
+version = "2.0.0"
 description = "Extended Pathlib"
 authors = [{name = "Quinten Roets", email = "qdr2104@columbia.edu"}]
 license = {text = "MIT"}
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
-    "simple-classproperty"
+    "simple-classproperty >=4.0.2, <5",
+]
+
+[project.optional-dependencies]
+full = [
+    "dirhash >=0.2.1, <1",
+    "numpy >=1.26.4, <2",
+    "PyYaml >=6.0.1, <7",
+    "xattr >=0.10.1, <1",
+]
+dev = [
+    "hypothesis >=6.97.1, <7",
+    "package-dev-tools >=0.5.10, <1",
+
+    # types
+    "types-PyYaml >=6.0.12.12, <7",
+
+    # full
+    "dirhash >=0.2.1, <1",
+    "numpy >=1.26.4, <2",
+    "PyYaml >=6.0.1, <7",
+    "xattr >=0.10.1, <1",
 ]
 
 [project.urls]
 "Source Code" = "https://github.com/quintenroets/superpathlib"
 
-[project.optional-dependencies]
-dev = [
-    "bump2version",
-    "pre-commit",
-    "types-PyYAML"
-]
-
-full = [
-    "dirhash",
-    "numpy",
-    "pytest",
-    "PyYaml",
-    "xattr",
-]
-
-test = [
-    "dirhash",
-    "hypothesis",
-    "numpy",
-    "pytest",
-    "PyYaml",
-    "xattr",
-]
-
-[tool.setuptools.package-data]
-plib = ["py.typed"]
-
 [build-system]
 requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
 
+[tool.coverage.run]
+command_line = "-m pytest"
+
+[tool.coverage.report]
+precision = 4
+fail_under = 100
+
+[tool.mypy]
+strict = true
+no_implicit_reexport = false
+
+[[tool.mypy.overrides]]
+module = [
+    "dirhash.*",
+    "xattr.*",
+]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+pythonpath = [
+    "src", ".",
+]
+
 [tool.ruff]
+fix = true
+
+[tool.ruff.lint]
 select = [
     "E",  # pycodestyle errors
     "W",  # pycodestyle warnings
@@ -52,7 +72,12 @@ select = [
     "I",  # isort
     "UP",  # pyupgrade
 ]
-fix = true
 
-[tool.ruff.per-file-ignores]
+[tool.ruff.lint.isort]
+known-first-party = ["src"]
+
+[tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["F401"]
+
+[tool.setuptools.package-data]
+superpathlib = ["py.typed"]

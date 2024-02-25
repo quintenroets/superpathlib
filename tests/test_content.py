@@ -3,18 +3,12 @@ from content import (
     byte_content,
     dictionary_content,
     floats_content,
+    slower_test_settings,
     text_content,
     text_lines_content,
 )
-from hypothesis import HealthCheck, settings
+from superpathlib import Path
 from utils import ignore_fixture_warning
-
-from plib import Path
-
-suppressed_health_checks = (HealthCheck.function_scoped_fixture,)
-slower_test_settings = settings(
-    max_examples=10, suppress_health_check=suppressed_health_checks
-)
 
 
 @ignore_fixture_warning
@@ -48,7 +42,7 @@ def test_empty_file_byte_content(path: Path) -> None:
 def test_lines(path: Path, content: list[str]) -> None:
     assert isinstance(Path.lines, property)
     path.lines = content
-    assert path.lines == [line for line in content if line]
+    assert path.lines == "\n".join(content).splitlines()
 
 
 @ignore_fixture_warning
@@ -59,12 +53,23 @@ def test_content_lines(path: Path, content: list[str]) -> None:
     while content and not content[-1].strip():
         content.pop(-1)
     text_lines = [line for line in content if line]
-    assert path.lines == text_lines
+    assert path.content_lines == text_lines
+
+
+@ignore_fixture_warning
+@text_lines_content
+def test_content_lines_setter(path: Path, content: list[str]) -> None:
+    assert isinstance(Path.lines, property)
+    path.content_lines = content
+    while content and not content[-1].strip():
+        content.pop(-1)
+    text_lines = [line for line in content if line]
+    assert path.content_lines == text_lines
 
 
 @slower_test_settings
 @dictionary_content
-def test_json(path: Path, content: dict) -> None:
+def test_json(path: Path, content: dict[str, dict[str, str]]) -> None:
     assert isinstance(Path.json, property)
     path.json = content
     assert path.json == content
@@ -72,7 +77,7 @@ def test_json(path: Path, content: dict) -> None:
 
 @slower_test_settings
 @dictionary_content
-def test_yaml(path: Path, content: dict) -> None:
+def test_yaml(path: Path, content: dict[str, dict[str, str]]) -> None:
     assert isinstance(Path.yaml, property)
     path.yaml = content
     assert path.yaml == content

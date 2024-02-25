@@ -1,9 +1,8 @@
-from __future__ import annotations
-
 import os
 import shutil
 import tempfile
 import time
+import typing
 import urllib.parse
 from collections.abc import Callable, Generator
 from functools import cached_property
@@ -70,7 +69,9 @@ class Path(metadata_properties.Path):
     @cached_property
     def archive_format(self) -> str:
         # noinspection PyProtectedMember
-        return shutil._find_unpack_format(str(self))  # type: ignore[attr-defined]
+        path_str = str(self)
+        format_ = shutil._find_unpack_format(path_str)  # type: ignore[attr-defined]
+        return typing.cast(str, format_)
 
     def unpack_if_archive(
         self, extract_dir: PathType | None = None, recursive: bool = True
@@ -88,10 +89,10 @@ class Path(metadata_properties.Path):
         recursive: bool = True,
     ) -> None:
         def cleanup(cleanup_path: PathType) -> None:
-            (cleanup_path / "__MACOSX").rmtree()
+            (cleanup_path / "__MACOSX").rmtree(missing_ok=True)
             subfolder = cleanup_path / cleanup_path.name
             if subfolder.exists() and cleanup_path.number_of_children == 1:
-                subfolder.pop_parent()
+                subfolder.pop_parent()  # pragma: nocover
 
         def cast_path(casted_path: PathType | None) -> PathType:
             return casted_path  # type: ignore
@@ -112,7 +113,7 @@ class Path(metadata_properties.Path):
         extract_dir = cast_path(extract_dir)
 
         if remove_existing:
-            extract_dir.rmtree()
+            extract_dir.rmtree(missing_ok=True)
 
         shutil.unpack_archive(self, extract_dir=extract_dir, format=archive_format)
 
@@ -134,14 +135,13 @@ class Path(metadata_properties.Path):
         dest = self.parent.parent / self.name
         parent = self.parent
         temp_dest = dest.with_nonexistent_name()  # can only move to non-existing path
-
         self.rename(temp_dest)
 
         if not parent.has_children:
             parent.rmdir()
         if not parent.exists():
             temp_dest.rename(dest)
-        else:
+        else:  # pragma: nocover
             # merge in existing folder
             shutil.copytree(temp_dest, dest, dirs_exist_ok=True)
             temp_dest.rmtree()
@@ -153,10 +153,10 @@ class Path(metadata_properties.Path):
             or (self.is_file() and self.size == 0)
         )
 
-    def load_yaml(self, trusted: bool = False) -> dict | list:
-        """
-        :param trusted: if the path is trusted, an unsafe loader
-                        can be used to instantiate any object
+    def load_yaml(self) -> dict[Any, Any] | list[Any]:
+        """Load yaml content of trusted path with an unsafe loader.
+
+        This can be used to instantiate any object
         :return: Content in path that contains yaml format
         """
         import yaml  # noqa: E402, autoimport
@@ -166,7 +166,7 @@ class Path(metadata_properties.Path):
         )
         return yaml.load(self.text, Loader=Loader) or {}
 
-    def update(self, value: dict) -> dict:
+    def update(self, value: dict[Any, Any]) -> dict[Any, Any]:
         # only read and write if value to add not empty
         if value:
             current_content = self.yaml
@@ -179,8 +179,8 @@ class Path(metadata_properties.Path):
 
     def find(
         self: PathType,
-        condition: Callable | None = None,
-        exclude: Callable | None = None,
+        condition: Callable[[PathType], bool] | None = None,
+        exclude: Callable[[PathType], bool] | None = None,
         recurse_on_match: bool = False,
         follow_symlinks: bool = False,
         only_folders: bool = False,
@@ -192,12 +192,12 @@ class Path(metadata_properties.Path):
         if condition is None:
             recurse_on_match = True
 
-            def condition(_: Any) -> bool:
+            def condition(_: PathType) -> bool:
                 return True
 
         if exclude is None:
 
-            def exclude(_: Any) -> bool:
+            def exclude(_: PathType) -> bool:
                 return False
 
         to_traverse = [self] if self.exists() else []
@@ -216,8 +216,9 @@ class Path(metadata_properties.Path):
                                 if follow_symlinks or not child.is_symlink():
                                     if not only_folders or child.is_dir():
                                         to_traverse.append(child)
-                        except PermissionError:
-                            pass  # skip folders that do not allow listing
+                        except PermissionError:  # pragma: nocover
+                            # skip folders that do not allow listing
+                            pass
 
     def rmtree(
         self,
@@ -242,7 +243,7 @@ class Path(metadata_properties.Path):
         path_str: str,
         exc_info: tuple[type[Exception], Exception, TracebackType],
     ) -> None:
-        if exc_info[0] is PermissionError and os.name == "nt":
+        if exc_info[0] is PermissionError and os.name == "nt":  # pragma: nocover
             path = Path(path_str)
             path.chmod(0o777)
             path.unlink()
@@ -251,8 +252,11 @@ class Path(metadata_properties.Path):
 
     def subpath(self: PathType, *parts: str) -> PathType:
         path = self
+        tokens_to_replace = self._flavour.sep, "."
         for part in parts:
-            path /= part.replace(self._flavour.sep, "_")
+            for token in tokens_to_replace:
+                part = part.replace(token, "_")
+            path /= part
         return path
 
     @classmethod
@@ -278,6 +282,12 @@ class Path(metadata_properties.Path):
         path = cls(path_str)
         if not create:
             path.unlink()
+        return path
+
+    @classmethod
+    def tempdir(cls: type[PathType], in_memory: bool = True) -> PathType:
+        path = cls.tempfile(in_memory=in_memory, create=False)
+        path.mkdir()
         return path
 
     def __enter__(self: PathType) -> PathType:

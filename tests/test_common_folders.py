@@ -1,7 +1,6 @@
 from content import byte_content
+from superpathlib import Path
 from utils import ignore_fixture_warning
-
-from plib import Path
 
 
 @ignore_fixture_warning
@@ -18,3 +17,16 @@ def test_instance_common_folder_functionality(path: Path, content: bytes) -> Non
     common_folder_path = Path().HOME / path
     common_folder_path.byte_content = content
     assert common_folder_path.byte_content == content
+
+
+def test_common_folders() -> None:
+    paths = (
+        Path.HOME,
+        Path.docs,
+        Path.scripts,
+        Path.assets,
+        Path.script_assets,
+        Path.draft,
+    )
+    for path in paths:
+        assert path

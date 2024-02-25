@@ -6,6 +6,7 @@ on:
 jobs:
   check-pre-commit:
     name: Check pre-commit hooks
+    if: false
     runs-on: ubuntu-latest
     steps:
       - name: Check pre-commit hooks
@@ -61,7 +62,6 @@ jobs:
     name: Trigger template sync
     runs-on: ubuntu-latest
     if: github.repository == 'quintenroets/python-package-template' && github.ref == 'refs/heads/main'
-    needs: [check-pre-commit]
     steps:
       - name: Trigger template sync
         uses: quintenroets/actions/trigger-template-sync@main

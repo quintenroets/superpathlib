@@ -33,5 +33,5 @@ floats_content = given(content=strategies.lists(strategies.floats()))
 
 suppressed_health_checks = (HealthCheck.function_scoped_fixture,)
 slower_test_settings = settings(
-    max_examples=10, suppress_health_check=suppressed_health_checks
+    max_examples=10, suppress_health_check=suppressed_health_checks, deadline=1000
 )

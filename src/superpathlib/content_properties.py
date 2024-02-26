@@ -11,9 +11,9 @@ if typing.TYPE_CHECKING:  # pragma: nocover
     from numpy.typing import NDArray
 
 
-# Long import times relative to usage frequency: lazy imports
-# import yaml
-# import numpy as np
+# Lazy imports for:
+# - performance optimization
+# - enabling optional dependencies
 
 
 class Path(base.Path):

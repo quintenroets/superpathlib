@@ -9,7 +9,7 @@ from functools import cached_property
 from types import TracebackType
 from typing import Any, TypeVar
 
-from . import metadata_properties
+from . import cached_content
 from .utils import find_first_match
 
 PathType = TypeVar("PathType", bound="Path")
@@ -19,7 +19,7 @@ PathType = TypeVar("PathType", bound="Path")
 # import dirhash
 
 
-class Path(metadata_properties.Path):
+class Path(cached_content.Path):
     """
     Additional functionality.
     """

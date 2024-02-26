@@ -26,6 +26,15 @@ def test_tags(path: Path, content: str) -> None:
 
 
 @ignore_fixture_warning
+@given(content=lists(text_strategy(blacklist_characters=",", min_size=1)))
+def test_tags_removal(path: Path, content: str) -> None:
+    assert isinstance(Path.tags, property)
+    path.tags = content
+    path.tags = []
+    assert path.tags == []
+
+
+@ignore_fixture_warning
 @given(content=text_strategy(blacklist_characters=","))
 def test_tag(path: Path, content: str) -> None:
     assert isinstance(Path.tag, property)

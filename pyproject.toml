@@ -1,6 +1,6 @@
 [project]
 name = "superpathlib"
-version = "2.0.0"
+version = "2.0.1"
 description = "Extended Pathlib"
 authors = [{name = "Quinten Roets", email = "qdr2104@columbia.edu"}]
 license = {text = "MIT"}
@@ -14,6 +14,7 @@ dependencies = [
 full = [
     "dirhash >=0.2.1, <1",
     "numpy >=1.26.4, <2",
+    "package-utils >=0.6.1, <1",
     "PyYaml >=6.0.1, <7",
     "xattr >=0.10.1, <2",
 ]
@@ -27,6 +28,7 @@ dev = [
     # full
     "dirhash >=0.2.1, <1",
     "numpy >=1.26.4, <2",
+    "package-utils >=0.6.1, <1",
     "PyYaml >=6.0.1, <7",
     "xattr >=0.10.1, <2",
 ]

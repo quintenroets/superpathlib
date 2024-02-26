@@ -6,7 +6,6 @@ on:
 jobs:
   check-pre-commit:
     name: Check pre-commit hooks
-    if: false
     runs-on: ubuntu-latest
     steps:
       - name: Check pre-commit hooks
@@ -14,7 +13,6 @@ jobs:
 
   verify-packaging:
     name: Verify packaging
-    if: false
     runs-on: ubuntu-latest
     steps:
       - name: Verify packaging
@@ -33,10 +31,9 @@ jobs:
   run-tests:
     name: Run tests
     needs: extract-python-versions
-    if: false
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        os: [ubuntu-latest, macos-latest]
         python-version: ${{ fromJSON(needs.extract-python-versions.outputs.versions) }}
     runs-on: ${{ matrix.os }}
     steps:
@@ -49,6 +46,7 @@ jobs:
     name: Publish package
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
+    needs: [check-pre-commit, verify-packaging, run-tests]
     environment: release
     permissions:
       id-token: write  # Needed for PyPi publishing

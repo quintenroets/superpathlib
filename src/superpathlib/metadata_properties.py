@@ -6,9 +6,6 @@ import typing
 import warnings
 from collections.abc import Callable
 from functools import wraps
-
-# Long import times relative to usage frequency: lazy imports
-# from .tags import XDGTags
 from typing import Any, TypeVar
 
 from . import content_properties

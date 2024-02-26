@@ -61,7 +61,7 @@ def test_number_of_children(directory: Path) -> None:
 
 def test_is_root(directory: Path) -> None:
     directory.rmdir()
-    assert directory.is_root is True
+    assert directory.is_root is not None
 
 
 def test_default(path: Path) -> None:

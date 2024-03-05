@@ -113,7 +113,10 @@ class Path(cached_content.Path):
         extract_dir = cast_path(extract_dir)
 
         if remove_existing:
-            extract_dir.rmtree(missing_ok=True)
+            if extract_dir.is_dir():
+                extract_dir.rmtree(missing_ok=True)
+            else:
+                extract_dir.unlink(missing_ok=True)
 
         shutil.unpack_archive(self, extract_dir=extract_dir, format=archive_format)
 

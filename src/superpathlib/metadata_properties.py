@@ -45,7 +45,7 @@ class Path(content_properties.Path):
         os.utime(self, (time, time))  # set create time as well
 
         try:
-            subprocess.run(("touch", "-d", "@%f" % time, self))
+            subprocess.run(("touch", "-d", f"@{time:.f}", self))
         except subprocess.CalledProcessError:  # pragma: nocover
             pass  # Doesn't work on Windows
 

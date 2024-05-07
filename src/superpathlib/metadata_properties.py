@@ -44,7 +44,7 @@ class Path(content_properties.Path):
     def mtime(self, time: float) -> None:
         os.utime(self, (time, time))  # set create time as well
 
-        command = "touch", "-d", str(time), self
+        command = "touch", "-d", f"@{time}", self
         try:
             subprocess.run(command)
         except subprocess.CalledProcessError:  # pragma: nocover

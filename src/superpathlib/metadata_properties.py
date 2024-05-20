@@ -2,11 +2,10 @@ import hashlib
 import mimetypes
 import os
 import subprocess
-import typing
 import warnings
 from collections.abc import Callable
 from functools import wraps
-from typing import Any, TypeVar
+from typing import Any, TypeVar, cast
 
 from . import content_properties
 
@@ -117,8 +116,7 @@ class Path(content_properties.Path):
 
         # use default algorithm used in cloud provider checksums
         # can be efficient because not used for cryptographic security
-        content_hash = dirhash.dirhash(self, "md5") if self.exists() else None
-        return typing.cast(str, content_hash)
+        return cast(str, dirhash.dirhash(self, "md5")) if self.has_children else None
 
     @property
     def file_content_hash(self) -> str:

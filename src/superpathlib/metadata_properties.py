@@ -117,8 +117,7 @@ class Path(content_properties.Path):
 
         # use default algorithm used in cloud provider checksums
         # can be efficient because not used for cryptographic security
-        content_hash = dirhash.dirhash(self, "md5") if self.exists() else None
-        return typing.cast(str, content_hash)
+        return None if self.is_empty() else cast(str, dirhash.dirhash(self, "md5"))
 
     @property
     def file_content_hash(self) -> str:

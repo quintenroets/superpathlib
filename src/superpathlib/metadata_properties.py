@@ -103,11 +103,11 @@ class Path(content_properties.Path):
         return filetype
 
     @property
-    def content_hash(self) -> str:
+    def content_hash(self) -> str | None:
         return self.file_content_hash if self.is_file() else self.dir_content_hash
 
     @property
-    def dir_content_hash(self) -> str:
+    def dir_content_hash(self) -> str | None:
         # dirhash package throws annoying warnings
         warnings.filterwarnings(
             action="ignore", module="pkg_resources|dirhash", category=DeprecationWarning
@@ -117,7 +117,7 @@ class Path(content_properties.Path):
 
         # use default algorithm used in cloud provider checksums
         # can be efficient because not used for cryptographic security
-        content_hash = dirhash.dirhash(self, "md5")
+        content_hash = dirhash.dirhash(self, "md5") if self.exists() else None
         return typing.cast(str, content_hash)
 
     @property

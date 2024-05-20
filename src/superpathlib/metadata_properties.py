@@ -2,7 +2,6 @@ import hashlib
 import mimetypes
 import os
 import subprocess
-import typing
 import warnings
 from collections.abc import Callable
 from functools import wraps

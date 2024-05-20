@@ -5,7 +5,7 @@ import subprocess
 import warnings
 from collections.abc import Callable
 from functools import wraps
-from typing import Any, TypeVar
+from typing import Any, TypeVar, cast
 
 from . import content_properties
 

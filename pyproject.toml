@@ -13,7 +13,7 @@ dependencies = [
 [project.optional-dependencies]
 full = [
     "dirhash >=0.2.1, <1",
-    "numpy >=1.26.4, <2",
+    "numpy >=1.26.4, <3",
     "package-utils >=0.6.1, <1",
     "PyYaml >=6.0.1, <7",
     "xattr >=0.10.1, <2",
@@ -27,7 +27,7 @@ dev = [
 
     # full
     "dirhash >=0.2.1, <1",
-    "numpy >=1.26.4, <2",
+    "numpy >=1.26.4, <3",
     "package-utils >=0.6.1, <1",
     "PyYaml >=6.0.1, <7",
     "xattr >=0.10.1, <2",

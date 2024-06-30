@@ -17,7 +17,7 @@ class Path(pathlib.Path):
         )
     else:  # pragma: nocover
         _flavour = (
-            pathlib.ntpath  # type: ignore[attr-defined] # noqa
+            pathlib.ntpath  # type: ignore[attr-defined]
             if os.name == "nt"
-            else pathlib.posixpath  # type: ignore[attr-defined] # noqa
+            else pathlib.posixpath  # type: ignore[attr-defined]
         )

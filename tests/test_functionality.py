@@ -103,7 +103,9 @@ def test_move_existing(path: Path, path2: Path, content: bytes) -> None:
 @ignore_fixture_warning
 @byte_content
 def test_move_parent_not_existing(
-    directory: Path, directory2: Path, content: bytes
+    directory: Path,
+    directory2: Path,
+    content: bytes,
 ) -> None:
     directory.rmtree()
     path = directory / directory.name
@@ -133,7 +135,9 @@ def test_move_directory(directory: Path, directory2: Path, content: bytes) -> No
 @ignore_fixture_warning
 @byte_content
 def test_move_directory_existing(
-    directory: Path, directory2: Path, content: bytes
+    directory: Path,
+    directory2: Path,
+    content: bytes,
 ) -> None:
     def move_function() -> None:
         directory.rename(directory2, exist_ok=True)
@@ -144,7 +148,9 @@ def test_move_directory_existing(
 @ignore_fixture_warning
 @byte_content
 def test_replace_directory_existing(
-    directory: Path, directory2: Path, content: bytes
+    directory: Path,
+    directory2: Path,
+    content: bytes,
 ) -> None:
     def move_function() -> None:
         directory.replace(directory2)
@@ -155,7 +161,9 @@ def test_replace_directory_existing(
 @ignore_fixture_warning
 @byte_content
 def test_move_directory_different_filesystem(
-    directory: Path, in_memory_directory: Path, content: bytes
+    directory: Path,
+    in_memory_directory: Path,
+    content: bytes,
 ) -> None:
     filename = directory.name
     subpath = directory / filename
@@ -173,7 +181,9 @@ def test_move_directory_different_filesystem(
 @ignore_fixture_warning
 @byte_content
 def test_move_directory_existing_different_filesystem(
-    directory: Path, in_memory_directory: Path, content: bytes
+    directory: Path,
+    in_memory_directory: Path,
+    content: bytes,
 ) -> None:
     def move_function() -> None:
         directory.rename(in_memory_directory, exist_ok=True)

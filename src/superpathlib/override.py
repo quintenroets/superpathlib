@@ -33,7 +33,10 @@ class Path(encryption.Path):
 
     @create_parent_on_missing
     def touch(
-        self, mode: int = 0o666, exist_ok: bool = True, mtime: float | None = None
+        self,
+        mode: int = 0o666,
+        exist_ok: bool = True,
+        mtime: float | None = None,
     ) -> None:
         super().touch(mode=mode, exist_ok=exist_ok)
         if mtime is not None:

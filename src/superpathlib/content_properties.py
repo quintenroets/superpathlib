@@ -93,4 +93,4 @@ class Path(base.Path):
         import numpy as np
 
         with self.open("wb") as fp:
-            np.save(fp, value)  # noqa
+            np.save(fp, value)

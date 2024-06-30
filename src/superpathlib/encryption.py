@@ -40,7 +40,9 @@ class EncryptedPath(Path):
         encrypted_bytes = super().read_bytes()
         if encrypted_bytes:
             process = subprocess.Popen(
-                self.decryption_command, stdin=subprocess.PIPE, stdout=subprocess.PIPE
+                self.decryption_command,
+                stdin=subprocess.PIPE,
+                stdout=subprocess.PIPE,
             )
             decrypted_bytes, _ = process.communicate(input=encrypted_bytes)
         else:
@@ -49,7 +51,9 @@ class EncryptedPath(Path):
 
     def write_bytes(self, data: bytes) -> int:  # type: ignore
         process = subprocess.Popen(
-            self.encryption_command, stdin=subprocess.PIPE, stdout=subprocess.PIPE
+            self.encryption_command,
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
         )
         encrypted_data = process.communicate(input=data)[0]
         return super().write_bytes(encrypted_data)

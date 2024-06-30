@@ -45,7 +45,7 @@ class Path(cached_content.Path):
         return path
 
     def with_timestamp(self: PathType) -> PathType:
-        from datetime import datetime  # noqa: E402, autoimport
+        from datetime import datetime  # , autoimport
 
         timestamp = datetime.fromtimestamp(int(time.time()))  # precision up to second
         return self.with_stem(f"{self.stem} {timestamp}")
@@ -74,7 +74,9 @@ class Path(cached_content.Path):
         return typing.cast(str, format_)
 
     def unpack_if_archive(
-        self, extract_dir: PathType | None = None, recursive: bool = True
+        self,
+        extract_dir: PathType | None = None,
+        recursive: bool = True,
     ) -> None:
         if self.archive_format is not None:
             self.unpack(extract_dir, recursive=recursive)
@@ -162,7 +164,7 @@ class Path(cached_content.Path):
         This can be used to instantiate any object
         :return: Content in path that contains yaml format
         """
-        import yaml  # noqa: E402, autoimport
+        import yaml  # , autoimport
 
         Loader: type[yaml.CFullLoader | yaml.FullLoader] = (
             yaml.CFullLoader if hasattr(yaml, "CFullLoader") else yaml.FullLoader
@@ -269,7 +271,10 @@ class Path(cached_content.Path):
 
     @classmethod
     def tempfile(
-        cls: type[PathType], in_memory: bool = True, create: bool = True, **kwargs: Any
+        cls: type[PathType],
+        in_memory: bool = True,
+        create: bool = True,
+        **kwargs: Any,
     ) -> PathType:
         """Usage:
 
@@ -296,7 +301,7 @@ class Path(cached_content.Path):
     def __enter__(self: PathType) -> PathType:
         return self
 
-    def __exit__(self, *_: Any) -> None:
+    def __exit__(self, *_: object) -> None:
         if self.is_file():
             self.unlink(missing_ok=True)
         else:

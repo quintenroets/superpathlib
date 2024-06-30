@@ -31,7 +31,8 @@ def test_text(content: str) -> None:
 def test_content(path: Path, content: dict[str, dict[str, str]]) -> None:
     class Storage:
         content: CachedFileContent[dict[str, dict[str, str]]] = typing.cast(
-            CachedFileContent[dict[str, dict[str, str]]], path.cached_content
+            CachedFileContent[dict[str, dict[str, str]]],
+            path.cached_content,
         )
 
     verify_storage(Storage, content)
@@ -42,14 +43,16 @@ def test_content(path: Path, content: dict[str, dict[str, str]]) -> None:
 def test_created_content(path: Path, content: dict[str, dict[str, str]]) -> None:
     class Storage:
         content: CachedFileContent[dict[str, dict[str, str]]] = typing.cast(
-            CachedFileContent[dict[str, dict[str, str]]], path.create_cached_content({})
+            CachedFileContent[dict[str, dict[str, str]]],
+            path.create_cached_content({}),
         )
 
     verify_storage(Storage, content)
 
 
 def verify_storage(
-    storage_class: type[Any], content: str | bytes | dict[str, dict[str, str]]
+    storage_class: type[Any],
+    content: str | bytes | dict[str, dict[str, str]],
 ) -> None:
     storage = storage_class()
     assert storage.content is not None

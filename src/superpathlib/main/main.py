@@ -1,5 +1,4 @@
 import cli
-
 from superpathlib.context import context
 
 

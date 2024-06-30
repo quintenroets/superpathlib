@@ -45,19 +45,19 @@ class Path(content_properties.Path):
 
         command = "touch", "-d", f"@{time}", self
         try:
-            subprocess.run(command)
+            subprocess.run(command, check=False)
         except subprocess.CalledProcessError:  # pragma: nocover
             pass  # Doesn't work on Windows
 
     @property
     def tags(self) -> list[str]:
-        from .tags import XDGTags  # noqa: E402, autoimport
+        from .tags import XDGTags  # , autoimport
 
         return XDGTags(self).get()
 
     @tags.setter
     def tags(self, values: list[str | int | None]) -> None:
-        from .tags import XDGTags  # noqa: E402, autoimport
+        from .tags import XDGTags  # , autoimport
 
         if len(values) == 0:
             XDGTags(self).clear()
@@ -70,7 +70,7 @@ class Path(content_properties.Path):
 
     @tag.setter
     def tag(self, value: str | int | None) -> None:
-        from .tags import XDGTags  # noqa: E402, autoimport
+        from .tags import XDGTags  # , autoimport
 
         XDGTags(self).set(value)
 
@@ -109,10 +109,12 @@ class Path(content_properties.Path):
     def dir_content_hash(self) -> str | None:
         # dirhash package throws annoying warnings
         warnings.filterwarnings(
-            action="ignore", module="pkg_resources|dirhash", category=DeprecationWarning
+            action="ignore",
+            module="pkg_resources|dirhash",
+            category=DeprecationWarning,
         )
 
-        import dirhash  # noqa: E402, F401, autoimport
+        import dirhash  # , autoimport
 
         # use default algorithm used in cloud provider checksums
         # can be efficient because not used for cryptographic security

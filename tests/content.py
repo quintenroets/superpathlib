@@ -16,7 +16,8 @@ def dictionary_strategy() -> SearchStrategy[dict[str, dict[str, str]]]:
 
 
 def text_strategy(
-    blacklist_characters: str | None = None, **kwargs: Any
+    blacklist_characters: str | None = None,
+    **kwargs: Any,
 ) -> SearchStrategy[str]:
     alphabet = strategies.characters(
         blacklist_categories=["Cc", "Cs", "Zs"],
@@ -33,5 +34,7 @@ floats_content = given(content=strategies.lists(strategies.floats()))
 
 suppressed_health_checks = (HealthCheck.function_scoped_fixture,)
 slower_test_settings = settings(
-    max_examples=10, suppress_health_check=suppressed_health_checks, deadline=1000
+    max_examples=10,
+    suppress_health_check=suppressed_health_checks,
+    deadline=1000,
 )

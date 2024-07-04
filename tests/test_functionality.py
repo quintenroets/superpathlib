@@ -1,14 +1,15 @@
 from collections.abc import Callable
 
 import pytest
-from content import (
+from superpathlib import Path
+
+from tests.content import (
     byte_content,
     dictionary_content,
     slower_test_settings,
     text_lines_content,
 )
-from superpathlib import Path
-from utils import ignore_fixture_warning
+from tests.utils import ignore_fixture_warning
 
 
 def test_tempfile() -> None:
@@ -47,7 +48,7 @@ def test_unpack_check(directory: Path) -> None:
     non_archive_assets = Path(__file__).parent / "assets" / "non_archives"
     assert not non_archive_assets.is_empty()
     for path in non_archive_assets.iterdir():
-        path.unpack_if_archive(directory)
+        path.unpack_if_archive(extraction_directory=directory)
         assert directory.is_empty()
 
 
@@ -103,7 +104,9 @@ def test_move_existing(path: Path, path2: Path, content: bytes) -> None:
 @ignore_fixture_warning
 @byte_content
 def test_move_parent_not_existing(
-    directory: Path, directory2: Path, content: bytes
+    directory: Path,
+    directory2: Path,
+    content: bytes,
 ) -> None:
     directory.rmtree()
     path = directory / directory.name
@@ -133,7 +136,9 @@ def test_move_directory(directory: Path, directory2: Path, content: bytes) -> No
 @ignore_fixture_warning
 @byte_content
 def test_move_directory_existing(
-    directory: Path, directory2: Path, content: bytes
+    directory: Path,
+    directory2: Path,
+    content: bytes,
 ) -> None:
     def move_function() -> None:
         directory.rename(directory2, exist_ok=True)
@@ -144,7 +149,9 @@ def test_move_directory_existing(
 @ignore_fixture_warning
 @byte_content
 def test_replace_directory_existing(
-    directory: Path, directory2: Path, content: bytes
+    directory: Path,
+    directory2: Path,
+    content: bytes,
 ) -> None:
     def move_function() -> None:
         directory.replace(directory2)
@@ -155,7 +162,9 @@ def test_replace_directory_existing(
 @ignore_fixture_warning
 @byte_content
 def test_move_directory_different_filesystem(
-    directory: Path, in_memory_directory: Path, content: bytes
+    directory: Path,
+    in_memory_directory: Path,
+    content: bytes,
 ) -> None:
     filename = directory.name
     subpath = directory / filename
@@ -173,7 +182,9 @@ def test_move_directory_different_filesystem(
 @ignore_fixture_warning
 @byte_content
 def test_move_directory_existing_different_filesystem(
-    directory: Path, in_memory_directory: Path, content: bytes
+    directory: Path,
+    in_memory_directory: Path,
+    content: bytes,
 ) -> None:
     def move_function() -> None:
         directory.rename(in_memory_directory, exist_ok=True)

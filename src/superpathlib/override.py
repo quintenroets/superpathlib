@@ -33,7 +33,11 @@ class Path(encryption.Path):
 
     @create_parent_on_missing
     def touch(
-        self, mode: int = 0o666, exist_ok: bool = True, mtime: float | None = None
+        self,
+        mode: int = 0o666,
+        *,
+        exist_ok: bool = True,
+        mtime: float | None = None,
     ) -> None:
         super().touch(mode=mode, exist_ok=exist_ok)
         if mtime is not None:
@@ -43,22 +47,22 @@ class Path(encryption.Path):
     def rmdir(self) -> None:
         return super().rmdir()
 
-    def iterdir(self: T, missing_ok: bool = True) -> Generator[T, None, None]:
+    def iterdir(self: T, *, missing_ok: bool = True) -> Generator[T, None, None]:
         if self.exists() or not missing_ok:
             yield from super().iterdir()
 
     @create_parent_on_missing
-    def rename(self: T, target: str | T, exist_ok: bool = False) -> T:
+    def rename(self: T, target: str | T, *, exist_ok: bool = False) -> T:
         target_path = self.__class__(target)
         rename = super().replace if exist_ok else super().rename
         try:
             target_path.create_parent()
             target_path = rename(target_path)
-        except OSError as e:
-            if exist_ok and "Directory not empty" in str(e):
+        except OSError as exception:
+            if exist_ok and "Directory not empty" in str(exception):
                 target_path.rmtree()
                 target_path = rename(target_path)
-            elif "Invalid cross-device link" in str(e):
+            elif "Invalid cross-device link" in str(exception):
                 # target is on different file system
                 if target_path.exists():
                     if exist_ok:
@@ -68,7 +72,7 @@ class Path(encryption.Path):
                             target_path.unlink()  # pragma: nocover
                     else:
                         message = f"Target already exists: {target_path }"
-                        raise Exception(message)
+                        raise RuntimeError(message) from exception
                 else:
                     target_path.create_parent()
                 target_path = shutil.move(self, target_path)
@@ -80,7 +84,7 @@ class Path(encryption.Path):
         path = self.rename(target, exist_ok=True)
         return typing.cast(T, path)
 
-    def open(self, mode: str = "r", **kwargs: Any) -> IO[Any]:  # type: ignore
+    def open(self, mode: str = "r", **kwargs: Any) -> IO[Any]:  # type: ignore[override]
         try:
             res = super().open(mode, **kwargs)
         except FileNotFoundError:

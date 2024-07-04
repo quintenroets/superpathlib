@@ -1,5 +1,7 @@
 import numpy as np
-from content import (
+from superpathlib import Path
+
+from tests.content import (
     byte_content,
     dictionary_content,
     floats_content,
@@ -7,8 +9,7 @@ from content import (
     text_content,
     text_lines_content,
 )
-from superpathlib import Path
-from utils import ignore_fixture_warning
+from tests.utils import ignore_fixture_warning
 
 
 @ignore_fixture_warning

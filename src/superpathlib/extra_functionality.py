@@ -1,22 +1,19 @@
+import contextlib
 import os
 import shutil
 import tempfile
 import time
 import typing
 import urllib.parse
-from collections.abc import Callable, Generator
+from collections.abc import Callable, Iterator
 from functools import cached_property
 from types import TracebackType
-from typing import Any, TypeVar
+from typing import Any, TypeVar, cast
 
 from . import cached_content
 from .utils import find_first_match
 
 PathType = TypeVar("PathType", bound="Path")
-
-# Long import times relative to usage frequency: lazy imports
-# from datetime import datetime
-# import dirhash
 
 
 class Path(cached_content.Path):
@@ -45,14 +42,16 @@ class Path(cached_content.Path):
         return path
 
     def with_timestamp(self: PathType) -> PathType:
-        from datetime import datetime  # noqa: E402, autoimport
+        from datetime import datetime, timezone
 
-        timestamp = datetime.fromtimestamp(int(time.time()))  # precision up to second
-        return self.with_stem(f"{self.stem} {timestamp}")
+        timestamp = int(time.time())  # precision up to second
+        datetime_timestamp = datetime.fromtimestamp(timestamp, tz=timezone.utc)
+        return self.with_stem(f"{self.stem} {datetime_timestamp}")
 
     def copy_to(
         self,
         dest: PathType,
+        *,
         include_properties: bool = True,
         only_if_newer: bool = False,
     ) -> None:
@@ -70,18 +69,22 @@ class Path(cached_content.Path):
     def archive_format(self) -> str:
         # noinspection PyProtectedMember
         path_str = str(self)
-        format_ = shutil._find_unpack_format(path_str)  # type: ignore[attr-defined]
+        format_ = shutil._find_unpack_format(path_str)  # type: ignore[attr-defined] # noqa: SLF001
         return typing.cast(str, format_)
 
     def unpack_if_archive(
-        self, extract_dir: PathType | None = None, recursive: bool = True
+        self,
+        *,
+        extraction_directory: PathType | None = None,
+        recursive: bool = True,
     ) -> None:
         if self.archive_format is not None:
-            self.unpack(extract_dir, recursive=recursive)
+            self.unpack(extraction_directory, recursive=recursive)
 
-    def unpack(
+    def unpack(  # noqa: PLR0913
         self: PathType,
-        extract_dir: PathType | None = None,
+        extraction_directory: PathType | None = None,
+        *,
         remove_existing: bool = True,
         preserve_properties: bool = True,
         remove_original: bool = True,
@@ -94,42 +97,47 @@ class Path(cached_content.Path):
             if subfolder.exists() and cleanup_path.number_of_children == 1:
                 subfolder.pop_parent()  # pragma: nocover
 
-        def cast_path(casted_path: PathType | None) -> PathType:
-            return casted_path  # type: ignore
-
         if archive_format is None:
             archive_format = self.archive_format
 
-        if extract_dir is None:
-            extract_name = self.name
-            # noinspection PyProtectedMember
-            unpack_formats = shutil._UNPACK_FORMATS  # type: ignore[attr-defined]
-            unpack_info = unpack_formats[archive_format]
-            for archive_ext in unpack_info[0]:
-                if extract_name.endswith(archive_ext):
-                    extract_name = extract_name.replace(archive_ext, "")
-            extract_dir = self.with_name(extract_name)
-
-        extract_dir = cast_path(extract_dir)
+        extraction_directory = (
+            self.create_extraction_directory(archive_format=archive_format)
+            if extraction_directory is None
+            else extraction_directory
+        )
 
         if remove_existing:
-            if extract_dir.is_dir():
-                extract_dir.rmtree(missing_ok=True)
+            if extraction_directory.is_dir():
+                extraction_directory.rmtree(missing_ok=True)
             else:
-                extract_dir.unlink(missing_ok=True)
+                extraction_directory.unlink(missing_ok=True)
 
-        shutil.unpack_archive(self, extract_dir=extract_dir, format=archive_format)
+        shutil.unpack_archive(
+            self,
+            extract_dir=extraction_directory,
+            format=archive_format,
+        )
 
-        cleanup(extract_dir)
+        cleanup(extraction_directory)
         if preserve_properties:
-            self.copy_properties_to(extract_dir)
+            self.copy_properties_to(extraction_directory)
 
         if remove_original:
             self.unlink()
 
         if recursive:
-            for path in extract_dir.find():
+            for path in extraction_directory.find():
                 path.unpack_if_archive()
+
+    def create_extraction_directory(self: PathType, archive_format: str) -> PathType:
+        extract_name = self.name
+        # noinspection PyProtectedMember
+        unpack_formats = shutil._UNPACK_FORMATS  # type: ignore[attr-defined] # noqa: SLF001
+        unpack_info = unpack_formats[archive_format]
+        for archive_ext in unpack_info[0]:
+            if extract_name.endswith(archive_ext):
+                extract_name = extract_name.replace(archive_ext, "")
+        return self.with_name(extract_name)
 
     def pop_parent(self) -> None:
         """
@@ -162,87 +170,85 @@ class Path(cached_content.Path):
         This can be used to instantiate any object
         :return: Content in path that contains yaml format
         """
-        import yaml  # noqa: E402, autoimport
+        import yaml  # , autoimport
 
-        Loader: type[yaml.CFullLoader | yaml.FullLoader] = (
+        Loader: type[yaml.CFullLoader | yaml.FullLoader] = (  # noqa: N806
             yaml.CFullLoader if hasattr(yaml, "CFullLoader") else yaml.FullLoader
         )
-        return yaml.load(self.text, Loader=Loader) or {}
+        return yaml.load(self.text, Loader=Loader) or {}  # noqa: S506
 
     def update(self, value: dict[Any, Any]) -> dict[Any, Any]:
         # only read and write if value to add not empty
         if value:
-            current_content = self.yaml
-            assert isinstance(current_content, dict)
+            current_content = cast(dict[Any, Any], self.yaml)
             updated_content = current_content | value
             self.yaml = updated_content
         else:
             updated_content = value
         return updated_content
 
-    def find(
+    def find(  # noqa: PLR0913
         self: PathType,
         condition: Callable[[PathType], bool] | None = None,
-        exclude: Callable[[PathType], bool] | None = None,
+        exclude: Callable[[PathType], bool] = lambda _: False,
+        *,
         recurse_on_match: bool = False,
         follow_symlinks: bool = False,
         only_folders: bool = False,
-    ) -> Generator[PathType, None, None]:
+    ) -> Iterator[PathType]:
         """Find all subpaths under path that match condition.
 
         only_folders option can be used for efficiency reasons
         """
+
+        def extract_children_to_recurse_on(path: PathType) -> Iterator[PathType]:
+            # skip folders that do not allow listing
+            with contextlib.suppress(PermissionError):
+                for child in path.iterdir():
+                    should_follow_symlink = follow_symlinks or not child.is_symlink()
+                    should_follow_directories = not only_folders or child.is_dir()
+                    if should_follow_symlink and should_follow_directories:
+                        yield child
+
         if condition is None:
             recurse_on_match = True
 
             def condition(_: PathType) -> bool:
                 return True
 
-        if exclude is None:
-
-            def exclude(_: PathType) -> bool:
-                return False
-
         to_traverse = [self] if self.exists() else []
         while to_traverse:
             path = to_traverse.pop(0)
-
             if not exclude(path):
                 match = condition(path)
                 if match:
                     yield path
-
-                if not match or recurse_on_match:
-                    if only_folders or path.is_dir():
-                        try:
-                            for child in path.iterdir():
-                                if follow_symlinks or not child.is_symlink():
-                                    if not only_folders or child.is_dir():
-                                        to_traverse.append(child)
-                        except PermissionError:  # pragma: nocover
-                            # skip folders that do not allow listing
-                            pass
+                should_recurse = recurse_on_match or not match
+                should_recurse_folder = only_folders or path.is_dir()
+                if should_recurse and should_recurse_folder:
+                    to_traverse += list(extract_children_to_recurse_on(path))
 
     def rmtree(
         self,
+        *,
         missing_ok: bool = False,
         remove_root: bool = True,
         ignore_errors: bool = False,
     ) -> None:
-        try:
-            shutil.rmtree(self, ignore_errors=ignore_errors, onerror=self._on_error)  # type: ignore
-        except FileNotFoundError as exception:
-            if missing_ok:
-                pass
-            else:
-                raise exception
+        context = (
+            contextlib.suppress(FileNotFoundError)
+            if missing_ok
+            else contextlib.nullcontext()
+        )
+        with context:
+            shutil.rmtree(self, ignore_errors=ignore_errors, onerror=self._on_error)  # type: ignore[arg-type]
         if not remove_root:
             self.mkdir()
 
     @classmethod
     def _on_error(
         cls,
-        _: bool,
+        _: bool,  # noqa: FBT001
         path_str: str,
         exc_info: tuple[type[Exception], Exception, TracebackType],
     ) -> None:
@@ -258,7 +264,7 @@ class Path(cached_content.Path):
         tokens_to_replace = self._flavour.sep, "."
         for part in parts:
             for token in tokens_to_replace:
-                part = part.replace(token, "_")
+                part = part.replace(token, "_")  # noqa: PLW2901
             path /= part
         return path
 
@@ -269,7 +275,11 @@ class Path(cached_content.Path):
 
     @classmethod
     def tempfile(
-        cls: type[PathType], in_memory: bool = True, create: bool = True, **kwargs: Any
+        cls: type[PathType],
+        *,
+        in_memory: bool = True,
+        create: bool = True,
+        **kwargs: Any,
     ) -> PathType:
         """Usage:
 
@@ -288,7 +298,7 @@ class Path(cached_content.Path):
         return path
 
     @classmethod
-    def tempdir(cls: type[PathType], in_memory: bool = True) -> PathType:
+    def tempdir(cls: type[PathType], *, in_memory: bool = True) -> PathType:
         path = cls.tempfile(in_memory=in_memory, create=False)
         path.mkdir()
         return path
@@ -296,7 +306,7 @@ class Path(cached_content.Path):
     def __enter__(self: PathType) -> PathType:
         return self
 
-    def __exit__(self, *_: Any) -> None:
+    def __exit__(self, *_: object) -> None:
         if self.is_file():
             self.unlink(missing_ok=True)
         else:

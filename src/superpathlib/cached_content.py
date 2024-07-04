@@ -21,12 +21,12 @@ class Path(metadata_properties.Path):
     def cached_content(self) -> CachedFileContent[dict[str, str]]:
         from package_utils.storage import CachedFileContent
 
-        return CachedFileContent(self, default={})  # type: ignore
+        return CachedFileContent(self, default={})  # type: ignore[arg-type]
 
     def create_cached_content(self, default: T) -> CachedFileContent[T]:
         from package_utils.storage import CachedFileContent
 
-        return CachedFileContent(self, default=default)  # type: ignore
+        return CachedFileContent(self, default=default)  # type: ignore[arg-type]
 
     @cached_property
     def cached_text(self) -> CachedFileContent[str]:
@@ -39,7 +39,7 @@ class Path(metadata_properties.Path):
             self.text = content
 
         return CachedFileContent(
-            self,  # type: ignore
+            self,  # type: ignore[arg-type]
             default="",
             load_function=load_function,
             save_function=save_function,
@@ -56,7 +56,7 @@ class Path(metadata_properties.Path):
             self.byte_content = content
 
         return CachedFileContent(
-            self,  # type: ignore
+            self,  # type: ignore[arg-type]
             default=b"",
             load_function=load_function,
             save_function=save_function,

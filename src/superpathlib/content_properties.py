@@ -2,12 +2,13 @@ from __future__ import annotations
 
 import json
 import typing
-from collections.abc import Iterable
 from typing import Any
 
 from . import base
 
 if typing.TYPE_CHECKING:  # pragma: nocover
+    from collections.abc import Iterable
+
     from numpy.typing import NDArray
 
 
@@ -68,17 +69,17 @@ class Path(base.Path):
         import yaml
 
         # C implementation much faster but only supported on Linux
-        Loader: type[yaml.CFullLoader | yaml.FullLoader] = (
+        Loader: type[yaml.CFullLoader | yaml.FullLoader] = (  # noqa: N806
             yaml.CFullLoader if hasattr(yaml, "CFullLoader") else yaml.FullLoader
         )
-        return yaml.load(self.text, Loader=Loader) or {}
+        return yaml.load(self.text, Loader=Loader) or {}  # noqa: S506
 
     @yaml.setter
     def yaml(self, value: dict[str, Any] | list[Any]) -> None:
         import yaml
 
         # C implementation much faster but only supported on Linux
-        Dumper = yaml.CDumper if hasattr(yaml, "CDumper") else yaml.Dumper
+        Dumper = yaml.CDumper if hasattr(yaml, "CDumper") else yaml.Dumper  # noqa: N806
         self.text = yaml.dump(value, Dumper=Dumper, width=1024)
 
     @property
@@ -86,11 +87,11 @@ class Path(base.Path):
         import numpy as np
 
         with self.open("rb") as fp:
-            return np.load(fp)  # type: ignore
+            return np.load(fp)  # type: ignore[no-any-return]
 
     @numpy.setter
     def numpy(self, value: NDArray[Any]) -> None:
         import numpy as np
 
         with self.open("wb") as fp:
-            np.save(fp, value)  # noqa
+            np.save(fp, value)

@@ -1,6 +1,7 @@
-from content import byte_content
 from superpathlib import Path
-from utils import ignore_fixture_warning
+
+from tests.content import byte_content
+from tests.utils import ignore_fixture_warning
 
 
 @ignore_fixture_warning

@@ -5,14 +5,14 @@ from superpathlib import Path
 from superpathlib.encryption import EncryptedPath
 
 
-def provision_path(in_memory: bool = False) -> Iterator[Path]:
+def provision_path(*, in_memory: bool = False) -> Iterator[Path]:
     path = Path.tempfile(in_memory=in_memory)
     with path:
         yield path
     assert not path.exists()
 
 
-def provision_directory(in_memory: bool = False) -> Iterator[Path]:
+def provision_directory(*, in_memory: bool = False) -> Iterator[Path]:
     path = Path.tempdir(in_memory=in_memory)
     with path:
         yield path

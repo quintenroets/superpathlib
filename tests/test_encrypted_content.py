@@ -1,6 +1,7 @@
-from content import byte_content, text_content
 from hypothesis import HealthCheck, settings
 from superpathlib import Path
+
+from tests.content import byte_content, text_content
 
 slow_test_settings = settings(
     max_examples=2,

@@ -2,11 +2,12 @@ import hashlib
 import math
 import time
 
-from content import byte_content, text_strategy
 from hypothesis import given, strategies
 from hypothesis.strategies import lists
 from superpathlib import Path
-from utils import ignore_fixture_warning
+
+from tests.content import byte_content, text_strategy
+from tests.utils import ignore_fixture_warning
 
 
 @ignore_fixture_warning

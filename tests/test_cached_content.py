@@ -1,10 +1,11 @@
 import typing
 from typing import Any
 
-from content import byte_content, text_content
 from package_utils.storage import CachedFileContent
 from superpathlib import Path
-from utils import ignore_fixture_warning
+
+from tests.content import byte_content, text_content
+from tests.utils import ignore_fixture_warning
 
 
 @ignore_fixture_warning
@@ -31,7 +32,8 @@ def test_text(content: str) -> None:
 def test_content(path: Path, content: dict[str, dict[str, str]]) -> None:
     class Storage:
         content: CachedFileContent[dict[str, dict[str, str]]] = typing.cast(
-            CachedFileContent[dict[str, dict[str, str]]], path.cached_content
+            CachedFileContent[dict[str, dict[str, str]]],
+            path.cached_content,
         )
 
     verify_storage(Storage, content)
@@ -42,14 +44,16 @@ def test_content(path: Path, content: dict[str, dict[str, str]]) -> None:
 def test_created_content(path: Path, content: dict[str, dict[str, str]]) -> None:
     class Storage:
         content: CachedFileContent[dict[str, dict[str, str]]] = typing.cast(
-            CachedFileContent[dict[str, dict[str, str]]], path.create_cached_content({})
+            CachedFileContent[dict[str, dict[str, str]]],
+            path.create_cached_content({}),
         )
 
     verify_storage(Storage, content)
 
 
 def verify_storage(
-    storage_class: type[Any], content: str | bytes | dict[str, dict[str, str]]
+    storage_class: type[Any],
+    content: str | bytes | dict[str, dict[str, str]],
 ) -> None:
     storage = storage_class()
     assert storage.content is not None

@@ -19,7 +19,7 @@ class Path(base.Path):
 
     @classmethod
     @classproperty
-    def HOME(cls: type[T]) -> T:
+    def HOME(cls: type[T]) -> T:  # noqa: N802
         return cls.home()
 
     @classmethod

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 try:
-    import xattr  # noqa
+    import xattr
 
 except ModuleNotFoundError:  # pragma: nocover
     # Don't fail if xattr not supported (Windows)

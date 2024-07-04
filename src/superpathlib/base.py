@@ -3,21 +3,21 @@ import pathlib
 import sys
 
 
-class Path(pathlib.Path):
+class Path(pathlib.Path):  # pragma: nocover
     """
     Extend pathlib functionality and enable further extensions by inheriting.
     """
 
     # _flavour attribute explicitly required to inherit from pathlib
-    if sys.version_info.minor <= 11:
+    if sys.version_info <= (3, 11):
         _flavour = (
-            pathlib._windows_flavour  # type: ignore[attr-defined] # noqa
+            pathlib._windows_flavour  # type: ignore[attr-defined] # noqa: SLF001
             if os.name == "nt"
-            else pathlib._posix_flavour  # type: ignore[attr-defined] # noqa
+            else pathlib._posix_flavour  # type: ignore[attr-defined] # noqa: SLF001
         )
-    else:  # pragma: nocover
+    else:
         _flavour = (
-            pathlib.ntpath  # type: ignore[attr-defined] # noqa
+            pathlib.ntpath  # type: ignore[attr-defined]
             if os.name == "nt"
-            else pathlib.posixpath  # type: ignore[attr-defined] # noqa
+            else pathlib.posixpath  # type: ignore[attr-defined]
         )

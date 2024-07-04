@@ -9,7 +9,7 @@ class Path(pathlib.Path):  # pragma: nocover
     """
 
     # _flavour attribute explicitly required to inherit from pathlib
-    if sys.version_info <= (3, 11):
+    if sys.version_info < (3, 12):
         _flavour = (
             pathlib._windows_flavour  # type: ignore[attr-defined] # noqa: SLF001
             if os.name == "nt"

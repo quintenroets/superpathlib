@@ -187,7 +187,7 @@ class Path(cached_content.Path):
             updated_content = value
         return updated_content
 
-    def find(  # noqa: PLR0913
+    def find(
         self: PathType,
         condition: Callable[[PathType], bool] | None = None,
         exclude: Callable[[PathType], bool] = lambda _: False,

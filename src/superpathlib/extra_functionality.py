@@ -306,7 +306,12 @@ class Path(cached_content.Path):
     def __enter__(self: PathType) -> PathType:
         return self
 
-    def __exit__(self, *_: object) -> None:
+    def __exit__(
+        self,
+        exception_type: type[BaseException] | None,
+        exception_value: BaseException | None,
+        traceback: TracebackType | None,
+    ) -> None:
         if self.is_file():
             self.unlink(missing_ok=True)
         else:

@@ -1,6 +1,6 @@
 [project]
 name = "superpathlib"
-version = "2.0.6"
+version = "2.0.7"
 description = "Extended Pathlib"
 authors = [{name = "Quinten Roets", email = "qdr2104@columbia.edu"}]
 license = {text = "MIT"}

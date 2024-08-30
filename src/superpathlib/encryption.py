@@ -22,7 +22,7 @@ class EncryptedPath(Path):
     @cached_property
     def password(self) -> str:  # pragma: nocover
         if "GITHUB_ACTION" in os.environ:
-            password = "github_action_password"  # noqa: S105
+            password = os.environ.get("FILE_ENCRYPTION", "github_action_password")
         else:
             command = 'ksshaskpass -- "Enter passphrase for file encryption: "'
             password = subprocess.getoutput(command)  # noqa: S605

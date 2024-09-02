@@ -2,8 +2,8 @@ import typing
 from typing import Any
 
 from package_utils.storage import CachedFileContent
-from superpathlib import Path
 
+from superpathlib import Path
 from tests.content import byte_content, text_content
 from tests.utils import ignore_fixture_warning
 

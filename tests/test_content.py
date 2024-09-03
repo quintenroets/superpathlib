@@ -1,6 +1,6 @@
 import numpy as np
-from superpathlib import Path
 
+from superpathlib import Path
 from tests.content import (
     byte_content,
     dictionary_content,

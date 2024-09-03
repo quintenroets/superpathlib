@@ -4,8 +4,8 @@ import time
 
 from hypothesis import given, strategies
 from hypothesis.strategies import lists
-from superpathlib import Path
 
+from superpathlib import Path
 from tests.content import byte_content, text_strategy
 from tests.utils import ignore_fixture_warning
 

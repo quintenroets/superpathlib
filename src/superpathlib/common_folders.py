@@ -56,7 +56,7 @@ class Path(base.Path):
         return typing.cast(T, path)
 
 
-if sys.version_info >= (3, 13):
+if sys.version_info >= (3, 13):  # pragma: nocover
     for name, method in vars(Path).items():
         if isinstance(method, classmethod):
             wrapped_method = method.__func__

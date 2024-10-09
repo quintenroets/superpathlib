@@ -15,7 +15,7 @@ class Path(pathlib.Path):  # pragma: nocover
             if os.name == "nt"
             else pathlib._posix_flavour  # type: ignore[attr-defined] # noqa: SLF001
         )
-    else:
+    elif sys.version_info < (3, 13):
         _flavour = (
             pathlib.ntpath  # type: ignore[attr-defined]
             if os.name == "nt"

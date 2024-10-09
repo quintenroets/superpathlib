@@ -1,3 +1,4 @@
+import abc
 import sys
 import typing
 from typing import Any, TypeVar
@@ -17,7 +18,7 @@ def enable_classproperties(cls: type[T]) -> None:  # pragma: nocover
                 setattr(cls, name, wrapped_method)
 
 
-class PropertyMeta(type):
+class PropertyMeta(abc.ABCMeta):
     def __new__(
         cls: type["PropertyMeta"],
         name: str,

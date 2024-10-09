@@ -8,7 +8,7 @@ def test_inheritance() -> None:
     class Path(superpathlib.Path):
         @classmethod
         @classproperty
-        def HOME(cls: type[T]) -> T:
+        def HOME(cls: type[T]) -> T:  # noqa: N802
             return cls("HOME")
 
     assert Path.docs.is_relative_to(Path.HOME)

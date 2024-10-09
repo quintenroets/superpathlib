@@ -1,6 +1,5 @@
 import sys
 import typing
-from types import FunctionType
 from typing import TypeVar
 
 from simple_classproperty import classproperty
@@ -59,6 +58,7 @@ class Path(base.Path):
 
 if sys.version_info >= (3, 13):
     for name, method in vars(Path).items():
-        if isinstance(method, FunctionType):
-            print(method)
-            setattr(Path, name, classproperty(method))
+        if isinstance(method, classmethod):
+            wrapped_method = method.__func__
+            if isinstance(wrapped_method, classproperty):
+                setattr(Path, name, wrapped_method)

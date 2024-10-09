@@ -261,7 +261,7 @@ class Path(cached_content.Path):
 
     def subpath(self: PathType, *parts: str) -> PathType:
         path = self
-        tokens_to_replace = self._flavour.sep, "."
+        tokens_to_replace = os.sep, "."
         for part in parts:
             for token in tokens_to_replace:
                 part = part.replace(token, "_")  # noqa: PLW2901

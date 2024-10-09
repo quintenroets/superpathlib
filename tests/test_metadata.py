@@ -11,7 +11,8 @@ from tests.utils import ignore_fixture_warning
 
 
 @ignore_fixture_warning
-@given(mtime=strategies.floats(min_value=0, max_value=time.time()))
+# avoid small numbers
+@given(mtime=strategies.floats(min_value=0.1, max_value=time.time()))
 def test_mtime(path: Path, mtime: float) -> None:
     assert isinstance(Path.mtime, property)
     path.mtime = mtime

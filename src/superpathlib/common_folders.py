@@ -21,7 +21,7 @@ class PropertyMeta(type):
     def __init__(cls, name: str, bases, dct) -> None:
         super().__init__(name, bases, dct)
         if sys.version_info >= (3, 13):
-            enable_classproperties()  # pragma: nocover
+            enable_classproperties(cls)  # pragma: nocover
 
 
 class Path(base.Path, metaclass=PropertyMeta):

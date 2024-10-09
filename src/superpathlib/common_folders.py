@@ -8,7 +8,6 @@ from simple_classproperty import classproperty
 from . import base
 
 T = TypeVar("T", bound="Path")
-R = TypeVar("R")
 
 
 class Path(base.Path):
@@ -61,4 +60,5 @@ class Path(base.Path):
 if sys.version_info >= (3, 13):
     for name, method in vars(Path).items():
         if isinstance(method, FunctionType):
-            setattr(Path, name, classmethod(method))
+            print(method)
+            setattr(Path, name, classproperty(method))

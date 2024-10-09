@@ -83,6 +83,9 @@ ignore = [
 "tests/*" = [
     "S101"  # assert used
 ]
+"src/superpathlib/common_folders.py" = [
+    "N805"
+]
 
 [tool.setuptools.package-data]
 superpathlib = ["py.typed"]

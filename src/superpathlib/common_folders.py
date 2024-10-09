@@ -1,4 +1,6 @@
+import sys
 import typing
+from types import FunctionType
 from typing import TypeVar
 
 from simple_classproperty import classproperty
@@ -6,6 +8,7 @@ from simple_classproperty import classproperty
 from . import base
 
 T = TypeVar("T", bound="Path")
+R = TypeVar("R")
 
 
 class Path(base.Path):
@@ -17,6 +20,7 @@ class Path(base.Path):
     since python3.11.
     """
 
+    @classmethod
     @classproperty
     def HOME(cls: type[T]) -> T:  # noqa: N802
         return cls.home()
@@ -52,3 +56,9 @@ class Path(base.Path):
     def draft(cls: type[T]) -> T:
         path = cls.docs / "draft.txt"
         return typing.cast(T, path)
+
+
+if sys.version_info >= (3, 13):
+    for name, method in vars(Path).items():
+        if isinstance(method, FunctionType):
+            setattr(Path, name, classmethod(method))

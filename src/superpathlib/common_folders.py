@@ -17,7 +17,6 @@ class Path(base.Path):
     since python3.11.
     """
 
-    @classmethod
     @classproperty
     def HOME(cls: type[T]) -> T:  # noqa: N802
         return cls.home()

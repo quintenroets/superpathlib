@@ -1,6 +1,6 @@
 import sys
 import typing
-from typing import TypeVar
+from typing import Any, TypeVar
 
 from simple_classproperty import classproperty
 
@@ -18,10 +18,16 @@ def enable_classproperties(cls: type[T]) -> None:  # pragma: nocover
 
 
 class PropertyMeta(type):
-    def __init__(cls, name: str, bases, dct) -> None:
-        super().__init__(name, bases, dct)
+    def __new__(
+        cls: type["PropertyMeta"],
+        name: str,
+        bases: tuple[type, ...],
+        attributes: dict[str, Any],
+    ) -> "PropertyMeta":
+        meta_class = super().__new__(cls, name, bases, attributes)
         if sys.version_info >= (3, 13):
-            enable_classproperties(cls)  # pragma: nocover
+            enable_classproperties(meta_class)  # pragma: nocover
+        return meta_class
 
 
 class Path(base.Path, metaclass=PropertyMeta):

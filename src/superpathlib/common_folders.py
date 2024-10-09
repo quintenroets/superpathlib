@@ -9,7 +9,22 @@ from . import base
 T = TypeVar("T", bound="Path")
 
 
-class Path(base.Path):
+def enable_classproperties(cls: type[T]) -> None:  # pragma: nocover
+    for name, method in vars(cls).items():
+        if isinstance(method, classmethod):
+            wrapped_method = method.__func__
+            if isinstance(wrapped_method, classproperty):
+                setattr(cls, name, wrapped_method)
+
+
+class PropertyMeta(type):
+    def __init__(cls, name: str, bases, dct) -> None:
+        super().__init__(name, bases, dct)
+        if sys.version_info >= (3, 13):
+            enable_classproperties()  # pragma: nocover
+
+
+class Path(base.Path, metaclass=PropertyMeta):
     """Expose common folders as attributes.
 
     Use classmethod properties to ensure child classes return instance
@@ -54,11 +69,3 @@ class Path(base.Path):
     def draft(cls: type[T]) -> T:
         path = cls.docs / "draft.txt"
         return typing.cast(T, path)
-
-
-if sys.version_info >= (3, 13):  # pragma: nocover
-    for name, method in vars(Path).items():
-        if isinstance(method, classmethod):
-            wrapped_method = method.__func__
-            if isinstance(wrapped_method, classproperty):
-                setattr(Path, name, wrapped_method)

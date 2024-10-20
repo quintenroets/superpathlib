@@ -3,7 +3,7 @@ import shutil
 import typing
 from collections.abc import Callable, Generator
 from functools import wraps
-from pathlib import PurePath
+from os import PathLike
 from typing import IO, Any, TypeVar
 
 from . import encryption
@@ -80,7 +80,7 @@ class Path(encryption.Path):
                 raise
         return target_path
 
-    def replace(self: T, target: str | PurePath) -> T:
+    def replace(self: T, target: str | PathLike[str]) -> T:
         path = self.rename(target, exist_ok=True)
         return typing.cast(T, path)
 

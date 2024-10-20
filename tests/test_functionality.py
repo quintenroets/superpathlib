@@ -269,6 +269,7 @@ def test_rmtree_preserve_root(directory: Path) -> None:
     directory.rmtree(remove_root=False)
 
 
+@slower_test_settings
 @dictionary_content
 def test_yaml_update(content: dict[str, str]) -> None:
     with Path.tempfile() as path:

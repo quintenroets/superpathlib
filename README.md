@@ -7,7 +7,7 @@
 
 Maximize your productivity with minimal code!
 
-Superpathlib is an enhanced version of Python's standard [pathlib](https://docs.python.org/3/library/pathlib.html), designed to make file operations more intuitive and extend functionality without compromising performance. It builds on pathlib by introducing additional properties, methods, and shortcuts that simplify common file manipulations and reduces boilerplate code. 
+Superpathlib is an enhanced version of Python's standard [pathlib](https://docs.python.org/3/library/pathlib.html), designed to make file operations more intuitive and extend functionality without compromising performance. It builds on pathlib by introducing additional properties, methods, and shortcuts that simplify common file manipulations and reduce boilerplate code. 
 
 For custom operations, the package supports subclassing, which has been added to the standard library in [python3.12](https://docs.python.org/3/whatsnew/3.12.html).
 

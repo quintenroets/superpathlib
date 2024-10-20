@@ -116,8 +116,7 @@ class Path(superpathlib.Path):
         return sum(1 for _ in self.iterdir())
 ```
 
-This only works if you inherit from superpathlib Path, not pathlib Path
-
+The standard pathlib library supports this for Python versions starting from [python3.12](https://docs.python.org/3/whatsnew/3.12.html).
 
 ## Installation
 

@@ -4,7 +4,7 @@ from typing import Any
 from package_utils.storage import CachedFileContent
 
 from superpathlib import Path
-from tests.content import byte_content, text_content
+from tests.content import byte_content, slower_test_settings, text_content
 from tests.utils import ignore_fixture_warning
 
 
@@ -39,7 +39,7 @@ def test_content(path: Path, content: dict[str, dict[str, str]]) -> None:
     verify_storage(Storage, content)
 
 
-@ignore_fixture_warning
+@slower_test_settings
 @text_content
 def test_created_content(path: Path, content: dict[str, dict[str, str]]) -> None:
     class Storage:

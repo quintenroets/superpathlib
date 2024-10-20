@@ -126,7 +126,9 @@ or
 ```shell
 pip install superpathlib[full]
 ```
-to include additional dependencies like PyYAML for handling YAML files.
+to include additional dependencies like PyYAML for handling YAML files
+
 or
+
 Manually install the packages corresponding with the features you want to use:
 * Packages listed in pyproject.toml

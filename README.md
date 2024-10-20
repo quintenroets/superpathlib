@@ -5,10 +5,11 @@
 ![Operating system](https://img.shields.io/badge/os-linux%20%7c%20macOS-brightgreen)
 ![Coverage](https://img.shields.io/badge/coverage-100%25-brightgreen)
 
-Maximize your productivity using minimal code!
+Maximize your productivity with minimal code!
 
-Superpathlib enhances file operations, making them more intuitive and easy to implement.
-This library extends Python's standard library [pathlib](https://docs.python.org/3/library/pathlib.html) module, offering an expansive range of added features without compromising performance.
+Superpathlib is an enhanced pathlib library offering advanced file operations that are intuitive and easy to use.
+The package extends Python's standard library [pathlib](https://docs.python.org/3/library/pathlib.html) module and offers new features without compromising performance.
+The Path class supports subclassing, which has been added to the standard library for [python3.12+](https://docs.python.org/3/whatsnew/3.12.html).
 
 ## Usage
 

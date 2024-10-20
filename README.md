@@ -7,9 +7,17 @@
 
 Maximize your productivity with minimal code!
 
-Superpathlib is an enhanced pathlib library offering advanced file operations that are intuitive and easy to use.
-The package extends Python's standard library [pathlib](https://docs.python.org/3/library/pathlib.html) module and offers new features without compromising performance.
-The Path class supports subclassing, which has been added to the standard library for [python3.12+](https://docs.python.org/3/whatsnew/3.12.html).
+Superpathlib library is an enhanced version of Python's standard [pathlib](https://docs.python.org/3/library/pathlib.html) module, designed to make file operations more intuitive and extend functionality without compromising performance. It builds on pathlib by introducing additional properties, methods, and shortcuts that simplify common file manipulations and reduces boilerplate code. For custom operations, the package supports subclassing. This is also part of the standard library for [python3.12+](https://docs.python.org/3/whatsnew/3.12.html).
+
+## Key features:
+* Read and write content in various formats such as text, bytes, YAML, JSON, and even NumPy arrays
+* Access and modify file metadata like file size, modification time, and custom tags
+* Utility methods such as:
+    * `rmtree` to remove directories recursively
+    * `copy_to` to copy content
+    * `tempfile` to create and use temporary files
+    * `find` for recursive search
+    * `unpack` for unpacking archives
 
 ## Usage
 
@@ -118,7 +126,7 @@ or
 ```shell
 pip install superpathlib[full]
 ```
-
-Install the packages corresponding with the properties you want to use:
-* e.g. PyYaml for yaml property
+to include additional dependencies like PyYAML for handling YAML files.
+or
+Manually install the packages corresponding with the features you want to use:
 * Packages listed in pyproject.toml

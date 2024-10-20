@@ -12,7 +12,7 @@ Superpathlib library is an enhanced version of Python's standard [pathlib](https
 ## Key features:
 * Read and write content in various formats such as text, bytes, YAML, JSON, and even NumPy arrays
 * Access and modify file metadata like file size, modification time, and custom tags
-* Utility methods such as:
+* Utility methods:
     * `rmtree` to remove directories recursively
     * `copy_to` to copy content
     * `tempfile` to create and use temporary files

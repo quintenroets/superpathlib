@@ -65,7 +65,7 @@ def test_copy(path: Path, path2: Path, content: bytes) -> None:
     assert path2.byte_content == content
 
 
-@ignore_fixture_warning
+@slower_test_settings
 @byte_content
 def test_copy_if_newer_copies(path: Path, path2: Path, content: bytes) -> None:
     path.byte_content = content
@@ -74,7 +74,7 @@ def test_copy_if_newer_copies(path: Path, path2: Path, content: bytes) -> None:
     assert path2.byte_content == content
 
 
-@ignore_fixture_warning
+@slower_test_settings
 @byte_content
 def test_copy_if_newer_skips(path: Path, path2: Path, content: bytes) -> None:
     path.byte_content = content
@@ -83,7 +83,7 @@ def test_copy_if_newer_skips(path: Path, path2: Path, content: bytes) -> None:
     assert path2.byte_content == b""
 
 
-@ignore_fixture_warning
+@slower_test_settings
 @byte_content
 def test_move(path: Path, path2: Path, content: bytes) -> None:
     path.byte_content = content
@@ -269,6 +269,7 @@ def test_rmtree_preserve_root(directory: Path) -> None:
     directory.rmtree(remove_root=False)
 
 
+@slower_test_settings
 @dictionary_content
 def test_yaml_update(content: dict[str, str]) -> None:
     with Path.tempfile() as path:

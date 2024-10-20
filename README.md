@@ -7,9 +7,19 @@
 
 Maximize your productivity with minimal code!
 
-Superpathlib is an enhanced pathlib library offering advanced file operations that are intuitive and easy to use.
-The package extends Python's standard library [pathlib](https://docs.python.org/3/library/pathlib.html) module and offers new features without compromising performance.
-The Path class supports subclassing, which has been added to the standard library for [python3.12+](https://docs.python.org/3/whatsnew/3.12.html).
+Superpathlib is an enhanced version of Python's standard [pathlib](https://docs.python.org/3/library/pathlib.html), designed to make file operations more intuitive and extend functionality without compromising performance. It builds on pathlib by introducing additional properties, methods, and shortcuts that simplify common file manipulations and reduce boilerplate code.
+
+For custom operations, the package supports subclassing, which has been added to the standard library in [python3.12](https://docs.python.org/3/whatsnew/3.12.html).
+
+## Key features:
+* Read and write content in various formats such as text, bytes, YAML, JSON, and even NumPy arrays
+* Access and modify file metadata like file size, modification time, and custom tags
+* Utility methods:
+    * `rmtree` to remove directories recursively
+    * `copy_to` to copy content
+    * `tempfile` to create and use temporary files
+    * `find` for recursive search
+    * `unpack` for unpacking archives
 
 ## Usage
 
@@ -106,8 +116,7 @@ class Path(superpathlib.Path):
         return sum(1 for _ in self.iterdir())
 ```
 
-This only works if you inherit from superpathlib Path, not pathlib Path
-
+The standard pathlib library supports this for Python versions starting from [python3.12](https://docs.python.org/3/whatsnew/3.12.html).
 
 ## Installation
 
@@ -118,7 +127,9 @@ or
 ```shell
 pip install superpathlib[full]
 ```
+to include additional dependencies like PyYAML for handling YAML files
 
-Install the packages corresponding with the properties you want to use:
-* e.g. PyYaml for yaml property
+or
+
+Manually install the packages corresponding with the features you want to use:
 * Packages listed in pyproject.toml

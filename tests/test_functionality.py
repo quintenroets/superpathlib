@@ -74,7 +74,7 @@ def test_copy_if_newer_copies(path: Path, path2: Path, content: bytes) -> None:
     assert path2.byte_content == content
 
 
-@ignore_fixture_warning
+@slower_test_settings
 @byte_content
 def test_copy_if_newer_skips(path: Path, path2: Path, content: bytes) -> None:
     path.byte_content = content

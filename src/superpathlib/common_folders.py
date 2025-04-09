@@ -4,6 +4,7 @@ import typing
 from typing import Any, TypeVar
 
 from simple_classproperty import classproperty
+from typing_extensions import Self
 
 from . import base
 
@@ -42,37 +43,37 @@ class Path(base.Path, metaclass=PropertyMeta):
 
     @classmethod
     @classproperty
-    def HOME(cls: type[T]) -> T:  # noqa: N802
+    def HOME(cls) -> Self:  # noqa: N802
         return cls.home()
 
     @classmethod
     @classproperty
-    def docs(cls: type[T]) -> T:
+    def docs(cls) -> Self:
         path = cls.HOME / "Documents"
-        return typing.cast(T, path)
+        return typing.cast("Self", path)
 
     @classmethod
     @classproperty
-    def scripts(cls: type[T]) -> T:
+    def scripts(cls) -> Self:
         path = cls.docs / "Scripts"
-        return typing.cast(T, path)
+        return typing.cast("Self", path)
 
     @classmethod
     @classproperty
-    def script_assets(cls: type[T]) -> T:
+    def script_assets(cls) -> Self:
         path = cls.scripts / "assets"
-        return typing.cast(T, path)
+        return typing.cast("Self", path)
 
     @classmethod
     @classproperty
-    def assets(cls: type[T]) -> T:
+    def assets(cls) -> Self:
         """
         Often overwritten by child classes for specific project.
         """
-        return typing.cast(T, cls.script_assets)
+        return typing.cast("Self", cls.script_assets)
 
     @classmethod
     @classproperty
-    def draft(cls: type[T]) -> T:
+    def draft(cls) -> Self:
         path = cls.docs / "draft.txt"
-        return typing.cast(T, path)
+        return typing.cast("Self", path)

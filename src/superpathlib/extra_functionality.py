@@ -30,7 +30,7 @@ class Path(cached_content.Path):
         if path.exists():
             stem = path.stem
 
-            def with_number(i: int) -> Self:
+            def with_number(i: int) -> "Path":
                 return path.with_stem(f"{stem} ({i})")
 
             def nonexistent(i: int) -> bool:

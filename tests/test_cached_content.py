@@ -32,7 +32,7 @@ def test_text(content: str) -> None:
 def test_content(path: Path, content: dict[str, dict[str, str]]) -> None:
     class Storage:
         content: CachedFileContent[dict[str, dict[str, str]]] = typing.cast(
-            CachedFileContent[dict[str, dict[str, str]]],
+            "CachedFileContent[dict[str, dict[str, str]]]",
             path.cached_content,
         )
 
@@ -44,7 +44,7 @@ def test_content(path: Path, content: dict[str, dict[str, str]]) -> None:
 def test_created_content(path: Path, content: dict[str, dict[str, str]]) -> None:
     class Storage:
         content: CachedFileContent[dict[str, dict[str, str]]] = typing.cast(
-            CachedFileContent[dict[str, dict[str, str]]],
+            "CachedFileContent[dict[str, dict[str, str]]]",
             path.create_cached_content({}),
         )
 

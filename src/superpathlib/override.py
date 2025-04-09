@@ -6,6 +6,8 @@ from functools import wraps
 from os import PathLike
 from typing import IO, Any, TypeVar
 
+from typing_extensions import Self
+
 from . import encryption
 from .metadata_properties import catch_missing
 
@@ -47,12 +49,12 @@ class Path(encryption.Path):
     def rmdir(self) -> None:
         return super().rmdir()
 
-    def iterdir(self: T, *, missing_ok: bool = True) -> Generator[T, None, None]:
+    def iterdir(self, *, missing_ok: bool = True) -> Generator[Self, None, None]:
         if self.exists() or not missing_ok:
             yield from super().iterdir()
 
     @create_parent_on_missing
-    def rename(self: T, target: str | T, *, exist_ok: bool = False) -> T:
+    def rename(self, target: str | Self, *, exist_ok: bool = False) -> Self:
         target_path = self.__class__(target)
         rename = super().replace if exist_ok else super().rename
         try:
@@ -71,7 +73,7 @@ class Path(encryption.Path):
                         else:
                             target_path.unlink()  # pragma: nocover
                     else:
-                        message = f"Target already exists: {target_path }"
+                        message = f"Target already exists: {target_path}"
                         raise RuntimeError(message) from exception
                 else:
                     target_path.create_parent()
@@ -80,9 +82,9 @@ class Path(encryption.Path):
                 raise
         return target_path
 
-    def replace(self: T, target: str | PathLike[str]) -> T:
+    def replace(self, target: str | PathLike[str]) -> Self:
         path = self.rename(target, exist_ok=True)
-        return typing.cast(T, path)
+        return typing.cast("Self", path)
 
     def open(self, mode: str = "r", **kwargs: Any) -> IO[Any]:  # type: ignore[override]
         try:

@@ -8,12 +8,12 @@ import urllib.parse
 from collections.abc import Callable, Iterator
 from functools import cached_property
 from types import TracebackType
-from typing import Any, TypeVar, cast
+from typing import Any, cast
+
+from typing_extensions import Self
 
 from . import cached_content
 from .utils import find_first_match
-
-PathType = TypeVar("PathType", bound="Path")
 
 
 class Path(cached_content.Path):
@@ -21,27 +21,27 @@ class Path(cached_content.Path):
     Additional functionality.
     """
 
-    def create_parent(self: PathType) -> PathType:
+    def create_parent(self) -> Self:
         self.parent.mkdir(parents=True, exist_ok=True)
         return self.parent
 
-    def with_nonexistent_name(self: PathType) -> PathType:
+    def with_nonexistent_name(self) -> Self:
         path = self
         if path.exists():
             stem = path.stem
 
-            def with_number(i: int) -> PathType:
+            def with_number(i: int) -> "Path":
                 return path.with_stem(f"{stem} ({i})")
 
             def nonexistent(i: int) -> bool:
                 return not with_number(i).exists()
 
             first_free_number = find_first_match(nonexistent)
-            path = with_number(first_free_number)
+            path = cast("Self", with_number(first_free_number))
 
         return path
 
-    def with_timestamp(self: PathType) -> PathType:
+    def with_timestamp(self) -> Self:
         from datetime import datetime, timezone
 
         timestamp = int(time.time())  # precision up to second
@@ -50,7 +50,7 @@ class Path(cached_content.Path):
 
     def copy_to(
         self,
-        dest: PathType,
+        dest: Self,
         *,
         include_properties: bool = True,
         only_if_newer: bool = False,
@@ -60,7 +60,7 @@ class Path(cached_content.Path):
             if include_properties:
                 self.copy_properties_to(dest)
 
-    def copy_properties_to(self, dest: PathType) -> None:
+    def copy_properties_to(self, dest: Self) -> None:
         for path in dest.find():
             path.tag = self.tag
             path.mtime = self.mtime
@@ -70,20 +70,20 @@ class Path(cached_content.Path):
         # noinspection PyProtectedMember
         path_str = str(self)
         format_ = shutil._find_unpack_format(path_str)  # type: ignore[attr-defined] # noqa: SLF001
-        return typing.cast(str, format_)
+        return typing.cast("str", format_)
 
     def unpack_if_archive(
         self,
         *,
-        extraction_directory: PathType | None = None,
+        extraction_directory: Self | None = None,
         recursive: bool = True,
     ) -> None:
         if self.archive_format is not None:
             self.unpack(extraction_directory, recursive=recursive)
 
     def unpack(  # noqa: PLR0913
-        self: PathType,
-        extraction_directory: PathType | None = None,
+        self,
+        extraction_directory: Self | None = None,
         *,
         remove_existing: bool = True,
         preserve_properties: bool = True,
@@ -91,7 +91,7 @@ class Path(cached_content.Path):
         archive_format: str | None = None,
         recursive: bool = True,
     ) -> None:
-        def cleanup(cleanup_path: PathType) -> None:
+        def cleanup(cleanup_path: Self) -> None:
             (cleanup_path / "__MACOSX").rmtree(missing_ok=True)
             subfolder = cleanup_path / cleanup_path.name
             if subfolder.exists() and cleanup_path.number_of_children == 1:
@@ -129,7 +129,7 @@ class Path(cached_content.Path):
             for path in extraction_directory.find():
                 path.unpack_if_archive()
 
-    def create_extraction_directory(self: PathType, archive_format: str) -> PathType:
+    def create_extraction_directory(self, archive_format: str) -> Self:
         extract_name = self.name
         # noinspection PyProtectedMember
         unpack_formats = shutil._UNPACK_FORMATS  # type: ignore[attr-defined] # noqa: SLF001
@@ -180,7 +180,7 @@ class Path(cached_content.Path):
     def update(self, value: dict[Any, Any]) -> dict[Any, Any]:
         # only read and write if value to add not empty
         if value:
-            current_content = cast(dict[Any, Any], self.yaml)
+            current_content = cast("dict[Any, Any]", self.yaml)
             updated_content = current_content | value
             self.yaml = updated_content
         else:
@@ -188,20 +188,20 @@ class Path(cached_content.Path):
         return updated_content
 
     def find(
-        self: PathType,
-        condition: Callable[[PathType], bool] | None = None,
-        exclude: Callable[[PathType], bool] = lambda _: False,
+        self,
+        condition: Callable[[Self], bool] | None = None,
+        exclude: Callable[[Self], bool] = lambda _: False,
         *,
         recurse_on_match: bool = False,
         follow_symlinks: bool = False,
         only_folders: bool = False,
-    ) -> Iterator[PathType]:
+    ) -> Iterator[Self]:
         """Find all subpaths under path that match condition.
 
         only_folders option can be used for efficiency reasons
         """
 
-        def extract_children_to_recurse_on(path: PathType) -> Iterator[PathType]:
+        def extract_children_to_recurse_on(path: Self) -> Iterator[Self]:
             # skip folders that do not allow listing
             with contextlib.suppress(PermissionError):
                 for child in path.iterdir():
@@ -213,7 +213,7 @@ class Path(cached_content.Path):
         if condition is None:
             recurse_on_match = True
 
-            def condition(_: PathType) -> bool:
+            def condition(_: Self) -> bool:
                 return True
 
         to_traverse = [self] if self.exists() else []
@@ -259,7 +259,7 @@ class Path(cached_content.Path):
         else:
             raise exc_info[0]
 
-    def subpath(self: PathType, *parts: str) -> PathType:
+    def subpath(self, *parts: str) -> Self:
         path = self
         tokens_to_replace = os.sep, "."
         for part in parts:
@@ -269,18 +269,18 @@ class Path(cached_content.Path):
         return path
 
     @classmethod
-    def from_uri(cls: type[PathType], uri: str) -> PathType:
+    def from_uri(cls, uri: str) -> Self:
         path_str = urllib.parse.urlparse(uri).path
         return cls(path_str)
 
     @classmethod
     def tempfile(
-        cls: type[PathType],
+        cls,
         *,
         in_memory: bool = True,
         create: bool = True,
         **kwargs: Any,
-    ) -> PathType:
+    ) -> Self:
         """Usage:
 
         with Path.tempfile() as tmp:     run_command(log_file=tmp)     logs = tmp.text
@@ -298,12 +298,12 @@ class Path(cached_content.Path):
         return path
 
     @classmethod
-    def tempdir(cls: type[PathType], *, in_memory: bool = True) -> PathType:
+    def tempdir(cls, *, in_memory: bool = True) -> Self:
         path = cls.tempfile(in_memory=in_memory, create=False)
         path.mkdir()
         return path
 
-    def __enter__(self: PathType) -> PathType:
+    def __enter__(self) -> Self:
         return self
 
     def __exit__(

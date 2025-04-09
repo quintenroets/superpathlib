@@ -8,14 +8,12 @@ import urllib.parse
 from collections.abc import Callable, Iterator
 from functools import cached_property
 from types import TracebackType
-from typing import Any, TypeVar, cast
+from typing import Any, cast
 
 from typing_extensions import Self
 
 from . import cached_content
 from .utils import find_first_match
-
-PathType = TypeVar("PathType", bound="Path")
 
 
 class Path(cached_content.Path):
@@ -52,7 +50,7 @@ class Path(cached_content.Path):
 
     def copy_to(
         self,
-        dest: PathType,
+        dest: Self,
         *,
         include_properties: bool = True,
         only_if_newer: bool = False,
@@ -62,7 +60,7 @@ class Path(cached_content.Path):
             if include_properties:
                 self.copy_properties_to(dest)
 
-    def copy_properties_to(self, dest: PathType) -> None:
+    def copy_properties_to(self, dest: Self) -> None:
         for path in dest.find():
             path.tag = self.tag
             path.mtime = self.mtime
@@ -77,7 +75,7 @@ class Path(cached_content.Path):
     def unpack_if_archive(
         self,
         *,
-        extraction_directory: PathType | None = None,
+        extraction_directory: Self | None = None,
         recursive: bool = True,
     ) -> None:
         if self.archive_format is not None:

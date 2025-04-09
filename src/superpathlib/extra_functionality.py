@@ -37,7 +37,7 @@ class Path(cached_content.Path):
                 return not with_number(i).exists()
 
             first_free_number = find_first_match(nonexistent)
-            path = with_number(first_free_number)
+            path = cast("Self", with_number(first_free_number))
 
         return path
 

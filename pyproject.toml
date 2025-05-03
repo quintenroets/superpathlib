@@ -19,6 +19,7 @@ full = [
     "xattr >=0.10.1, <2",
 ]
 dev = [
+<<<<<<< HEAD
     "hypothesis >=6.97.1, <7",
     "package-dev-tools >=0.5.12, <1",
 
@@ -31,6 +32,10 @@ dev = [
     "package-utils >=0.6.1, <1",
     "PyYaml >=6.0.1, <7",
     "xattr >=0.10.1, <2",
+=======
+    "package-dev-tools >=0.7.0, <1",
+    "package-dev-utils >=0.1.6, <1",
+>>>>>>> template
 ]
 
 [project.urls]

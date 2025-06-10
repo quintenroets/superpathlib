@@ -6,6 +6,7 @@ import time
 import typing
 import urllib.parse
 from collections.abc import Callable, Iterator
+from collections import deque
 from functools import cached_property
 from types import TracebackType
 from typing import Any, cast
@@ -216,9 +217,9 @@ class Path(cached_content.Path):
             def condition(_: Self) -> bool:
                 return True
 
-        to_traverse = [self] if self.exists() else []
+        to_traverse = deque([self] if self.exists() else [])
         while to_traverse:
-            path = to_traverse.pop(0)
+            path = to_traverse.popleft()
             if not exclude(path):
                 match = condition(path)
                 if match:
@@ -226,7 +227,7 @@ class Path(cached_content.Path):
                 should_recurse = recurse_on_match or not match
                 should_recurse_folder = only_folders or path.is_dir()
                 if should_recurse and should_recurse_folder:
-                    to_traverse += list(extract_children_to_recurse_on(path))
+                    to_traverse.extend(extract_children_to_recurse_on(path))
 
     def rmtree(
         self,

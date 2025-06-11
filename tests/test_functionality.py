@@ -11,6 +11,8 @@ from tests.content import (
 )
 from tests.utils import ignore_fixture_warning
 
+MTIME_TOLERANCE = 0.01
+
 
 def test_tempfile() -> None:
     with Path.tempfile() as path:
@@ -297,3 +299,5 @@ def test_rmdir(directory: Path) -> None:
 
 def test_touch(path: Path) -> None:
     path.touch(mtime=1)
+    assert path.exists()
+    assert abs(path.mtime - 1) < MTIME_TOLERANCE

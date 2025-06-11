@@ -14,7 +14,7 @@ T = TypeVar("T")
 
 class Path(metadata_properties.Path):
     """
-    Properties to for cached file content.
+    Properties for cached file content.
     """
 
     @cached_property

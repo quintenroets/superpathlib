@@ -5,8 +5,8 @@ import tempfile
 import time
 import typing
 import urllib.parse
-from collections.abc import Callable, Iterator
 from collections import deque
+from collections.abc import Callable, Iterator
 from functools import cached_property
 from types import TracebackType
 from typing import Any, cast
@@ -225,7 +225,7 @@ class Path(cached_content.Path):
                 if match:
                     yield path
                 should_recurse = recurse_on_match or not match
-                should_recurse_folder = only_folders or path.is_dir()
+                should_recurse_folder = path.is_dir()
                 if should_recurse and should_recurse_folder:
                     to_traverse.extend(extract_children_to_recurse_on(path))
 

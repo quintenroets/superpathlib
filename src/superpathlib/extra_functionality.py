@@ -207,8 +207,7 @@ class Path(cached_content.Path):
             with contextlib.suppress(PermissionError):
                 for child in path.iterdir():
                     should_follow_symlink = follow_symlinks or not child.is_symlink()
-                    should_follow_directories = not only_folders or child.is_dir()
-                    if should_follow_symlink and should_follow_directories:
+                    if should_follow_symlink:
                         yield child
 
         if condition is None:
@@ -225,7 +224,7 @@ class Path(cached_content.Path):
                 if match:
                     yield path
                 should_recurse = recurse_on_match or not match
-                should_recurse_folder = path.is_dir()
+                should_recurse_folder = only_folders or path.is_dir()
                 if should_recurse and should_recurse_folder:
                     to_traverse.extend(extract_children_to_recurse_on(path))
 

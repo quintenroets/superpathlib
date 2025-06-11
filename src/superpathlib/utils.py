@@ -4,8 +4,8 @@ from collections.abc import Callable
 def find_first_match(condition: Callable[..., bool]) -> int:
     """
     :param condition: Condition that number needs to match.
-                      The condition is assumed to be valid for all integers staring
-                      from an initial value.
+                     The condition is assumed to be valid for all integers starting
+                     from an initial value.
     :return: First integer for which condition is valid.
     """
 

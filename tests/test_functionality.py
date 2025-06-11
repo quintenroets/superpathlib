@@ -297,3 +297,5 @@ def test_rmdir(directory: Path) -> None:
 
 def test_touch(path: Path) -> None:
     path.touch(mtime=1)
+    assert path.exists()
+    assert abs(path.mtime - 1) < 0.01

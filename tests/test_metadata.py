@@ -6,7 +6,7 @@ from hypothesis import given, strategies
 from hypothesis.strategies import lists
 
 from superpathlib import Path
-from tests.content import byte_content, text_strategy
+from tests.content import byte_content, slower_test_settings, text_strategy
 from tests.utils import ignore_fixture_warning
 
 
@@ -44,7 +44,7 @@ def test_tag(path: Path, content: str) -> None:
     assert path.tag == content
 
 
-@ignore_fixture_warning
+@slower_test_settings
 @byte_content
 def test_size(path: Path, content: bytes) -> None:
     assert isinstance(Path.size, property)

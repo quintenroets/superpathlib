@@ -207,7 +207,8 @@ class Path(cached_content.Path):
             with contextlib.suppress(PermissionError):
                 for child in path.iterdir():
                     should_follow_symlink = follow_symlinks or not child.is_symlink()
-                    if should_follow_symlink:
+                    should_follow_directories = not only_folders or child.is_dir()
+                    if should_follow_symlink and should_follow_directories:
                         yield child
 
         if condition is None:
@@ -248,14 +249,14 @@ class Path(cached_content.Path):
     @classmethod
     def _on_error(
         cls,
-        _: bool,  # noqa: FBT001
+        func: Callable[[str], Any],
         path_str: str,
         exc_info: tuple[type[Exception], Exception, TracebackType],
     ) -> None:
         if exc_info[0] is PermissionError and os.name == "nt":  # pragma: nocover
             path = Path(path_str)
             path.chmod(0o777)
-            path.unlink()
+            func(path_str)
         else:
             raise exc_info[0]
 

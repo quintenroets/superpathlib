@@ -28,7 +28,9 @@ class PropertyMeta(abc.ABCMeta):
     ) -> "PropertyMeta":
         meta_class = super().__new__(cls, name, bases, attributes)
         if sys.version_info >= (3, 13):
-            enable_classproperties(meta_class)  # pragma: nocover
+            enable_classproperties(
+                meta_class,  # type: ignore[arg-type]
+            )  # pragma: nocover
         return meta_class
 
 

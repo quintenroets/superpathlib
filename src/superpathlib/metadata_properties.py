@@ -1,8 +1,6 @@
-import contextlib
 import hashlib
 import mimetypes
 import os
-import subprocess
 import warnings
 from collections.abc import Callable
 from functools import wraps
@@ -43,12 +41,6 @@ class Path(content_properties.Path):
     @mtime.setter
     def mtime(self, time: float) -> None:
         os.utime(self, (time, time))  # set create time as well
-
-        command = "touch", "-d", f"@{time}", self
-        with contextlib.suppress(
-            subprocess.CalledProcessError,
-        ):  # Doesn't work on Windows
-            subprocess.run(command, check=False)  # noqa: S603
 
     @property
     def tags(self) -> list[str]:

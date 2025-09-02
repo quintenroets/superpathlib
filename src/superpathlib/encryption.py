@@ -62,6 +62,7 @@ class EncryptedPath(Path):
         self,
         encoding: str | None = None,  # noqa: ARG002
         errors: str | None = None,  # noqa: ARG002
+        newline: str | None = None,  # noqa: ARG002
     ) -> str:
         return self.read_bytes().decode()
 

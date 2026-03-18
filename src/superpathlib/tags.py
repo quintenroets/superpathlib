@@ -17,7 +17,8 @@ default_tag_name = "user.xdg.tags"
 
 
 class XDGTags:
-    """More user-friendly way to interact with tags.
+    """
+    More user-friendly way to interact with tags.
 
     - Work with strings and integers instead of bytes
     - Use xdg tags by default ->

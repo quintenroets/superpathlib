@@ -64,7 +64,7 @@ class Path(encryption.Path):
             if exist_ok and "Directory not empty" in str(exception):
                 target_path.rmtree()
                 target_path = rename(target_path)
-            elif "Invalid cross-device link" in str(exception):
+            elif "Invalid cross-device link" in str(exception):  # pragma: nocover
                 # target is on different file system
                 if target_path.exists():
                     if exist_ok:
@@ -77,7 +77,7 @@ class Path(encryption.Path):
                         raise RuntimeError(message) from exception
                 else:
                     target_path.create_parent()
-                target_path = shutil.move(self, target_path)
+                target_path = self.__class__(shutil.move(self, target_path))
             else:
                 raise
         return target_path

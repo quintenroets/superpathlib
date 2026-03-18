@@ -166,7 +166,8 @@ class Path(cached_content.Path):
         )
 
     def load_yaml(self) -> dict[Any, Any] | list[Any]:
-        """Load yaml content of trusted path with an unsafe loader.
+        """
+        Load yaml content of trusted path with an unsafe loader.
 
         This can be used to instantiate any object
         :return: Content in path that contains yaml format
@@ -197,7 +198,8 @@ class Path(cached_content.Path):
         follow_symlinks: bool = False,
         only_folders: bool = False,
     ) -> Iterator[Self]:
-        """Find all subpaths under path that match condition.
+        """
+        Find all subpaths under path that match condition.
 
         only_folders option can be used for efficiency reasons
         """
@@ -282,14 +284,15 @@ class Path(cached_content.Path):
         create: bool = True,
         **kwargs: Any,
     ) -> Self:
-        """Usage:
+        """
+        Context manager for temporary file creation.
 
         with Path.tempfile() as tmp:     run_command(log_file=tmp)     logs = tmp.text
         process_logs(logs)
         """
         if in_memory:
             in_memory_folder = cls("/") / "dev" / "shm"
-            if in_memory_folder.exists():
+            if in_memory_folder.exists():  # pragma: nocover
                 kwargs["dir"] = in_memory_folder
         file_handle, path_str = tempfile.mkstemp(**kwargs)
         os.close(file_handle)

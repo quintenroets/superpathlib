@@ -35,7 +35,8 @@ class PropertyMeta(abc.ABCMeta):
 
 
 class Path(base.Path, metaclass=PropertyMeta):
-    """Expose common folders as attributes.
+    """
+    Expose common folders as attributes.
 
     Use classmethod properties to ensure child classes return instance
     of child class. The classmethod and property decorators are combined

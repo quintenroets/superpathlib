@@ -1,6 +1,6 @@
 [project]
 name = "superpathlib"
-version = "2.0.10"
+version = "2.0.11"
 description = "Extended Pathlib"
 authors = [{name = "Quinten Roets", email = "qdr2104@columbia.edu"}]
 license = "MIT"
@@ -8,13 +8,14 @@ readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
     "simple-classproperty >=4.0.2, <5",
+    "typing_extensions >=4.0, <5",
 ]
 
 [project.optional-dependencies]
 full = [
     "dirhash >=0.2.1, <1",
     "numpy >=1.26.4, <3",
-    "package-utils >=0.6.1, <1",
+    "package-utils >=0.8.1, <1",
     "PyYaml >=6.0.1, <7",
     "xattr >=0.10.1, <2",
 ]
@@ -28,7 +29,7 @@ dev = [
     # full
     "dirhash >=0.2.1, <1",
     "numpy >=1.26.4, <3",
-    "package-utils >=0.6.1, <1",
+    "package-utils >=0.8.0, <1",
     "PyYaml >=6.0.1, <7",
     "xattr >=0.10.1, <2",
 ]
@@ -70,7 +71,12 @@ fix = true
 select = ["ALL"]
 ignore = [
     "ANN401",   # annotated with Any
-    "D",        # docstrings
+    "D1",       # missing docstrings
+    "D200",     # one-line docstring
+    "D203",     # conflicts with D211
+    "D205",     # blank line between summary and description
+    "D212",     # conflicts with D213
+    "D401",     # imperative first line
     "G004",     # logging f-string
 ]
 
@@ -79,7 +85,19 @@ ignore = [
     "F401"  # unused import
 ]
 "tests/*" = [
-    "S101"  # assert used
+    "S101",  # assert used
+]
+"src/superpathlib/cached_content.py" = [
+    "PLC0415",  # lazy imports for optional dependency
+]
+"src/superpathlib/content_properties.py" = [
+    "PLC0415",  # lazy imports for optional dependencies
+]
+"src/superpathlib/extra_functionality.py" = [
+    "PLC0415",  # lazy imports for optional dependencies
+]
+"src/superpathlib/metadata_properties.py" = [
+    "PLC0415",  # lazy imports for optional dependencies
 ]
 
 [tool.setuptools.package-data]

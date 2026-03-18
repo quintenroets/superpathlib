@@ -8,7 +8,6 @@ def find_first_match(condition: Callable[..., bool]) -> int:
                      from an initial value.
     :return: First integer for which condition is valid.
     """
-
     # exponential increase for logarithmic search
     upper_bound = 1
     while not condition(upper_bound):

@@ -1,6 +1,6 @@
 [project]
 name = "superpathlib"
-version = "2.0.13"
+version = "2.0.11"
 description = "Extended Pathlib"
 authors = [{name = "Quinten Roets", email = "qdr2104@columbia.edu"}]
 license = "MIT"
@@ -86,7 +86,6 @@ ignore = [
 ]
 "tests/*" = [
     "S101",  # assert used
-    "N805",  # classproperty uses cls not self
 ]
 "src/superpathlib/cached_content.py" = [
     "PLC0415",  # lazy imports for optional dependency

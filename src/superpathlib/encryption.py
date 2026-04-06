@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import getpass
 import os
+import shlex
 import subprocess
 from functools import cached_property
 from typing import Any
@@ -21,12 +23,14 @@ class Path(extra_functionality.Path):
 class EncryptedPath(Path):
     @cached_property
     def password(self) -> str:  # pragma: nocover
+        if password := os.environ.get("FILE_ENCRYPTION_PASSWORD"):
+            return password
         if "GITHUB_ACTION" in os.environ:
-            password = os.environ.get("FILE_ENCRYPTION", "github_action_password")
-        else:
-            command = 'ksshaskpass -- "Enter passphrase for file encryption: "'
-            password = subprocess.getoutput(command)  # noqa: S605
-        return password
+            return "github_action_password"
+        if askpass := os.environ.get("FILE_ENCRYPTION_ASKPASS"):
+            command = shlex.split(askpass)
+            return subprocess.check_output(command).decode().strip()  # noqa: S603
+        return getpass.getpass("Enter passphrase for file encryption: ")
 
     @property
     def encryption_command(self) -> tuple[str, ...]:

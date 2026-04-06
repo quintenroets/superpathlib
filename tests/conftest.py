@@ -1,9 +1,18 @@
+import os
 from collections.abc import Iterator
 
 import pytest
 
 from superpathlib import Path
 from superpathlib.encryption import EncryptedPath
+
+
+@pytest.fixture(autouse=True, scope="session")
+def encryption_password() -> Iterator[None]:
+    key = "FILE_ENCRYPTION_PASSWORD"
+    os.environ[key] = "test_password"
+    yield
+    del os.environ[key]
 
 
 def provision_path(*, in_memory: bool = False) -> Iterator[Path]:

@@ -7,8 +7,13 @@ license = "MIT"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
+<<<<<<< HEAD
     "simple-classproperty >=4.0.2, <5",
     "typing_extensions >=4.0, <5",
+=======
+    "package-utils[context] >=0.8.3, <1",
+    "powercli >=0.3.7, <1",
+>>>>>>> template
 ]
 
 [project.optional-dependencies]
@@ -20,6 +25,7 @@ full = [
     "xattr >=0.10.1, <2",
 ]
 dev = [
+<<<<<<< HEAD
     "hypothesis >=6.97.1, <7",
     "package-dev-tools >=0.7.1, <1",
 
@@ -32,6 +38,10 @@ dev = [
     "package-utils >=0.8.0, <1",
     "PyYaml >=6.0.1, <7",
     "xattr >=0.10.1, <2",
+=======
+    "package-dev-tools >=0.8.0, <1",
+    "package-dev-utils >=0.1.6, <1",
+>>>>>>> template
 ]
 
 [project.urls]
@@ -78,6 +88,12 @@ ignore = [
     "D212",     # conflicts with D213
     "D401",     # imperative first line
     "G004",     # logging f-string
+    "D1",       # missing docstrings
+    "D200",     # one-line docstring
+    "D203",     # conflicts with D211
+    "D205",     # blank line between summary and description
+    "D212",     # conflicts with D213
+    "D401",     # imperative first line
 ]
 
 [tool.ruff.lint.per-file-ignores]

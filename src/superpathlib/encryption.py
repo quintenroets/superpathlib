@@ -25,8 +25,6 @@ class EncryptedPath(Path):
     def password(self) -> str:  # pragma: nocover
         if password := os.environ.get("FILE_ENCRYPTION_PASSWORD"):
             return password
-        if "GITHUB_ACTION" in os.environ:
-            return "github_action_password"
         if askpass := os.environ.get("FILE_ENCRYPTION_ASKPASS"):
             command = shlex.split(askpass)
             return subprocess.check_output(command).decode().strip()  # noqa: S603

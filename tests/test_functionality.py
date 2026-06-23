@@ -1,3 +1,4 @@
+import os
 from collections.abc import Callable
 
 import pytest
@@ -17,6 +18,14 @@ MTIME_TOLERANCE = 0.01
 def test_tempfile() -> None:
     with Path.tempfile() as path:
         assert path.exists()
+    assert not path.exists()
+
+
+def test_context_manager_deletes_fifo(path: Path) -> None:
+    path.unlink()
+    os.mkfifo(path)
+    with path:
+        assert path.is_fifo()
     assert not path.exists()
 
 

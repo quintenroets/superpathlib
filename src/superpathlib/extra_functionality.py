@@ -316,7 +316,7 @@ class Path(cached_content.Path):
         exception_value: BaseException | None,
         traceback: TracebackType | None,
     ) -> None:
-        if self.is_file():
-            self.unlink(missing_ok=True)
-        else:
+        if self.is_dir():
             self.rmtree(missing_ok=True)
+        else:
+            self.unlink(missing_ok=True)

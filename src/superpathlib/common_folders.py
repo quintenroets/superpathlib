@@ -1,10 +1,9 @@
 import abc
 import sys
 import typing
-from typing import Any, TypeVar
+from typing import Any, Self, TypeVar
 
 from simple_classproperty import classproperty
-from typing_extensions import Self
 
 from . import base
 

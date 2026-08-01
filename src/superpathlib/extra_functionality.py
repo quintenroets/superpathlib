@@ -9,9 +9,7 @@ from collections import deque
 from collections.abc import Callable, Iterator
 from functools import cached_property
 from types import TracebackType
-from typing import Any, cast
-
-from typing_extensions import Self
+from typing import Any, Self, cast
 
 from . import cached_content
 from .utils import find_first_match
@@ -43,10 +41,10 @@ class Path(cached_content.Path):
         return path
 
     def with_timestamp(self) -> Self:
-        from datetime import datetime, timezone
+        from datetime import UTC, datetime
 
         timestamp = int(time.time())  # precision up to second
-        datetime_timestamp = datetime.fromtimestamp(timestamp, tz=timezone.utc)
+        datetime_timestamp = datetime.fromtimestamp(timestamp, tz=UTC)
         return self.with_stem(f"{self.stem} {datetime_timestamp}")
 
     def copy_to(

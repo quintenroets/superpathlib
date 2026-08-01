@@ -4,14 +4,10 @@ import typing
 from collections.abc import Callable, Generator
 from functools import wraps
 from os import PathLike
-from typing import IO, Any, TypeVar
-
-from typing_extensions import Self
+from typing import IO, Any, Self
 
 from . import encryption
 from .metadata_properties import catch_missing
-
-T = TypeVar("T", bound="Path")
 
 
 def create_parent_on_missing(func: Callable[..., Any]) -> Callable[..., Any]:

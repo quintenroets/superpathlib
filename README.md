@@ -1,8 +1,13 @@
 # Superpathlib
 [![PyPI version](https://badge.fury.io/py/superpathlib.svg)](https://badge.fury.io/py/superpathlib)
 ![PyPI downloads](https://img.shields.io/pypi/dm/superpathlib)
+<<<<<<< HEAD
 ![Python version](https://img.shields.io/badge/python-3.10+-brightgreen)
 ![Operating system](https://img.shields.io/badge/os-linux%20%7c%20macOS-brightgreen)
+=======
+![Python version](https://img.shields.io/badge/python-3.11+-brightgreen)
+![Operating system](https://img.shields.io/badge/os-linux%20%7c%20macOS%20%7c%20windows-brightgreen)
+>>>>>>> template
 ![Coverage](https://img.shields.io/badge/coverage-100%25-brightgreen)
 
 Maximize your productivity with minimal code!

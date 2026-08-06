@@ -1,16 +1,14 @@
 import abc
 import sys
 import typing
-from typing import Any, Self, TypeVar
+from typing import Any, Self
 
 from simple_classproperty import classproperty
 
 from . import base
 
-T = TypeVar("T", bound="Path")
 
-
-def enable_classproperties(cls: type[T]) -> None:  # pragma: nocover
+def enable_classproperties(cls: type) -> None:  # pragma: nocover
     for name, method in vars(cls).items():
         if isinstance(method, classmethod):
             wrapped_method = method.__func__
@@ -27,9 +25,7 @@ class PropertyMeta(abc.ABCMeta):
     ) -> "PropertyMeta":
         meta_class = super().__new__(cls, name, bases, attributes)
         if sys.version_info >= (3, 13):
-            enable_classproperties(
-                meta_class,  # type: ignore[arg-type]
-            )  # pragma: nocover
+            enable_classproperties(meta_class)  # pragma: nocover
         return meta_class
 
 

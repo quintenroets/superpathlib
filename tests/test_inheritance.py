@@ -1,14 +1,15 @@
+from typing import Self
+
 from simple_classproperty import classproperty
 
 import superpathlib
-from superpathlib.common_folders import T
 
 
 def test_inheritance() -> None:
     class Path(superpathlib.Path):
         @classmethod
         @classproperty
-        def HOME(cls: type[T]) -> T:  # noqa: N802
+        def HOME(cls) -> Self:  # noqa: N802
             return cls("HOME")
 
     assert Path.docs.is_relative_to(Path.HOME)

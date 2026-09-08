@@ -6,7 +6,7 @@ from functools import wraps
 from os import PathLike
 from typing import IO, Any, Self
 
-from . import encryption
+from . import extra_functionality
 from .metadata_properties import catch_missing
 
 
@@ -16,7 +16,7 @@ def create_parent_on_missing(func: Callable[..., Any]) -> Callable[..., Any]:
         try:
             res = func(*args, **kwargs)
         except FileNotFoundError:
-            path = encryption.Path(args[0])
+            path = extra_functionality.Path(args[0])
             path.create_parent()
             res = func(*args, **kwargs)
         return res
@@ -24,7 +24,7 @@ def create_parent_on_missing(func: Callable[..., Any]) -> Callable[..., Any]:
     return wrapper
 
 
-class Path(encryption.Path):
+class Path(extra_functionality.Path):
     """
     Overwrite existing methods with exception handling.
     """

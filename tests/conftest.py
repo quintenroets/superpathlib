@@ -4,7 +4,7 @@ from unittest.mock import patch
 import pytest
 
 from superpathlib import Path
-from superpathlib.encryption import EncryptedPath
+from superpathlib.encrypted import EncryptedPath
 
 
 @pytest.fixture(autouse=True, scope="session")

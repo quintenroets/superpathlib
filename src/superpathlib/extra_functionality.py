@@ -14,6 +14,9 @@ from typing import Any, Self, cast
 from . import cached_content
 from .utils import find_first_match
 
+if typing.TYPE_CHECKING:
+    from .encrypted import EncryptedPath
+
 
 class Path(cached_content.Path):
     """
@@ -46,6 +49,17 @@ class Path(cached_content.Path):
         timestamp = int(time.time())  # precision up to second
         datetime_timestamp = datetime.fromtimestamp(timestamp, tz=UTC)
         return self.with_stem(f"{self.stem} {datetime_timestamp}")
+
+    @property
+    def encrypted(self) -> "EncryptedPath":
+        # imports optional dependency
+        from .encrypted import EncryptedPath
+
+        path = self
+        encryption_suffix = ".gpg"
+        if path.suffix != encryption_suffix:
+            path = path.with_suffix(path.suffix + encryption_suffix)
+        return EncryptedPath(path)
 
     def copy_to(
         self,

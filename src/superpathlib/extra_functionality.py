@@ -4,7 +4,6 @@ import shutil
 import tempfile
 import time
 import typing
-import urllib.parse
 from collections import deque
 from collections.abc import Callable, Iterator
 from functools import cached_property
@@ -282,11 +281,6 @@ class Path(cached_content.Path):
                 part = part.replace(token, "_")  # noqa: PLW2901
             path /= part
         return path
-
-    @classmethod
-    def from_uri(cls, uri: str) -> Self:
-        path_str = urllib.parse.urlparse(uri).path
-        return cls(path_str)
 
     @classmethod
     def tempfile(

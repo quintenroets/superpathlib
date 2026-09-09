@@ -63,11 +63,6 @@ def test_unpack_check(directory: Path) -> None:
         assert directory.is_empty()
 
 
-def test_uri(path: Path) -> None:
-    uri = path.as_uri()
-    assert Path.from_uri(uri) == path
-
-
 @ignore_fixture_warning
 @byte_content
 def test_copy(path: Path, path2: Path, content: bytes) -> None:

@@ -12,11 +12,6 @@ if typing.TYPE_CHECKING:  # pragma: nocover
     from numpy.typing import NDArray
 
 
-# Lazy imports for:
-# - performance optimization
-# - enabling optional dependencies
-
-
 class Path(base.Path):
     """
     Properties to read & write content in different formats.

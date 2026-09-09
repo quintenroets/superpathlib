@@ -1,5 +1,4 @@
 import hashlib
-import mimetypes
 import os
 import warnings
 from collections.abc import Callable
@@ -89,6 +88,8 @@ class Path(content_properties.Path):
 
     @property
     def filetype(self) -> str | None:
+        import mimetypes
+
         filetype = mimetypes.guess_type(self)[0]
         if filetype:
             filetype = filetype.split("/")[0]

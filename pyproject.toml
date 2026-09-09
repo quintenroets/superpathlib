@@ -79,6 +79,7 @@ ignore = [
     "D212",     # conflicts with D213
     "D401",     # imperative first line
     "G004",     # logging f-string
+    "PLC0415",  # lazy imports for import performance and optional dependencies
 ]
 
 [tool.ruff.lint.per-file-ignores]
@@ -87,18 +88,6 @@ ignore = [
 ]
 "tests/*" = [
     "S101",  # assert used
-]
-"src/superpathlib/cached_content.py" = [
-    "PLC0415",  # lazy imports for optional dependency
-]
-"src/superpathlib/content_properties.py" = [
-    "PLC0415",  # lazy imports for optional dependencies
-]
-"src/superpathlib/extra_functionality.py" = [
-    "PLC0415",  # lazy imports for optional dependencies
-]
-"src/superpathlib/metadata_properties.py" = [
-    "PLC0415",  # lazy imports for optional dependencies
 ]
 
 [tool.setuptools.package-data]

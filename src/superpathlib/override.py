@@ -1,5 +1,4 @@
 import io
-import shutil
 import typing
 from collections.abc import Callable, Generator
 from functools import wraps
@@ -62,6 +61,8 @@ class Path(extra_functionality.Path):
                 target_path = rename(target_path)
             elif "Invalid cross-device link" in str(exception):  # pragma: nocover
                 # target is on different file system
+                import shutil
+
                 if target_path.exists():
                     if exist_ok:
                         if self.is_dir():

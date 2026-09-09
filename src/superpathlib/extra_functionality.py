@@ -1,7 +1,5 @@
 import contextlib
 import os
-import shutil
-import tempfile
 import time
 import typing
 from collections import deque
@@ -97,6 +95,8 @@ class Path(cached_content.Path):
         """
         Remove first parent from path in filesystem.
         """
+        import shutil
+
         dest = self.parent.parent / self.name
         parent = self.parent
         temp_dest = dest.with_nonexistent_name()  # can only move to non-existing path
@@ -197,6 +197,8 @@ class Path(cached_content.Path):
         remove_root: bool = True,
         ignore_errors: bool = False,
     ) -> None:
+        import shutil
+
         context = (
             contextlib.suppress(FileNotFoundError)
             if missing_ok
@@ -244,6 +246,8 @@ class Path(cached_content.Path):
         with Path.tempfile() as tmp:     run_command(log_file=tmp)     logs = tmp.text
         process_logs(logs)
         """
+        import tempfile
+
         if in_memory:
             in_memory_folder = cls("/") / "dev" / "shm"
             if in_memory_folder.exists():  # pragma: nocover

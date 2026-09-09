@@ -19,7 +19,7 @@ For custom operations, the package supports subclassing, which has been added to
     * `copy_to` to copy content
     * `tempfile` to create and use temporary files
     * `find` for recursive search
-    * `unpack` for unpacking archives
+    * `unpack_if_archive` for unpacking archives
 
 ## Usage
 
@@ -83,7 +83,7 @@ names = names_path.lines
 * copy_to(dest): copy content to dest
 * copy_properties_to(dest): recursively copy path properties (mtime, tag) to all n-level children of dest
 * tempfile(): create temporary file that can be used as context manager
-* unpack(): extract archive(zip, tar, ..) file to desired folder
+* unpack_if_archive(): extract an archive(zip, tar, ..) file to desired folder, recursively
 * pop_parent(): remove first parent from path in filesystem
 
 examples:

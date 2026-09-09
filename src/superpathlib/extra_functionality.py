@@ -14,6 +14,7 @@ from . import cached_content
 from .utils import find_first_match
 
 if typing.TYPE_CHECKING:
+    from .archive import Archive
     from .encrypted import EncryptedPath
 
 
@@ -60,6 +61,21 @@ class Path(cached_content.Path):
             path = path.with_suffix(path.suffix + encryption_suffix)
         return EncryptedPath(path)
 
+    @cached_property
+    def archive(self) -> "Archive[Self]":
+        from .archive import Archive
+
+        return Archive(self)
+
+    def unpack_if_archive(
+        self,
+        *,
+        extraction_directory: Self | None = None,
+        recursive: bool = True,
+    ) -> None:
+        if self.archive.format_ is not None:
+            self.archive.unpack(extraction_directory, recursive=recursive)
+
     def copy_to(
         self,
         dest: Self,
@@ -76,80 +92,6 @@ class Path(cached_content.Path):
         for path in dest.find():
             path.tag = self.tag
             path.mtime = self.mtime
-
-    @cached_property
-    def archive_format(self) -> str:
-        # noinspection PyProtectedMember
-        path_str = str(self)
-        format_ = shutil._find_unpack_format(path_str)  # type: ignore[attr-defined] # noqa: SLF001
-        return typing.cast("str", format_)
-
-    def unpack_if_archive(
-        self,
-        *,
-        extraction_directory: Self | None = None,
-        recursive: bool = True,
-    ) -> None:
-        if self.archive_format is not None:
-            self.unpack(extraction_directory, recursive=recursive)
-
-    def unpack(  # noqa: PLR0913
-        self,
-        extraction_directory: Self | None = None,
-        *,
-        remove_existing: bool = True,
-        preserve_properties: bool = True,
-        remove_original: bool = True,
-        archive_format: str | None = None,
-        recursive: bool = True,
-    ) -> None:
-        def cleanup(cleanup_path: Self) -> None:
-            (cleanup_path / "__MACOSX").rmtree(missing_ok=True)
-            subfolder = cleanup_path / cleanup_path.name
-            if subfolder.exists() and cleanup_path.number_of_children == 1:
-                subfolder.pop_parent()  # pragma: nocover
-
-        if archive_format is None:
-            archive_format = self.archive_format
-
-        extraction_directory = (
-            self.create_extraction_directory(archive_format=archive_format)
-            if extraction_directory is None
-            else extraction_directory
-        )
-
-        if remove_existing:
-            if extraction_directory.is_dir():
-                extraction_directory.rmtree(missing_ok=True)
-            else:
-                extraction_directory.unlink(missing_ok=True)
-
-        shutil.unpack_archive(
-            self,
-            extract_dir=extraction_directory,
-            format=archive_format,
-        )
-
-        cleanup(extraction_directory)
-        if preserve_properties:
-            self.copy_properties_to(extraction_directory)
-
-        if remove_original:
-            self.unlink()
-
-        if recursive:
-            for path in extraction_directory.find():
-                path.unpack_if_archive()
-
-    def create_extraction_directory(self, archive_format: str) -> Self:
-        extract_name = self.name
-        # noinspection PyProtectedMember
-        unpack_formats = shutil._UNPACK_FORMATS  # type: ignore[attr-defined] # noqa: SLF001
-        unpack_info = unpack_formats[archive_format]
-        for archive_ext in unpack_info[0]:
-            if extract_name.endswith(archive_ext):
-                extract_name = extract_name.replace(archive_ext, "")
-        return self.with_name(extract_name)
 
     def pop_parent(self) -> None:
         """
@@ -242,6 +184,12 @@ class Path(cached_content.Path):
                 if should_recurse and should_recurse_folder:
                     to_traverse.extend(extract_children_to_recurse_on(path))
 
+    def remove(self) -> None:
+        if self.is_dir():
+            self.rmtree(missing_ok=True)
+        else:
+            self.unlink(missing_ok=True)
+
     def rmtree(
         self,
         *,
@@ -322,7 +270,4 @@ class Path(cached_content.Path):
         exception_value: BaseException | None,
         traceback: TracebackType | None,
     ) -> None:
-        if self.is_dir():
-            self.rmtree(missing_ok=True)
-        else:
-            self.unlink(missing_ok=True)
+        self.remove()

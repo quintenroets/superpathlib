@@ -40,17 +40,15 @@ def test_parent(path: Path) -> None:
 
 
 def test_tar_unpack(directory: Path) -> None:
-    archive_assets = Path(__file__).parent / "assets" / "archives"
-    archive_path = archive_assets / "test.tar.gz"
-    archive_path.unpack(directory, remove_existing=True, remove_original=False)
-    test_file = directory / "test.txt"
+    path = provision_archive("test.tar.gz", directory)
+    path.unpack_if_archive()
+    test_file = directory / "test" / "test.txt"
     assert test_file.text.strip() == "testcontent"
 
 
-def test_recursive_unpack(directory: Path) -> None:
-    archive_assets = Path(__file__).parent / "assets" / "archives"
-    archive_path = archive_assets / "recursive.zip"
-    archive_path.unpack(directory, remove_existing=True, remove_original=False)
+def test_recursive_unpack(directory: Path, directory2: Path) -> None:
+    path = provision_archive("recursive.zip", directory2)
+    path.unpack_if_archive(extraction_directory=directory)
     test_file = directory / "test" / "test" / "test.txt"
     assert test_file.text.strip() == "testcontent"
 
@@ -61,6 +59,13 @@ def test_unpack_check(directory: Path) -> None:
     for path in non_archive_assets.iterdir():
         path.unpack_if_archive(extraction_directory=directory)
         assert directory.is_empty()
+
+
+def provision_archive(name: str, directory: Path) -> Path:
+    asset_path = Path(__file__).parent / "assets" / "archives" / name
+    path = directory / name
+    asset_path.copy_to(path)
+    return path
 
 
 @ignore_fixture_warning

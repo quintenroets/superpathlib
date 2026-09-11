@@ -1,4 +1,3 @@
-import hashlib
 import os
 import warnings
 from collections.abc import Callable
@@ -116,5 +115,7 @@ class Path(content_properties.Path):
 
     @property
     def file_content_hash(self) -> str:
+        import hashlib
+
         with self.open("rb") as fp:
             return hashlib.file_digest(fp, "sha512").hexdigest()

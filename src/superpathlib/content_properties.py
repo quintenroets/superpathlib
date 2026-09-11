@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import json
 import typing
 from typing import Any
 
@@ -52,11 +51,15 @@ class Path(base.Path):
 
     @property
     def json(self) -> dict[str, Any] | list[Any]:
+        import json
+
         value = json.loads(self.text or "{}")
         return typing.cast("dict[str, Any] | list[Any]", value)
 
     @json.setter
     def json(self, content: dict[Any, Any] | list[Any]) -> None:
+        import json
+
         self.text = json.dumps(content)
 
     @property

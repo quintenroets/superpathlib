@@ -1,5 +1,6 @@
 import contextlib
 import os
+import sys
 import time
 import typing
 from collections import deque
@@ -204,24 +205,12 @@ class Path(cached_content.Path):
             if missing_ok
             else contextlib.nullcontext()
         )
+        handler_name = "onexc" if sys.version_info >= (3, 12) else "onerror"
+        handler_argument: dict[str, Any] = {handler_name: handle_removal_error}
         with context:
-            shutil.rmtree(self, ignore_errors=ignore_errors, onerror=self._on_error)  # type: ignore[arg-type]
+            shutil.rmtree(self, ignore_errors, **handler_argument)
         if not remove_root:
             self.mkdir()
-
-    @classmethod
-    def _on_error(
-        cls,
-        func: Callable[[str], Any],
-        path_str: str,
-        exc_info: tuple[type[Exception], Exception, TracebackType],
-    ) -> None:
-        if exc_info[0] is PermissionError and os.name == "nt":  # pragma: nocover
-            path = Path(path_str)
-            path.chmod(0o777)
-            func(path_str)
-        else:
-            raise exc_info[0]
 
     def subpath(self, *parts: str) -> Self:
         path = self
@@ -275,3 +264,16 @@ class Path(cached_content.Path):
         traceback: TracebackType | None,
     ) -> None:
         self.remove()
+
+
+def handle_removal_error(
+    function: Callable[[str], Any],
+    path: str,
+    error: BaseException | tuple[type[BaseException], BaseException, TracebackType],
+) -> None:
+    exception = error[1] if isinstance(error, tuple) else error
+    if isinstance(exception, PermissionError) and os.name == "nt":  # pragma: nocover
+        Path(path).chmod(0o777)
+        function(path)
+    else:
+        raise exception

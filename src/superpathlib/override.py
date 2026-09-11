@@ -1,3 +1,4 @@
+import contextlib
 import io
 import typing
 from collections.abc import Callable, Generator
@@ -6,7 +7,6 @@ from os import PathLike
 from typing import IO, Any, Self
 
 from . import extra_functionality
-from .metadata_properties import catch_missing
 
 
 def create_parent_on_missing(func: Callable[..., Any]) -> Callable[..., Any]:
@@ -40,9 +40,9 @@ class Path(extra_functionality.Path):
         if mtime is not None:
             self.mtime = mtime  # set time after touch or it is immediately overwritten
 
-    @catch_missing(default=0)
     def rmdir(self) -> None:
-        return super().rmdir()
+        with contextlib.suppress(FileNotFoundError):
+            super().rmdir()
 
     def iterdir(self, *, missing_ok: bool = True) -> Generator[Self, None, None]:
         if self.exists() or not missing_ok:

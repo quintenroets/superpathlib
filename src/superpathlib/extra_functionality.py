@@ -119,21 +119,7 @@ class Path(cached_content.Path):
             or (self.is_file() and self.size == 0)
         )
 
-    def load_yaml(self) -> dict[Any, Any] | list[Any]:
-        """
-        Load yaml content of trusted path with an unsafe loader.
-
-        This can be used to instantiate any object
-        :return: Content in path that contains yaml format
-        """
-        import yaml  # , autoimport
-
-        Loader: type[yaml.CFullLoader | yaml.FullLoader] = (  # noqa: N806
-            yaml.CFullLoader if hasattr(yaml, "CFullLoader") else yaml.FullLoader
-        )
-        return yaml.load(self.text, Loader=Loader) or {}  # noqa: S506
-
-    def update(self, value: dict[Any, Any]) -> dict[Any, Any]:
+    def update_yaml(self, value: dict[Any, Any]) -> dict[Any, Any]:
         # only read and write if value to add not empty
         if value:
             current_content = cast("dict[Any, Any]", self.yaml)

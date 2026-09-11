@@ -256,10 +256,6 @@ def test_with_timestamp(path: Path) -> None:
     assert path.with_timestamp()
 
 
-def test_load_yaml(path: Path) -> None:
-    path.load_yaml()
-
-
 @ignore_fixture_warning
 @text_lines_content
 def test_subpath(path: Path, content: list[str]) -> None:
@@ -284,7 +280,7 @@ def test_rmtree_preserve_root(directory: Path) -> None:
 @dictionary_content
 def test_yaml_update(content: dict[str, str]) -> None:
     with Path.tempfile() as path:
-        path.update(content)
+        path.update_yaml(content)
         assert path.yaml == content
 
 

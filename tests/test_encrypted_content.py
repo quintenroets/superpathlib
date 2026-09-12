@@ -1,7 +1,7 @@
 from hypothesis import HealthCheck, settings
 
 from superpathlib import Path
-from tests.content import byte_content, text_content
+from tests.content import Given
 
 slow_test_settings = settings(
     max_examples=2,
@@ -11,7 +11,7 @@ slow_test_settings = settings(
 
 
 @slow_test_settings
-@byte_content
+@Given.bytes
 def test_encrypted_bytes(encryption_path: Path, content: bytes) -> None:
     encryption_path.byte_content = content
     assert encryption_path.byte_content == content
@@ -23,14 +23,14 @@ def test_encrypted_bytes_empty(encryption_path: Path) -> None:
 
 
 @slow_test_settings
-@text_content
+@Given.text
 def test_encrypted_text(encryption_path: Path, content: str) -> None:
     encryption_path.text = content
     assert encryption_path.text == content
 
 
 @slow_test_settings
-@text_content
+@Given.text
 def test_no_double_extension(encryption_path: Path, content: str) -> None:
     encryption_path.encrypted.text = content
     assert encryption_path.text == content

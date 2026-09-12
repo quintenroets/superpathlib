@@ -1,30 +1,32 @@
-from typing import Any
+from typing import Final
 
 from hypothesis import HealthCheck, given, settings, strategies
-from hypothesis.strategies import SearchStrategy
+
+blacklist_categories: Final = ("Cc", "Cs", "Zs")
+alphabet = strategies.characters(blacklist_categories=blacklist_categories)
+dictionary_strategy = strategies.dictionaries(
+    keys=strategies.text(),
+    values=strategies.text(),
+)
 
 
-def text_dictionary_strategy() -> SearchStrategy[dict[str, str]]:
-    return strategies.dictionaries(keys=strategies.text(), values=strategies.text())
-
-
-def dictionary_strategy() -> SearchStrategy[dict[str, dict[str, str]]]:
-    return strategies.dictionaries(
+class Strategies:
+    text = strategies.text(alphabet=alphabet)
+    lines = strategies.lists(text)
+    floats = strategies.lists(strategies.floats())
+    dictionaries = strategies.dictionaries(
         keys=strategies.text(),
-        values=text_dictionary_strategy(),
+        values=dictionary_strategy,
     )
 
 
-def text_strategy(**kwargs: Any) -> SearchStrategy[str]:
-    alphabet = strategies.characters(blacklist_categories=["Cc", "Cs", "Zs"])
-    return strategies.text(alphabet=alphabet, **kwargs)
+class Given:
+    bytes = given(content=strategies.binary())
+    text = given(content=Strategies.text)
+    lines = given(content=Strategies.lines)
+    floats = given(content=Strategies.floats)
+    dictionaries = given(content=Strategies.dictionaries)
 
-
-dictionary_content = given(content=dictionary_strategy())
-byte_content = given(content=strategies.binary())
-text_content = given(content=text_strategy())
-text_lines_content = given(content=strategies.lists(text_strategy()))
-floats_content = given(content=strategies.lists(strategies.floats()))
 
 suppressed_health_checks = (HealthCheck.function_scoped_fixture,)
 slower_test_settings = settings(

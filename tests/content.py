@@ -15,14 +15,8 @@ def dictionary_strategy() -> SearchStrategy[dict[str, dict[str, str]]]:
     )
 
 
-def text_strategy(
-    blacklist_characters: str | None = None,
-    **kwargs: Any,
-) -> SearchStrategy[str]:
-    alphabet = strategies.characters(
-        blacklist_categories=["Cc", "Cs", "Zs"],
-        blacklist_characters=blacklist_characters,
-    )
+def text_strategy(**kwargs: Any) -> SearchStrategy[str]:
+    alphabet = strategies.characters(blacklist_categories=["Cc", "Cs", "Zs"])
     return strategies.text(alphabet=alphabet, **kwargs)
 
 

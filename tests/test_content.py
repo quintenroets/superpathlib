@@ -28,11 +28,6 @@ def test_text(path: Path, content: str) -> None:
     assert path.text == content
 
 
-def test_empty_file_text(path: Path) -> None:
-    path.unlink()
-    assert path.text == ""
-
-
 @ignore_fixture_warning
 @text_lines_content
 def test_lines(path: Path, content: list[str]) -> None:
@@ -77,6 +72,13 @@ def test_yaml(path: Path, content: dict[str, dict[str, str]]) -> None:
     assert isinstance(Path.yaml, property)
     path.yaml = content
     assert path.yaml == content
+
+
+def test_missing_content(path: Path) -> None:
+    path.unlink()
+    assert path.text == ""
+    assert path.yaml is None
+    assert path.json is None
 
 
 @slower_test_settings

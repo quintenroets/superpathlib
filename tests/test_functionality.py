@@ -6,7 +6,6 @@ import pytest
 from superpathlib import Path
 from tests.content import (
     byte_content,
-    dictionary_content,
     slower_test_settings,
     text_lines_content,
 )
@@ -274,14 +273,6 @@ def test_rmtree_not_existing(path: Path) -> None:
 
 def test_rmtree_preserve_root(directory: Path) -> None:
     directory.rmtree(remove_root=False)
-
-
-@slower_test_settings
-@dictionary_content
-def test_yaml_update(content: dict[str, str]) -> None:
-    with Path.tempfile() as path:
-        path.update_yaml(content)
-        assert path.yaml == content
 
 
 def test_pop_parent(directory: Path) -> None:

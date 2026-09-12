@@ -1,26 +1,9 @@
 import contextlib
-import io
-import typing
-from collections.abc import Callable, Generator
-from functools import wraps
+from collections.abc import Generator
 from os import PathLike
 from typing import IO, Any, Self
 
 from . import extra_functionality
-
-
-def create_parent_on_missing(func: Callable[..., Any]) -> Callable[..., Any]:
-    @wraps(func)
-    def wrapper(*args: Any, **kwargs: Any) -> Any:
-        try:
-            res = func(*args, **kwargs)
-        except FileNotFoundError:
-            path = extra_functionality.Path(args[0])
-            path.create_parent()
-            res = func(*args, **kwargs)
-        return res
-
-    return wrapper
 
 
 class Path(extra_functionality.Path):
@@ -28,15 +11,18 @@ class Path(extra_functionality.Path):
     Overwrite existing methods with exception handling.
     """
 
-    @create_parent_on_missing
-    def touch(
+    def touch(  # type: ignore[override]
         self,
         mode: int = 0o666,
         *,
         exist_ok: bool = True,
         mtime: float | None = None,
     ) -> None:
-        super().touch(mode=mode, exist_ok=exist_ok)
+        try:
+            super().touch(mode=mode, exist_ok=exist_ok)
+        except FileNotFoundError:
+            self.create_parent()
+            super().touch(mode=mode, exist_ok=exist_ok)
         if mtime is not None:
             self.mtime = mtime  # set time after touch or it is immediately overwritten
 
@@ -48,11 +34,12 @@ class Path(extra_functionality.Path):
         if self.exists() or not missing_ok:
             yield from super().iterdir()
 
-    @create_parent_on_missing
-    def rename(self, target: str | Self, *, exist_ok: bool = False) -> Self:
+    def rename(self, target: str | PathLike[str], *, exist_ok: bool = False) -> Self:
         target_path = self.__class__(target)
         rename = super().replace if exist_ok else super().rename
         try:
+            target_path = rename(target_path)
+        except FileNotFoundError:
             target_path.create_parent()
             target_path = rename(target_path)
         except OSError as exception:
@@ -80,32 +67,15 @@ class Path(extra_functionality.Path):
         return target_path
 
     def replace(self, target: str | PathLike[str]) -> Self:
-        path = self.rename(target, exist_ok=True)
-        return typing.cast("Self", path)
+        return self.rename(target, exist_ok=True)
 
     def open(self, mode: str = "r", **kwargs: Any) -> IO[Any]:  # type: ignore[override]
         try:
             res = super().open(mode, **kwargs)
         except FileNotFoundError:
-            res = self.open_non_existing(mode, **kwargs)
-        return res
-
-    def open_non_existing(self, mode: str, **kwargs: Any) -> IO[Any]:
-        if "w" in mode or "a" in mode:
-            # exist_ok=True: catch race conditions when calling multiple times
-            self.create_parent()
-            res = self.open(mode, **kwargs)
-        else:
-            res = self.open_encrypted(mode)
-        return res
-
-    def open_encrypted(self, mode: str) -> IO[Any]:
-        encrypted = self.encrypted.exists()
-        res: IO[Any]
-        if "b" in mode:
-            byte_content = self.encrypted.byte_content if encrypted else b""
-            res = io.BytesIO(byte_content)
-        else:
-            text = self.encrypted.text if encrypted else ""
-            res = io.StringIO(text)
+            if "w" in mode or "a" in mode:
+                self.create_parent()
+                res = super().open(mode, **kwargs)
+            else:
+                raise
         return res

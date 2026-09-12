@@ -1,29 +1,9 @@
 import os
 import warnings
-from collections.abc import Callable
-from functools import wraps
-from typing import Any, TypeVar, cast
+from typing import cast
 
 from . import content_properties
-
-T = TypeVar("T")
-
-
-def catch_missing(
-    default: Any = None,
-) -> Callable[[Callable[..., T]], Callable[..., T]]:
-    def wrap_function(function: Callable[..., T]) -> Callable[..., T]:
-        @wraps(function)
-        def wrap_args(*args: Any, **kwargs: Any) -> Any:
-            try:
-                res = function(*args, **kwargs)
-            except FileNotFoundError:
-                res = default
-            return res
-
-        return wrap_args
-
-    return wrap_function
+from .utils import catch_missing
 
 
 class Path(content_properties.Path):

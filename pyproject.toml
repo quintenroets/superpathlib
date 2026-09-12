@@ -16,7 +16,6 @@ full = [
     "numpy >=1.26.4, <3",
     "package-utils >=0.9.0, <1",
     "PyYaml >=6.0.1, <7",
-    "xattr >=0.10.1, <2",
 ]
 dev = [
     "hypothesis >=6.97.1, <7",
@@ -30,7 +29,6 @@ dev = [
     "numpy >=1.26.4, <3",
     "package-utils >=0.9.0, <1",
     "PyYaml >=6.0.1, <7",
-    "xattr >=0.10.1, <2",
 ]
 
 [project.urls]
@@ -55,7 +53,6 @@ no_implicit_reexport = false
 [[tool.mypy.overrides]]
 module = [
     "dirhash.*",
-    "xattr.*",
 ]
 ignore_missing_imports = true
 

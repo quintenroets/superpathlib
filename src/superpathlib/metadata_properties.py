@@ -21,31 +21,6 @@ class Path(content_properties.Path):
         os.utime(self, (time, time))  # set create time as well
 
     @property
-    def tags(self) -> list[str]:
-        from .tags import XDGTags  # , autoimport
-
-        return XDGTags(self).get()
-
-    @tags.setter
-    def tags(self, values: list[str | int | None]) -> None:
-        from .tags import XDGTags  # , autoimport
-
-        if len(values) == 0:
-            XDGTags(self).clear()
-        else:
-            XDGTags(self).set(*values)
-
-    @property
-    def tag(self) -> str | None:
-        return self.tags[0] if self.tags else None
-
-    @tag.setter
-    def tag(self, value: str | int | None) -> None:
-        from .tags import XDGTags  # , autoimport
-
-        XDGTags(self).set(value)
-
-    @property
     @catch_missing(default=0)
     def size(self) -> int:
         return self.stat().st_size

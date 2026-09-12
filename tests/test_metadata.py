@@ -3,10 +3,9 @@ import math
 import time
 
 from hypothesis import given, strategies
-from hypothesis.strategies import lists
 
 from superpathlib import Path
-from tests.content import byte_content, slower_test_settings, text_strategy
+from tests.content import byte_content, slower_test_settings
 from tests.utils import ignore_fixture_warning
 
 
@@ -17,31 +16,6 @@ def test_mtime(path: Path, mtime: float) -> None:
     assert isinstance(Path.mtime, property)
     path.mtime = mtime
     assert math.isclose(path.mtime, mtime, abs_tol=1e-3)
-
-
-@ignore_fixture_warning
-@given(content=lists(text_strategy(blacklist_characters=",", min_size=1)))
-def test_tags(path: Path, content: str) -> None:
-    assert isinstance(Path.tags, property)
-    path.tags = content
-    assert path.tags == list(set(content))
-
-
-@ignore_fixture_warning
-@given(content=lists(text_strategy(blacklist_characters=",", min_size=1)))
-def test_tags_removal(path: Path, content: str) -> None:
-    assert isinstance(Path.tags, property)
-    path.tags = content
-    path.tags = []
-    assert path.tags == []
-
-
-@ignore_fixture_warning
-@given(content=text_strategy(blacklist_characters=","))
-def test_tag(path: Path, content: str) -> None:
-    assert isinstance(Path.tag, property)
-    path.tag = content
-    assert path.tag == content
 
 
 @slower_test_settings

@@ -22,7 +22,7 @@ class Archive(Generic[P]):
         extraction_directory: P | None = None,
         *,
         remove_existing: bool = True,
-        preserve_properties: bool = True,
+        preserve_mtime: bool = True,
         remove_original: bool = True,
         format_: str | None = None,
         recursive: bool = True,
@@ -44,8 +44,8 @@ class Archive(Generic[P]):
         )
 
         self.cleanup(extraction_directory)
-        if preserve_properties:
-            self.path.copy_properties_to(extraction_directory)
+        if preserve_mtime:
+            self.path.copy_mtime_to(extraction_directory)
 
         if remove_original:
             self.path.unlink()

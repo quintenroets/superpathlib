@@ -80,17 +80,16 @@ class Path(cached_content.Path):
         self,
         dest: Self,
         *,
-        include_properties: bool = True,
+        include_mtime: bool = True,
         only_if_newer: bool = False,
     ) -> None:
         if not only_if_newer or self.mtime > dest.mtime:
             dest.byte_content = self.byte_content
-            if include_properties:
-                self.copy_properties_to(dest)
+            if include_mtime:
+                self.copy_mtime_to(dest)
 
-    def copy_properties_to(self, dest: Self) -> None:
+    def copy_mtime_to(self, dest: Self) -> None:
         for path in dest.find():
-            path.tag = self.tag
             path.mtime = self.mtime
 
     def pop_parent(self) -> None:

@@ -13,7 +13,7 @@ For custom operations, the package supports subclassing, which has been added to
 
 ## Key features:
 * Read and write content in various formats such as text, bytes, YAML, JSON, and even NumPy arrays
-* Access and modify file metadata like file size, modification time, and custom tags
+* Access and modify file metadata like file size and modification time
 * Utility methods:
     * `rmtree` to remove directories recursively
     * `copy_to` to copy content
@@ -56,14 +56,13 @@ for line in path.lines:
     * content_hash: a hash of the complete substructure found in a folder
 * get & set:
     * mtime: modified time
-    * tag: can be used for alternative ordering or metadata
 
 examples:
 
 ```shell
 path_new.mtime = path_old.mtime
 
-if path.tag != skip_keyword and path.filetype == "video":
+if path.filetype == "video":
     process(path)
 ```
 ### 3) Use class properties to access commonly used folders:
@@ -81,7 +80,7 @@ names = names_path.lines
 * find(): recursively find all paths under a root that match a condition (extra options available for performance optimization)
 * rmtree(): remove directory recursively
 * copy_to(dest): copy content to dest
-* copy_properties_to(dest): recursively copy path properties (mtime, tag) to all n-level children of dest
+* copy_mtime_to(dest): recursively copy modified time to all n-level children of dest
 * tempfile(): create temporary file that can be used as context manager
 * unpack_if_archive(): extract an archive(zip, tar, ..) file to desired folder, recursively
 * pop_parent(): remove first parent from path in filesystem

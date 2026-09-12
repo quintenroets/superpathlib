@@ -119,16 +119,6 @@ class Path(metadata_properties.Path):
             or (self.is_file() and self.size == 0)
         )
 
-    def update_yaml(self, value: dict[Any, Any]) -> dict[Any, Any]:
-        # only read and write if value to add not empty
-        if value:
-            current_content = cast("dict[Any, Any]", self.yaml)
-            updated_content = current_content | value
-            self.yaml = updated_content
-        else:
-            updated_content = value
-        return updated_content
-
     def find(
         self,
         condition: Callable[[Self], bool] | None = None,

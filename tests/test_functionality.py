@@ -4,11 +4,7 @@ from collections.abc import Callable
 import pytest
 
 from superpathlib import Path
-from tests.content import (
-    byte_content,
-    slower_test_settings,
-    text_lines_content,
-)
+from tests.content import Given, slower_test_settings
 from tests.utils import ignore_fixture_warning
 
 MTIME_TOLERANCE = 0.01
@@ -68,7 +64,7 @@ def provision_archive(name: str, directory: Path) -> Path:
 
 
 @ignore_fixture_warning
-@byte_content
+@Given.bytes
 def test_copy(path: Path, path2: Path, content: bytes) -> None:
     path.byte_content = content
     path.copy_to(path2)
@@ -76,7 +72,7 @@ def test_copy(path: Path, path2: Path, content: bytes) -> None:
 
 
 @slower_test_settings
-@byte_content
+@Given.bytes
 def test_copy_if_newer_copies(path: Path, path2: Path, content: bytes) -> None:
     path.byte_content = content
     path.mtime = path2.mtime + 1
@@ -85,7 +81,7 @@ def test_copy_if_newer_copies(path: Path, path2: Path, content: bytes) -> None:
 
 
 @slower_test_settings
-@byte_content
+@Given.bytes
 def test_copy_if_newer_skips(path: Path, path2: Path, content: bytes) -> None:
     path.byte_content = content
     path.mtime = path2.mtime - 1
@@ -94,7 +90,7 @@ def test_copy_if_newer_skips(path: Path, path2: Path, content: bytes) -> None:
 
 
 @slower_test_settings
-@byte_content
+@Given.bytes
 def test_move(path: Path, path2: Path, content: bytes) -> None:
     path.byte_content = content
     path.rename(path2)
@@ -102,7 +98,7 @@ def test_move(path: Path, path2: Path, content: bytes) -> None:
 
 
 @ignore_fixture_warning
-@byte_content
+@Given.bytes
 def test_move_existing(path: Path, path2: Path, content: bytes) -> None:
     path.byte_content = content
     path2.byte_content = content
@@ -112,7 +108,7 @@ def test_move_existing(path: Path, path2: Path, content: bytes) -> None:
 
 
 @ignore_fixture_warning
-@byte_content
+@Given.bytes
 def test_move_parent_not_existing(
     directory: Path,
     directory2: Path,
@@ -128,7 +124,7 @@ def test_move_parent_not_existing(
 
 
 @slower_test_settings
-@byte_content
+@Given.bytes
 def test_move_directory(directory: Path, directory2: Path, content: bytes) -> None:
     filename = directory.name
     subpath = directory / filename
@@ -144,7 +140,7 @@ def test_move_directory(directory: Path, directory2: Path, content: bytes) -> No
 
 
 @ignore_fixture_warning
-@byte_content
+@Given.bytes
 def test_move_directory_existing(
     directory: Path,
     directory2: Path,
@@ -157,7 +153,7 @@ def test_move_directory_existing(
 
 
 @ignore_fixture_warning
-@byte_content
+@Given.bytes
 def test_replace_directory_existing(
     directory: Path,
     directory2: Path,
@@ -170,7 +166,7 @@ def test_replace_directory_existing(
 
 
 @ignore_fixture_warning
-@byte_content
+@Given.bytes
 def test_move_directory_different_filesystem(
     directory: Path,
     in_memory_directory: Path,
@@ -190,7 +186,7 @@ def test_move_directory_different_filesystem(
 
 
 @ignore_fixture_warning
-@byte_content
+@Given.bytes
 def test_move_directory_existing_different_filesystem(
     directory: Path,
     in_memory_directory: Path,
@@ -256,7 +252,7 @@ def test_with_timestamp(path: Path) -> None:
 
 
 @ignore_fixture_warning
-@text_lines_content
+@Given.lines
 def test_subpath(path: Path, content: list[str]) -> None:
     parts = [name for name in content if name]
     sub_path = path.subpath(*parts)

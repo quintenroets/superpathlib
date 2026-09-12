@@ -5,7 +5,7 @@ import time
 from hypothesis import given, strategies
 
 from superpathlib import Path
-from tests.content import byte_content, slower_test_settings
+from tests.content import Given, slower_test_settings
 from tests.utils import ignore_fixture_warning
 
 
@@ -19,7 +19,7 @@ def test_mtime(path: Path, mtime: float) -> None:
 
 
 @slower_test_settings
-@byte_content
+@Given.bytes
 def test_size(path: Path, content: bytes) -> None:
     assert isinstance(Path.size, property)
     path.byte_content = content
@@ -33,7 +33,7 @@ def test_filetypes(path: Path) -> None:
 
 
 @ignore_fixture_warning
-@byte_content
+@Given.bytes
 def test_content_hash(path: Path, content: bytes) -> None:
     path.byte_content = content
     content_hash = hashlib.new("sha512", data=content).hexdigest()

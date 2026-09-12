@@ -1,19 +1,12 @@
 import numpy as np
 
 from superpathlib import Path
-from tests.content import (
-    byte_content,
-    dictionary_content,
-    floats_content,
-    slower_test_settings,
-    text_content,
-    text_lines_content,
-)
+from tests.content import Given, slower_test_settings
 from tests.utils import ignore_fixture_warning
 
 
 @ignore_fixture_warning
-@byte_content
+@Given.bytes
 def test_bytes(path: Path, content: bytes) -> None:
     assert isinstance(Path.byte_content, property)
     path.byte_content = content
@@ -21,7 +14,7 @@ def test_bytes(path: Path, content: bytes) -> None:
 
 
 @ignore_fixture_warning
-@text_content
+@Given.text
 def test_text(path: Path, content: str) -> None:
     assert isinstance(Path.text, property)
     path.text = content
@@ -29,7 +22,7 @@ def test_text(path: Path, content: str) -> None:
 
 
 @ignore_fixture_warning
-@text_lines_content
+@Given.lines
 def test_lines(path: Path, content: list[str]) -> None:
     assert isinstance(Path.lines, property)
     path.lines = content
@@ -37,7 +30,7 @@ def test_lines(path: Path, content: list[str]) -> None:
 
 
 @ignore_fixture_warning
-@text_lines_content
+@Given.lines
 def test_content_lines(path: Path, content: list[str]) -> None:
     assert isinstance(Path.lines, property)
     path.lines = content
@@ -48,7 +41,7 @@ def test_content_lines(path: Path, content: list[str]) -> None:
 
 
 @ignore_fixture_warning
-@text_lines_content
+@Given.lines
 def test_content_lines_setter(path: Path, content: list[str]) -> None:
     assert isinstance(Path.lines, property)
     path.content_lines = content
@@ -59,7 +52,7 @@ def test_content_lines_setter(path: Path, content: list[str]) -> None:
 
 
 @slower_test_settings
-@dictionary_content
+@Given.dictionaries
 def test_json(path: Path, content: dict[str, dict[str, str]]) -> None:
     assert isinstance(Path.json, property)
     path.json = content
@@ -67,7 +60,7 @@ def test_json(path: Path, content: dict[str, dict[str, str]]) -> None:
 
 
 @slower_test_settings
-@dictionary_content
+@Given.dictionaries
 def test_yaml(path: Path, content: dict[str, dict[str, str]]) -> None:
     assert isinstance(Path.yaml, property)
     path.yaml = content
@@ -82,7 +75,7 @@ def test_missing_content(path: Path) -> None:
 
 
 @slower_test_settings
-@floats_content
+@Given.floats
 def test_numpy(path: Path, content: list[float]) -> None:
     assert isinstance(Path.numpy, property)
     numpy_content = np.array(content)
@@ -91,7 +84,7 @@ def test_numpy(path: Path, content: list[float]) -> None:
 
 
 @ignore_fixture_warning
-@byte_content
+@Given.bytes
 def test_bytes_in_memory(in_memory_path: Path, content: bytes) -> None:
     assert isinstance(Path.byte_content, property)
     in_memory_path.byte_content = content

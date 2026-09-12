@@ -4,6 +4,7 @@ import typing
 from typing import Any
 
 from . import base
+from .utils import catch_missing
 
 if typing.TYPE_CHECKING:  # pragma: nocover
     from collections.abc import Iterable
@@ -25,6 +26,7 @@ class Path(base.Path):
         self.write_bytes(value)
 
     @property
+    @catch_missing(default="")
     def text(self) -> str:
         return self.read_text()
 

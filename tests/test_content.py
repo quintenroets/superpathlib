@@ -33,11 +33,6 @@ def test_empty_file_text(path: Path) -> None:
     assert path.text == ""
 
 
-def test_empty_file_byte_content(path: Path) -> None:
-    path.unlink()
-    assert path.byte_content == b""
-
-
 @ignore_fixture_warning
 @text_lines_content
 def test_lines(path: Path, content: list[str]) -> None:

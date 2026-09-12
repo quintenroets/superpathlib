@@ -233,7 +233,7 @@ def verify_move_existing(
 
 
 def assert_moved(source: Path, dest: Path, content: bytes) -> None:
-    assert source.byte_content == b""
+    assert not source.exists()
     assert dest.byte_content == content
 
 

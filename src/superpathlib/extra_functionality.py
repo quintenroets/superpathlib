@@ -23,6 +23,7 @@ class Path(cached_content.Path):
     """
 
     def create_parent(self) -> Self:
+        # exist_ok=True: catch race conditions when calling multiple times
         self.parent.mkdir(parents=True, exist_ok=True)
         return self.parent
 

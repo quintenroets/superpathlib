@@ -1,4 +1,21 @@
 from collections.abc import Callable
+from typing import Any, TypeVar
+
+T = TypeVar("T")
+Getter = Callable[[Any], T]
+
+
+def catch_missing(default: T) -> Callable[[Getter[T]], Getter[T]]:
+    def wrap_getter(function: Getter[T]) -> Getter[T]:
+        def wrapper(self: Any) -> T:
+            try:
+                return function(self)
+            except FileNotFoundError:
+                return default
+
+        return wrapper
+
+    return wrap_getter
 
 
 def find_first_match(condition: Callable[..., bool]) -> int:

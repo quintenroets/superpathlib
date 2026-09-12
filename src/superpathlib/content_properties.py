@@ -31,7 +31,7 @@ class Path(base.Path):
         return self.read_text()
 
     @text.setter
-    def text(self, value: str | Any) -> None:
+    def text(self, value: Any) -> None:
         self.write_text(str(value))
 
     @property
@@ -52,35 +52,38 @@ class Path(base.Path):
         self.lines = typing.cast("list[str]", lines)
 
     @property
-    def json(self) -> dict[str, Any] | list[Any]:
-        import json
+    @catch_missing(default=None)
+    def json(self) -> Any:
+        with self.open("rb") as fp:
+            import json
 
-        value = json.loads(self.text or "{}")
-        return typing.cast("dict[str, Any] | list[Any]", value)
+            return json.load(fp)
 
     @json.setter
-    def json(self, content: dict[Any, Any] | list[Any]) -> None:
+    def json(self, content: Any) -> None:
         import json
 
-        self.text = json.dumps(content)
+        with self.open("w") as fp:
+            json.dump(content, fp)
 
     @property
-    def yaml(self) -> dict[str, Any] | list[Any]:
-        import yaml
+    @catch_missing(default=None)
+    def yaml(self) -> Any:
+        with self.open("rb") as fp:
+            import yaml
 
-        # C implementation much faster but only supported on Linux
-        Loader: type[yaml.CFullLoader | yaml.FullLoader] = (  # noqa: N806
-            yaml.CFullLoader if hasattr(yaml, "CFullLoader") else yaml.FullLoader
-        )
-        return yaml.load(self.text, Loader=Loader) or {}  # noqa: S506
+            # C implementation much faster
+            loader = yaml.CSafeLoader if yaml.__with_libyaml__ else yaml.SafeLoader
+            return yaml.load(fp, Loader=loader)  # noqa: S506
 
     @yaml.setter
-    def yaml(self, value: dict[str, Any] | list[Any]) -> None:
+    def yaml(self, value: Any) -> None:
         import yaml
 
-        # C implementation much faster but only supported on Linux
-        Dumper = yaml.CDumper if hasattr(yaml, "CDumper") else yaml.Dumper  # noqa: N806
-        self.text = yaml.dump(value, Dumper=Dumper, width=1024)
+        # C implementation much faster
+        dumper = yaml.CSafeDumper if yaml.__with_libyaml__ else yaml.SafeDumper
+        with self.open("w") as fp:
+            yaml.dump(value, fp, Dumper=dumper, width=1024)
 
     @property
     def numpy(self) -> NDArray[Any]:

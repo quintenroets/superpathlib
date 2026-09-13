@@ -31,7 +31,7 @@ class Path(metadata_properties.Path):
         return self.read_text()
 
     @text.setter
-    def text(self, value: Any) -> None:
+    def text(self, value: object) -> None:
         self.write_text(str(value))
 
     @property

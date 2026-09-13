@@ -1,7 +1,7 @@
 import operator
 from collections.abc import Callable, Iterator
 from functools import partial
-from typing import Any, NamedTuple
+from typing import Any, NamedTuple, assert_type
 
 import numpy as np
 import pytest
@@ -102,6 +102,13 @@ def test_missing_content(path: Path) -> None:
         assert missing_path.text == ""
         assert missing_path.yaml is None
         assert missing_path.json is None
+
+
+def test_content_types(path: Path) -> None:
+    path.text = 1
+    assert_type(path.text, str)
+    assert_type(path.json, Any)
+    assert_type(path.yaml, Any)
 
 
 @pytest.fixture

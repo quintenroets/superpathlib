@@ -37,6 +37,9 @@ path = Path(filename)
 * json
 * numpy
 
+read-only:
+* cached_yaml: yaml content, cached as json next to the file
+
 examples:
 
 ```shell

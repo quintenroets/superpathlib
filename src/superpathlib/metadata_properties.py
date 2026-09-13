@@ -2,11 +2,11 @@ import os
 import warnings
 from typing import cast
 
-from . import content_properties
+from . import base
 from .utils import catch_missing
 
 
-class Path(content_properties.Path):
+class Path(base.Path):
     """
     Properties to read & write metadata.
     """

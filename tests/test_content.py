@@ -1,5 +1,5 @@
 import operator
-from collections.abc import Callable
+from collections.abc import Callable, Iterator
 from functools import partial
 from typing import Any, NamedTuple
 
@@ -21,10 +21,6 @@ class ContentProperty(NamedTuple):
     @property
     def getter(self) -> str:
         return self.getter_override or self.setter
-
-    @property
-    def id(self) -> str:
-        return f"{self.setter}_to_{self.getter or self.setter}"
 
 
 def equals_split_lines(result: list[str], content: list[str]) -> bool:
@@ -50,7 +46,7 @@ equals_numpy = partial(np.array_equal, equal_nan=True)
         ContentProperty("lines", Strategies.lines, equals_non_empty, "content_lines"),
         ContentProperty("content_lines", Strategies.lines, equals_non_empty, "lines"),
     ],
-    ids=operator.attrgetter("id"),
+    ids=lambda property_: f"{property_.setter}_to_{property_.getter}",
 )
 @slower_test_settings
 @given(data=strategies.data())
@@ -70,3 +66,33 @@ def test_missing_content(path: Path) -> None:
     assert path.text == ""
     assert path.yaml is None
     assert path.json is None
+
+
+@pytest.fixture
+def cache_path(path: Path) -> Iterator[Path]:
+    with path.with_name(path.name + ".cache") as cache_path:
+        yield cache_path
+
+
+@pytest.mark.usefixtures("cache_path")
+def test_fresh_cache_used(path: Path) -> None:
+    path.yaml = {"cached": {}}
+    mtime = path.mtime
+    assert path.cached_yaml == {"cached": {}}
+    path.yaml = {"ignored": {}}
+    path.mtime = mtime
+    assert path.cached_yaml == {"cached": {}}
+
+
+def test_stale_cache_refreshed_through_json(path: Path, cache_path: Path) -> None:
+    path.yaml = {2025: "a"}
+    cache_path.json = {"outdated": {}}
+    path.mtime = cache_path.mtime - 1
+    assert path.cached_yaml == {"2025": "a"}
+
+
+def test_missing_file_ignores_cache(path: Path, cache_path: Path) -> None:
+    path.unlink()
+    cache_path.json = {"stale": {}}
+    assert path.cached_yaml is None
+    assert cache_path.json == {"stale": {}}

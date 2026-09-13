@@ -9,7 +9,7 @@ from functools import cached_property
 from types import TracebackType
 from typing import Any, Self, cast
 
-from . import metadata_properties
+from . import content_properties
 from .utils import find_first_match
 
 if typing.TYPE_CHECKING:
@@ -17,7 +17,7 @@ if typing.TYPE_CHECKING:
     from .encrypted import EncryptedPath
 
 
-class Path(metadata_properties.Path):
+class Path(content_properties.Path):
     """
     Additional functionality.
     """

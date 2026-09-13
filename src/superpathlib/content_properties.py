@@ -3,7 +3,7 @@ from __future__ import annotations
 import typing
 from typing import Any
 
-from . import base
+from . import metadata_properties
 from .utils import catch_missing
 
 if typing.TYPE_CHECKING:  # pragma: nocover
@@ -12,7 +12,7 @@ if typing.TYPE_CHECKING:  # pragma: nocover
     from numpy.typing import NDArray
 
 
-class Path(base.Path):
+class Path(metadata_properties.Path):
     """
     Properties to read & write content in different formats.
     """
@@ -84,6 +84,16 @@ class Path(base.Path):
         dumper = yaml.CSafeDumper if yaml.__with_libyaml__ else yaml.SafeDumper
         with self.open("w") as fp:
             yaml.dump(value, fp, Dumper=dumper, width=1024)
+
+    @property
+    def cached_yaml(self) -> Any:
+        cache_file = self.with_name(self.name + ".cache")
+        mtime = self.mtime
+        exists = mtime > 0
+        if exists and cache_file.mtime != mtime:
+            cache_file.json = self.yaml
+            cache_file.mtime = mtime
+        return cache_file.json if exists else None
 
     @property
     def numpy(self) -> NDArray[Any]:

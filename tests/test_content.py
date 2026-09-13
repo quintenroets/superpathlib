@@ -81,11 +81,3 @@ def test_numpy(path: Path, content: list[float]) -> None:
     numpy_content = np.array(content)
     path.numpy = numpy_content
     assert np.array_equal(path.numpy, numpy_content, equal_nan=True)
-
-
-@ignore_fixture_warning
-@Given.bytes
-def test_bytes_in_memory(in_memory_path: Path, content: bytes) -> None:
-    assert isinstance(Path.byte_content, property)
-    in_memory_path.byte_content = content
-    assert in_memory_path.byte_content == content

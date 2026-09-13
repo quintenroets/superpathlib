@@ -1,4 +1,5 @@
 import contextlib
+import errno
 from collections.abc import Generator
 from os import PathLike
 from typing import IO, Any, Self
@@ -43,10 +44,10 @@ class Path(extra_functionality.Path):
             target_path.create_parent()
             target_path = rename(target_path)
         except OSError as exception:
-            if exist_ok and "Directory not empty" in str(exception):
+            if exist_ok and exception.errno == errno.ENOTEMPTY:
                 target_path.rmtree()
                 target_path = rename(target_path)
-            elif "Invalid cross-device link" in str(exception):  # pragma: nocover
+            elif exception.errno == errno.EXDEV:  # pragma: nocover
                 # target is on different file system
                 import shutil
 
@@ -58,7 +59,7 @@ class Path(extra_functionality.Path):
                             target_path.unlink()  # pragma: nocover
                     else:
                         message = f"Target already exists: {target_path}"
-                        raise RuntimeError(message) from exception
+                        raise FileExistsError(message) from exception
                 else:
                     target_path.create_parent()
                 target_path = self.__class__(shutil.move(self, target_path))

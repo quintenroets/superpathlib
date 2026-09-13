@@ -1,4 +1,5 @@
 from collections.abc import Iterator
+from typing import cast
 from unittest.mock import patch
 
 import pytest
@@ -27,6 +28,11 @@ def provision_directory(*, in_memory: bool = False) -> Iterator[Path]:
     assert not path.exists()
 
 
+@pytest.fixture(params=[False, True], ids=["same_filesystem", "in_memory"])
+def in_memory(request: pytest.FixtureRequest) -> bool:
+    return cast("bool", request.param)
+
+
 @pytest.fixture
 def path() -> Iterator[Path]:
     yield from provision_path()
@@ -38,8 +44,8 @@ def path2() -> Iterator[Path]:
 
 
 @pytest.fixture
-def in_memory_path() -> Iterator[Path]:
-    yield from provision_path(in_memory=True)
+def target_path(*, in_memory: bool) -> Iterator[Path]:
+    yield from provision_path(in_memory=in_memory)
 
 
 @pytest.fixture
@@ -53,8 +59,8 @@ def directory2() -> Iterator[Path]:
 
 
 @pytest.fixture
-def in_memory_directory() -> Iterator[Path]:
-    yield from provision_directory(in_memory=True)
+def target_directory(*, in_memory: bool) -> Iterator[Path]:
+    yield from provision_directory(in_memory=in_memory)
 
 
 @pytest.fixture

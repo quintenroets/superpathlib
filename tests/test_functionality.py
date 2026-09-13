@@ -1,4 +1,5 @@
 import os
+import re
 from collections.abc import Callable
 
 import pytest
@@ -99,12 +100,11 @@ def test_move(path: Path, path2: Path, content: bytes) -> None:
 
 @ignore_fixture_warning
 @Given.bytes
-def test_move_existing(path: Path, path2: Path, content: bytes) -> None:
+def test_move_existing(path: Path, target_path: Path, content: bytes) -> None:
     path.byte_content = content
-    path2.byte_content = content
-    path.rename(path2)
-
-    assert_moved(path, path2, content)
+    target_path.byte_content = content
+    path.rename(target_path, exist_ok=True)
+    assert_moved(path, target_path, content)
 
 
 @ignore_fixture_warning
@@ -125,31 +125,35 @@ def test_move_parent_not_existing(
 
 @slower_test_settings
 @Given.bytes
-def test_move_directory(directory: Path, directory2: Path, content: bytes) -> None:
+def test_move_directory(
+    directory: Path,
+    target_directory: Path,
+    content: bytes,
+) -> None:
     filename = directory.name
     subpath = directory / filename
     subpath.byte_content = content
 
     content_hash = directory.content_hash
-    directory2.rmtree()
+    target_directory.rmtree()
 
-    directory.rename(directory2)
+    directory.rename(target_directory)
 
     assert directory.is_empty()
-    assert directory2.content_hash == content_hash
+    assert target_directory.content_hash == content_hash
 
 
 @ignore_fixture_warning
 @Given.bytes
 def test_move_directory_existing(
     directory: Path,
-    directory2: Path,
+    target_directory: Path,
     content: bytes,
 ) -> None:
     def move_function() -> None:
-        directory.rename(directory2, exist_ok=True)
+        directory.rename(target_directory, exist_ok=True)
 
-    verify_move_existing(move_function, directory, directory2, content)
+    verify_move_existing(move_function, directory, target_directory, content)
 
 
 @ignore_fixture_warning
@@ -165,51 +169,11 @@ def test_replace_directory_existing(
     verify_move_existing(move_function, directory, directory2, content)
 
 
-@ignore_fixture_warning
-@Given.bytes
-def test_move_directory_different_filesystem(
-    directory: Path,
-    in_memory_directory: Path,
-    content: bytes,
-) -> None:
-    filename = directory.name
-    subpath = directory / filename
-    subpath.byte_content = content
-
-    content_hash = directory.content_hash
-    in_memory_directory.rmtree()
-    directory.rename(in_memory_directory)
-
-    in_memory_directory / filename
-    assert directory.is_empty()
-    assert in_memory_directory.content_hash == content_hash
-
-
-@ignore_fixture_warning
-@Given.bytes
-def test_move_directory_existing_different_filesystem(
-    directory: Path,
-    in_memory_directory: Path,
-    content: bytes,
-) -> None:
-    def move_function() -> None:
-        directory.rename(in_memory_directory, exist_ok=True)
-
-    verify_move_existing(
-        move_function,
-        directory,
-        in_memory_directory,
-        content,
-        expected_existing_error=Exception,
-    )
-
-
 def verify_move_existing(
     move_function: Callable[[], None],
     directory: Path,
     directory2: Path,
     content: bytes,
-    expected_existing_error: type[Exception] = OSError,
 ) -> None:
     filename = directory.name
     subpath = directory / filename
@@ -217,7 +181,7 @@ def verify_move_existing(
     for test_subpath in (subpath, subpath2):
         test_subpath.byte_content = content
 
-    with pytest.raises(expected_existing_error):
+    with pytest.raises(OSError, match=re.escape(str(directory2))):
         directory.rename(directory2)
 
     content_hash = directory.content_hash

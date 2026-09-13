@@ -29,7 +29,6 @@ class Strategies:
 
 class Given:
     bytes = given(content=strategies.binary())
-    text = given(content=Strategies.text)
     lines = given(content=Strategies.lines)
 
 

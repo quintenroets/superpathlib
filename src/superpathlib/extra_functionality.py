@@ -52,13 +52,10 @@ class Path(content_properties.Path):
 
     @property
     def encrypted(self) -> "EncryptedPath":
-        # imports optional dependency
         from .encrypted import EncryptedPath
 
-        path = self
-        encryption_suffix = ".gpg"
-        if path.suffix != encryption_suffix:
-            path = path.with_suffix(path.suffix + encryption_suffix)
+        suffix = ".gpg"
+        path = self if self.suffix == suffix else self.with_suffix(self.suffix + suffix)
         return EncryptedPath(path)
 
     @cached_property

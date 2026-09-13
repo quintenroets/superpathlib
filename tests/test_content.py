@@ -5,7 +5,7 @@ from typing import Any, NamedTuple
 
 import numpy as np
 import pytest
-from hypothesis import given, strategies
+from hypothesis import given, settings, strategies
 from hypothesis.strategies import SearchStrategy
 
 from superpathlib import Path
@@ -22,6 +22,12 @@ class ContentProperty(NamedTuple):
     def getter(self) -> str:
         return self.getter_override or self.setter
 
+    def verify_round_trip(self, path: Path, data: strategies.DataObject) -> None:
+        content = data.draw(self.strategy)
+        setattr(path, self.setter, content)
+        result = getattr(path, self.getter)
+        assert self.equals(result, content)
+
 
 def equals_split_lines(result: list[str], content: list[str]) -> bool:
     return result == "\n".join(content).splitlines()
@@ -33,8 +39,7 @@ def equals_non_empty(result: list[str], content: list[str]) -> bool:
 
 equals_numpy = partial(np.array_equal, equal_nan=True)
 
-
-@pytest.mark.parametrize(
+parametrize_content_properties = pytest.mark.parametrize(
     "content_property",
     [
         ContentProperty("byte_content", strategies.binary()),
@@ -48,6 +53,9 @@ equals_numpy = partial(np.array_equal, equal_nan=True)
     ],
     ids=lambda property_: f"{property_.setter}_to_{property_.getter}",
 )
+
+
+@parametrize_content_properties
 @slower_test_settings
 @given(data=strategies.data())
 def test_content_property(
@@ -55,17 +63,45 @@ def test_content_property(
     content_property: ContentProperty,
     data: strategies.DataObject,
 ) -> None:
-    content = data.draw(content_property.strategy)
-    setattr(path, content_property.setter, content)
-    result = getattr(path, content_property.getter)
-    assert content_property.equals(result, content)
+    content_property.verify_round_trip(path, data)
+
+
+@parametrize_content_properties
+@settings(slower_test_settings, max_examples=2, deadline=3000)
+@given(data=strategies.data())
+def test_encrypted_content_property(
+    encrypted_path: Path,
+    content_property: ContentProperty,
+    data: strategies.DataObject,
+) -> None:
+    content_property.verify_round_trip(encrypted_path, data)
+
+
+def test_content_encrypted_on_disk(encrypted_path: Path) -> None:
+    content = b"content"
+    encrypted_path.byte_content = content
+    assert Path(encrypted_path).byte_content != content
+
+
+def test_no_double_extension(encrypted_path: Path) -> None:
+    assert encrypted_path.encrypted == encrypted_path
+
+
+@pytest.mark.parametrize("mode", ["w", "wb"])
+def test_failed_encrypted_write_keeps_content(encrypted_path: Path, mode: str) -> None:
+    content = "content"
+    encrypted_path.text = content
+    with pytest.raises(RuntimeError), encrypted_path.open(mode):
+        raise RuntimeError
+    assert encrypted_path.text == content
 
 
 def test_missing_content(path: Path) -> None:
     path.unlink()
-    assert path.text == ""
-    assert path.yaml is None
-    assert path.json is None
+    for missing_path in (path, path.encrypted):
+        assert missing_path.text == ""
+        assert missing_path.yaml is None
+        assert missing_path.json is None
 
 
 @pytest.fixture

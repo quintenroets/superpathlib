@@ -2,9 +2,9 @@ import shutil
 from functools import cached_property
 from typing import Generic, TypeVar, cast
 
-from . import extra_functionality
+from .extra_functionality import Path
 
-P = TypeVar("P", bound=extra_functionality.Path)
+P = TypeVar("P", bound=Path)
 
 
 class Archive(Generic[P]):

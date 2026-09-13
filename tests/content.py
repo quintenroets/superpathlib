@@ -1,31 +1,36 @@
-from typing import Final
-
 from hypothesis import HealthCheck, given, settings, strategies
+from hypothesis.extra import numpy
+from hypothesis.strategies import SearchStrategy
 
-blacklist_categories: Final = ("Cc", "Cs", "Zs")
-alphabet = strategies.characters(blacklist_categories=blacklist_categories)
-dictionary_strategy = strategies.dictionaries(
-    keys=strategies.text(),
-    values=strategies.text(),
+Content = dict[str, "Content"] | list["Content"] | str | int | float | bool | None
+
+alphabet = strategies.characters(exclude_categories=("Cc", "Cs", "Zl", "Zp"))
+
+scalars = (
+    strategies.none()
+    | strategies.booleans()
+    | strategies.integers()
+    | strategies.floats(allow_nan=False)
+    | strategies.text()
 )
+
+
+def nesting_strategy(children: SearchStrategy[Content]) -> SearchStrategy[Content]:
+    dictionaries = strategies.dictionaries(strategies.text(), children)
+    return strategies.lists(children) | dictionaries
 
 
 class Strategies:
     text = strategies.text(alphabet=alphabet)
     lines = strategies.lists(text)
-    floats = strategies.lists(strategies.floats())
-    dictionaries = strategies.dictionaries(
-        keys=strategies.text(),
-        values=dictionary_strategy,
-    )
+    arrays = numpy.arrays(numpy.scalar_dtypes(), numpy.array_shapes(min_dims=0))
+    serializable = strategies.recursive(scalars, nesting_strategy)
 
 
 class Given:
     bytes = given(content=strategies.binary())
     text = given(content=Strategies.text)
     lines = given(content=Strategies.lines)
-    floats = given(content=Strategies.floats)
-    dictionaries = given(content=Strategies.dictionaries)
 
 
 suppressed_health_checks = (HealthCheck.function_scoped_fixture,)

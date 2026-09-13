@@ -1,70 +1,68 @@
+import operator
+from collections.abc import Callable
+from functools import partial
+from typing import Any, NamedTuple
+
 import numpy as np
+import pytest
+from hypothesis import given, strategies
+from hypothesis.strategies import SearchStrategy
 
 from superpathlib import Path
-from tests.content import Given, slower_test_settings
-from tests.utils import ignore_fixture_warning
+from tests.content import Strategies, slower_test_settings
 
 
-@ignore_fixture_warning
-@Given.bytes
-def test_bytes(path: Path, content: bytes) -> None:
-    assert isinstance(Path.byte_content, property)
-    path.byte_content = content
-    assert path.byte_content == content
+class ContentProperty(NamedTuple):
+    setter: str
+    strategy: SearchStrategy[Any]
+    equals: Callable[[Any, Any], bool] = operator.eq
+    getter_override: str | None = None
+
+    @property
+    def getter(self) -> str:
+        return self.getter_override or self.setter
+
+    @property
+    def id(self) -> str:
+        return f"{self.setter}_to_{self.getter or self.setter}"
 
 
-@ignore_fixture_warning
-@Given.text
-def test_text(path: Path, content: str) -> None:
-    assert isinstance(Path.text, property)
-    path.text = content
-    assert path.text == content
+def equals_split_lines(result: list[str], content: list[str]) -> bool:
+    return result == "\n".join(content).splitlines()
 
 
-@ignore_fixture_warning
-@Given.lines
-def test_lines(path: Path, content: list[str]) -> None:
-    assert isinstance(Path.lines, property)
-    path.lines = content
-    assert path.lines == "\n".join(content).splitlines()
+def equals_non_empty(result: list[str], content: list[str]) -> bool:
+    return result == [line for line in content if line]
 
 
-@ignore_fixture_warning
-@Given.lines
-def test_content_lines(path: Path, content: list[str]) -> None:
-    assert isinstance(Path.lines, property)
-    path.lines = content
-    while content and not content[-1].strip():
-        content.pop(-1)
-    text_lines = [line for line in content if line]
-    assert path.content_lines == text_lines
+equals_numpy = partial(np.array_equal, equal_nan=True)
 
 
-@ignore_fixture_warning
-@Given.lines
-def test_content_lines_setter(path: Path, content: list[str]) -> None:
-    assert isinstance(Path.lines, property)
-    path.content_lines = content
-    while content and not content[-1].strip():
-        content.pop(-1)
-    text_lines = [line for line in content if line]
-    assert path.content_lines == text_lines
-
-
+@pytest.mark.parametrize(
+    "content_property",
+    [
+        ContentProperty("byte_content", strategies.binary()),
+        ContentProperty("text", Strategies.text),
+        ContentProperty("json", Strategies.serializable),
+        ContentProperty("yaml", Strategies.serializable),
+        ContentProperty("lines", Strategies.lines, equals_split_lines),
+        ContentProperty("numpy", Strategies.arrays, equals_numpy),
+        ContentProperty("lines", Strategies.lines, equals_non_empty, "content_lines"),
+        ContentProperty("content_lines", Strategies.lines, equals_non_empty, "lines"),
+    ],
+    ids=operator.attrgetter("id"),
+)
 @slower_test_settings
-@Given.dictionaries
-def test_json(path: Path, content: dict[str, dict[str, str]]) -> None:
-    assert isinstance(Path.json, property)
-    path.json = content
-    assert path.json == content
-
-
-@slower_test_settings
-@Given.dictionaries
-def test_yaml(path: Path, content: dict[str, dict[str, str]]) -> None:
-    assert isinstance(Path.yaml, property)
-    path.yaml = content
-    assert path.yaml == content
+@given(data=strategies.data())
+def test_content_property(
+    path: Path,
+    content_property: ContentProperty,
+    data: strategies.DataObject,
+) -> None:
+    content = data.draw(content_property.strategy)
+    setattr(path, content_property.setter, content)
+    result = getattr(path, content_property.getter)
+    assert content_property.equals(result, content)
 
 
 def test_missing_content(path: Path) -> None:
@@ -72,12 +70,3 @@ def test_missing_content(path: Path) -> None:
     assert path.text == ""
     assert path.yaml is None
     assert path.json is None
-
-
-@slower_test_settings
-@Given.floats
-def test_numpy(path: Path, content: list[float]) -> None:
-    assert isinstance(Path.numpy, property)
-    numpy_content = np.array(content)
-    path.numpy = numpy_content
-    assert np.array_equal(path.numpy, numpy_content, equal_nan=True)

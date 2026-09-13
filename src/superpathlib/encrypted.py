@@ -1,45 +1,79 @@
+import io
 import subprocess
 from functools import cache
-from typing import Any
+from types import TracebackType
+from typing import IO, Any, cast
 
 from package_utils.secrets_ import load_secret
 
-from . import extra_functionality
+from .path import Path
 
 
-class EncryptedPath(extra_functionality.Path):
-    def read_bytes(self) -> bytes:
-        encrypted_bytes = super().read_bytes()
-        return run_gpg(encrypted_bytes) if encrypted_bytes else encrypted_bytes
-
-    def write_bytes(self, data: bytes) -> int:  # type: ignore[override]
-        encrypted_data = run_gpg(data, "-c")
-        return super().write_bytes(encrypted_data)
-
-    def read_text(
+class EncryptedPath(Path):
+    def open(  # type: ignore[override]
         self,
-        encoding: str | None = None,  # noqa: ARG002
-        errors: str | None = None,  # noqa: ARG002
-        newline: str | None = None,  # noqa: ARG002
-    ) -> str:
-        return self.read_bytes().decode()
+        mode: str = "r",
+        buffering: int = -1,  # noqa: ARG002
+        encoding: str | None = None,
+        errors: str | None = None,
+        newline: str | None = None,
+    ) -> IO[Any]:
+        access = mode.replace("b", "").replace("t", "")
+        writing = {"r": False, "w": True}[access]
+        buffer = EncryptedFile(Path(self), writing=writing)
+        return (
+            buffer
+            if "b" in mode
+            else EncryptedTextFile(buffer, encoding, errors, newline)
+        )
 
-    def write_text(self, data: str, **_: Any) -> int:  # type: ignore[override]
-        byte_data = data.encode()
-        return self.write_bytes(byte_data)
+
+class EncryptedFile(io.BytesIO):
+    def __init__(self, path: Path, *, writing: bool) -> None:
+        self.path = path
+        self.writing = writing
+        plaintext = b"" if writing else run_gpg(path.read_bytes(), "--decrypt")
+        super().__init__(plaintext)
+
+    def __exit__(
+        self,
+        exception_type: type[BaseException] | None,
+        exception: BaseException | None,
+        traceback: TracebackType | None,
+    ) -> None:
+        self.cancel_write_if_failed(exception_type)
+        super().__exit__(exception_type, exception, traceback)
+
+    def cancel_write_if_failed(
+        self,
+        exception_type: type[BaseException] | None,
+    ) -> None:
+        self.writing &= exception_type is None
+
+    def close(self) -> None:
+        if not self.closed and self.writing:
+            self.path.write_bytes(run_gpg(self.getvalue(), "--symmetric"))
+        super().close()
+
+
+class EncryptedTextFile(io.TextIOWrapper):
+    def __exit__(
+        self,
+        exception_type: type[BaseException] | None,
+        exception: BaseException | None,
+        traceback: TracebackType | None,
+    ) -> None:
+        cast("EncryptedFile", self.buffer).cancel_write_if_failed(exception_type)
+        super().__exit__(exception_type, exception, traceback)
 
 
 def run_gpg(data: bytes, *options: str) -> bytes:
-    passphrase = load_password()
-    command = "gpg", "--passphrase", passphrase, "--batch", "--quiet", "--yes", *options
-    process = subprocess.Popen(  # noqa: S603
-        command,
-        stdin=subprocess.PIPE,
-        stdout=subprocess.PIPE,
-    )
-    return process.communicate(input=data)[0]
+    command = ("gpg", "--passphrase-fd", "0", "--batch", "--quiet", *options)
+    input_ = f"{load_passphrase()}\n".encode() + data
+    process = subprocess.run(command, input=input_, stdout=subprocess.PIPE, check=True)  # noqa: S603
+    return process.stdout
 
 
 @cache
-def load_password() -> str:
+def load_passphrase() -> str:
     return load_secret("file encryption password")

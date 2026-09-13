@@ -40,10 +40,14 @@ path = Path(filename)
 read-only:
 * cached_yaml: yaml content, cached as json next to the file
 
+gpg-encrypted on disk:
+* encrypted: prefix any of the above to read & write plaintext (e.g. `path.encrypted.json`)
+
 examples:
 
 ```shell
 path.json = {key: value}
+path.encrypted.json = {key: secret}
 
 for line in path.lines:
     if interesting(line):

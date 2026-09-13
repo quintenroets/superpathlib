@@ -64,7 +64,7 @@ def target_directory(*, in_memory: bool) -> Iterator[Path]:
 
 
 @pytest.fixture
-def encryption_path(path: Path) -> Iterator[EncryptedPath]:
-    with path.encrypted as encryption_path:
-        yield encryption_path
-    assert not encryption_path.exists()
+def encrypted_path(path: Path) -> Iterator[EncryptedPath]:
+    with path.encrypted as encrypted_path:
+        yield encrypted_path
+    assert not encrypted_path.exists()

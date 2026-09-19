@@ -76,4 +76,4 @@ def run_gpg(data: bytes, *options: str) -> bytes:
 
 @cache
 def load_passphrase() -> str:
-    return load_secret("file encryption password")
+    return load_secret("file encryption")

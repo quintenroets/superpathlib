@@ -10,7 +10,7 @@ from superpathlib.encrypted import EncryptedPath
 
 @pytest.fixture(autouse=True, scope="session")
 def encryption_password() -> Iterator[None]:
-    with patch.dict("os.environ", {"FILE_ENCRYPTION_PASSWORD": "test_password"}):
+    with patch.dict("os.environ", {"FILE_ENCRYPTION": "test_password"}):
         yield
 
 
